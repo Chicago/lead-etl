@@ -10,3 +10,5 @@ psql/output/ward_year <- output/ward_year.sql, psql/aux/ward_tests, psql/aux/war
 psql/output/kid_addresses <- output/kid_addresses.sql, psql/aux/tests_geocoded, psql/aux/addresses, psql/aux/kids [method:psql]
 
 psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/aux/assessor_summary [method:psql]
+
+psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/inspections, psql/aux/inspection_addresses [method:psql]
