@@ -44,6 +44,3 @@ assessor = {
     'avg_residential_age' : {'numerator': (lambda a: a.age.where(a.residential) ), 'func':'mean'},
     'avg_non_residential_age' : {'numerator': (lambda a: a.age.where(~a.residential) ), 'func':'mean'}
 }
-
-for i in range(10):
-    assessor['class_type_' + str(i)] = {'numerator': ( lambda a: a.class_types.apply(lambda c: str(i) in c) ), 'denominator': 1}
