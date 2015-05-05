@@ -21,6 +21,7 @@ select
         t.minmax test_minmax,
         t.min test_min,
         t.test_number,
+        t.sample_type,
         
         k.minmax_test_number,
         k.minmax_bll,
