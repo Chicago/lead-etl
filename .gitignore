@@ -4,6 +4,8 @@ model/output
 *.pyc
 drake.log
 default_profile
+acs_profile
+*.bak
 data
 psql
 *.ipynb

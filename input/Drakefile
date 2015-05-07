@@ -44,10 +44,26 @@ data/surnames/surnames.csv <- input/surnames.sh, data/surnames/app_c.csv
 
 psql/input/surnames <- input/surnames.sql, data/surnames/surnames.csv [method:psql]
 
-acs_import()
-	input/acs/create_table.sh $[INPUT] | psql -v ON_ERROR_STOP=1 && input/acs/copy.sh $[INPUT] && touch $OUTPUT
-	
-psql/input/acs_13_5yr_dp02 <- data/acs/ACS_13_5YR_DP02_with_ann.csv, input/acs/create_table.sh, input/acs/copy.sh [method:acs_import]
-psql/input/acs_13_5yr_dp03 <- data/acs/ACS_13_5YR_DP03_with_ann.csv, input/acs/create_table.sh, input/acs/copy.sh [method:acs_import]
-psql/input/acs_13_5yr_dp04 <- data/acs/ACS_13_5YR_DP04_with_ann.csv, input/acs/create_table.sh, input/acs/copy.sh [method:acs_import]
-psql/input/acs_13_5yr_dp05 <- data/acs/ACS_13_5YR_DP05_with_ann.csv, input/acs/create_table.sh, input/acs/copy.sh [method:acs_import]
+wget_acs()
+    mkdir -p $(dirname $OUTPUT)
+    cd $(dirname $OUTPUT)
+    z=$((year-4)) 
+    URL="http://www2.census.gov/acs"$year"_5yr/summaryfile/"$z"-"$year"_ACSSF_By_State_All_Tables/Illinois_Tracts_Block_Groups_Only.zip"
+    wget $URL
+
+%include acs_profile
+$(for y in {2009..2013}; do
+
+echo "year=$y"
+echo "data/acssf/acs"$y"_5yr/Illinois_Tracts_Block_Groups_Only.zip <- [-timecheck method:wget_acs]"
+
+echo "data/acssf/acs"$y"_5yr/data/ <- data/acssf/acs"$y"_5yr/Illinois_Tracts_Block_Groups_Only.zip [-timecheck]"
+echo "    unzip \$INPUT -d \$OUTPUT"
+
+echo "input/acs/generated/acs"$y"_5yr/import.sql <- data/census-postgres/acs"$y"_5yr/, data/acssf/acs"$y"_5yr/data/, input/acs/census_postgres.sh"
+echo "    input/acs/census_postgres.sh \$INPUT0 \$INPUT1 input/acs/generated/acs"$y"_5yr/"
+
+echo "psql/acs"$y"_5yr <- input/acs/generated/acs"$y"_5yr/import.sql [method:psql]"
+
+done)
+%include $[PROFILE]
