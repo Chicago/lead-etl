@@ -68,12 +68,12 @@ psql/input/buildings <- input/buildings.sh, data/shapefiles/buildings/data/Build
 
 ; download and import building-permit data
 data/building_permits.csv <- [-timecheck]
-	wget -O- https://data.cityofchicago.org/api/views/ydr8-5enu/rows.csv?accessType=DOWNLOAD | sed 's/\$//g' > $OUTPUT
+	wget -O- "https://data.cityofchicago.org/api/views/ydr8-5enu/rows.csv?accessType=DOWNLOAD" | sed 's/\$//g' > $OUTPUT
 psql/input/building_permits <- input/building_permits.sql, data/building_permits.csv [method:psql]
 
 ; download and import building-violations data
 data/building_violations.csv <- [-timecheck]
-	wget -O- https://data.cityofchicago.org/api/views/22u3-xenr/rows.csv?accessType=DOWNLOAD | sed 's/, ,/,,/g' > $OUTPUT
+	wget -O- "https://data.cityofchicago.org/api/views/22u3-xenr/rows.csv?accessType=DOWNLOAD" | sed 's/, ,/,,/g' > $OUTPUT
 psql/input/building_violations <- input/building_violations.sql, data/building_violations.csv [method:psql]
 
 wget_acs()
