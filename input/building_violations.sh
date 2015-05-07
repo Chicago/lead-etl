@@ -1,6 +1,6 @@
 #!/bin/bash
 
-file=/glusterfs/users/erozier/data/Building_Violations.csv
+file=$1
 
 psql -c "
 drop table if exists input.building_violations;
@@ -31,4 +31,3 @@ create table input.building_violations (
 );"
 
 sed 's/, ,/,,/g' $file | psql -c "\copy input.building_violations from stdin with csv header;"
-

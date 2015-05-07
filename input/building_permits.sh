@@ -1,6 +1,6 @@
 #!/bin/bash
 
-file=/glusterfs/users/erozier/data/Building_Permits.csv
+file=$1
 
 psql -c "
 	drop table if exists input.building_permits;
@@ -139,4 +139,4 @@ psql -c "
 	location varchar(40)
 );"
 
-	sed 's/\$//g' $file | psql -c "\copy input.building_permits from stdin with csv header;"
+sed 's/\$//g' $file | psql -c "\copy input.building_permits from stdin with csv header;"

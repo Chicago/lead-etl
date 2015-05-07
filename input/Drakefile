@@ -33,6 +33,12 @@ psql/input/community_areas <- data/shapefiles/community_areas/CommAreas.shp [met
 psql/input/assessor <- input/assessor.sh
     $INPUT $ASSESSOR_FILE
 
+psql/input/building_permits <- input/building_permits.sh
+	$INPUT $BUILDING_PERMIT_FILE
+
+psql/input/building_violations <- input/building_violations.sh
+	$INPUT $BUILDING_VIOLATION_FILE
+
 ;psql/input/tests <- input/tests.sh
 ;	$[INPUT] && touch $[OUTPUT]
 	
