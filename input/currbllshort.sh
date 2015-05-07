@@ -1,6 +1,6 @@
 #!/bin/bash
 
-file="/glusterfs/Results_Job25880_currbllshort"
+file=$1
 
 psql -c "
     DROP TABLE IF EXISTS input.currbllshort; 

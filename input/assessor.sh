@@ -1,6 +1,6 @@
 #!/bin/bash
 
-file="/glusterfs/users/erozier/data/assessor.mdb"
+file=$1
 
 # create table in input schema, call it assessor, replace col spaces with underscores
 mdb-schema -N input $file postgres | 

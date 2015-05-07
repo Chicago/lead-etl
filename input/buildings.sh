@@ -1,9 +1,8 @@
 #!/bin/bash
 
-git clone https://github.com/Chicago/osd-building-footprints
-unzip data/Buildings.zip
+file=$1
 
-ogr2ogr -t_srs EPSG:4326 -f PostgreSQL PG:"host=$PGHOST user=$PGUSER password=$PGPASSWORD dbname=$PGDATABASE" Buildings.json -lco "schema=input" -nln buildings
+ogr2ogr -t_srs EPSG:4326 -f PostgreSQL PG:"host=$PGHOST user=$PGUSER password=$PGPASSWORD dbname=$PGDATABASE" $file -lco "schema=input" -nln buildings
 
 # fix building condition
 psql -c "

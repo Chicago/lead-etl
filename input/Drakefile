@@ -3,21 +3,35 @@ import_shapefile()
 	# get table name from output, e.g. change $BASE/psql/input/wards gives input.wards
 	TABLENAME=$(echo $OUTPUT | sed 's/.*psql\///;s/\//./') 
 	# ogr2ogr doesn't like an existing file
-	rm "$BASENAME"4326.*
+	rm -f "$BASENAME"4326.*
 	ogr2ogr -t_srs EPSG:4326 "$BASENAME"4326.shp $INPUT
 	# -q suppresses query output which for large shapefiles seems to slow down the import
 	shp2pgsql -I -D -d -s 4326 "$BASENAME"4326.shp $TABLENAME | psql -q
 	touch $OUTPUT
 
-psql/input/wards <- data/wards/Wards.shp [method:import_shapefile]
+wget_unzip()
+    mkdir -p $(dirname $OUTPUT)
+    wget --output-document=$(dirname $OUTPUT)/download.zip "$URL"
+    unzip -o $(dirname $OUTPUT)/download.zip -d $(dirname $OUTPUT)
 
-psql/input/census_tracts <- data/census_tracts/CensusTractsTIGER2010.shp [method:import_shapefile]
+URL="https://data.cityofchicago.org/api/geospatial/sp34-6z76?method=export&format=Shapefile"
+data/shapefiles/wards/WARDS_2015.shp <- [-timecheck method:wget_unzip]
+psql/input/wards <- data/shapefiles/wards/WARDS_2015.shp [method:import_shapefile]
+
+URL="https://data.cityofchicago.org/api/geospatial/5jrd-6zik?method=export&format=Shapefile"
+data/shapefiles/census_tracts/CensusTractsTIGER2010.shp <- [-timecheck method:wget_unzip]
+psql/input/census_tracts <- data/shapefiles/census_tracts/CensusTractsTIGER2010.shp [method:import_shapefile]
 	
-; from https://datacatalog.cookcountyil.gov/GIS-Maps/ccgisdata-Address-Point-Chicago/jev2-4wjs
-psql/input/addresses <- data/addresses/addressPointChi.shp [method:import_shapefile]
+URL="https://datacatalog.cookcountyil.gov/api/geospatial/jev2-4wjs?method=export&format=Shapefile"
+data/shapefiles/addresses/addressPointChi.shp <- [-timecheck method:wget_unzip]
+psql/input/addresses <- data/shapefiles/addresses/addressPointChi.shp [method:import_shapefile]
 
-; https://data.cityofchicago.org/Facilities-Geographic-Boundaries/Boundaries-Community-Areas-current-/cauq-8yn6
-psql/input/community_areas <- data/community_areas/CommAreas.shp [method:import_shapefile]
+URL="https://data.cityofchicago.org/api/geospatial/cauq-8yn6?method=export&format=Shapefile"
+data/shapefiles/community_areas/CommAreas.shp <- [-timecheck method:wget_unzip]
+psql/input/community_areas <- data/shapefiles/community_areas/CommAreas.shp [method:import_shapefile]
+
+psql/input/assessor <- input/assessor.sh
+    $INPUT $ASSESSOR_FILE
 
 ;psql/input/tests <- input/tests.sh
 ;	$[INPUT] && touch $[OUTPUT]
@@ -25,10 +39,10 @@ psql/input/community_areas <- data/community_areas/CommAreas.shp [method:import_
 psql/input/currbllshort <- input/currbllshort.sh
 	# psql \copy doesn't like "" as null for non-text
 	# currbllshort has duplicates, use uniq
-	sed 's/""//g' /glusterfs/Results_Job25880_currbllshort | uniq | $[INPUT] && touch $[OUTPUT]
+	sed 's/""//g' $CURRBLLSHORT_FILE | uniq | $INPUT && touch $OUTPUT
 	
 psql/input/inspections <- input/inspections.sh
-	$[INPUT] && touch $[OUTPUT]
+	$INPUT $INSPECTIONS_FILE && touch $OUTPUT
 
 ; documentation: http://www2.census.gov/topics/genealogy/2000surnames/surnames.pdf
 data/surnames/names.zip <- [-timecheck]
@@ -39,10 +53,18 @@ data/surnames/app_c.csv <- data/surnames/names.zip
 	unzip -o $INPUT -d `dirname $OUTPUT` && touch $OUTPUT # update timestamp
 
 ; remove suprressed values
-data/surnames/surnames.csv <- input/surnames.sh, data/surnames/app_c.csv
-     cat $[INPUT1] | $[INPUT0] > $[OUTPUT]
+data/surnames/surnames.csv <- data/surnames/app_c.csv
+     cat $INPUT | sed 's/(S)//g' > $OUTPUT
 
 psql/input/surnames <- input/surnames.sql, data/surnames/surnames.csv [method:psql]
+
+; download, unzip, and import buildings data
+data/shapefiles/buildings/data/Buildings.zip <- [-timecheck]
+    git clone https://github.com/Chicago/osd-building-footprints $(dirname $OUTPUT)/..
+data/shapefiles/buildings/data/Buildings.json <- data/shapefiles/buildings/data/Buildings.zip
+    unzip $INPUT -d $(dirname $OUTPUT)
+psql/input/buildings <- input/buildings.sh, data/shapefiles/buildings/data/Buildings.json
+    $INPUT $INPUT1 && touch $OUTPUT
 
 wget_acs()
     mkdir -p $(dirname $OUTPUT)

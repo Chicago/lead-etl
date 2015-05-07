@@ -1,4 +1,4 @@
-file=/glusterfs/users/erozier/data/inspections_dataset_for_DSSG_all_CLO.csv
+file=$1
 
 psql -v ON_ERROR_STOP=1 -c "
     DROP TABLE IF EXISTS input.inspections; 
