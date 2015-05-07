@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source ../default_profile
-
 file=/glusterfs/users/erozier/data/Building_Permits.csv
 
 psql -c "
