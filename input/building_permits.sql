@@ -1,11 +1,6 @@
-#!/bin/bash
+drop table if exists input.building_permits;
 
-file=$1
-
-psql -c "
-	drop table if exists input.building_permits;
-
-	create table input.building_permits (
+create table input.building_permits (
 	id integer not null, 
 	permit_number varchar(9) not null, 
 	permit_type varchar(30) not null, 
@@ -137,6 +132,6 @@ psql -c "
 	latitude float, 
 	longitude float, 
 	location varchar(40)
-);"
+);
 
-sed 's/\$//g' $file | psql -c "\copy input.building_permits from stdin with csv header;"
+ copy input.building_permits from 'data/building_permits.csv' with csv header;

@@ -1,8 +1,3 @@
-#!/bin/bash
-
-file=$1
-
-psql -c "
 drop table if exists input.building_violations;
 
 create table input.building_violations (
@@ -28,6 +23,6 @@ create table input.building_violations (
 	latitude float, 
 	longitude float, 
 	location varchar(39)
-);"
+);
 
-sed 's/, ,/,,/g' $file | psql -c "\copy input.building_violations from stdin with csv header;"
+copy input.building_violations from 'data/building_violations.csv' with csv header;
