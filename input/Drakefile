@@ -10,28 +10,28 @@ import_shapefile()
 	touch $OUTPUT
 
 wget_unzip()
-    mkdir -p $(dirname $OUTPUT)
-    wget --output-document=$(dirname $OUTPUT)/download.zip "$URL"
-    unzip -o $(dirname $OUTPUT)/download.zip -d $(dirname $OUTPUT)
+    mkdir -p $(dirname $OUTPUT0)
+    wget --output-document="$OUTPUT0" "$URL"
+    unzip -o "$OUTPUT0" -d $(dirname $OUTPUT1)
 
 URL="https://data.cityofchicago.org/api/geospatial/sp34-6z76?method=export&format=Shapefile"
-data/shapefiles/wards/WARDS_2015.shp <- [-timecheck method:wget_unzip]
+data/shapefiles/wards.zip, data/shapefiles/wards/WARDS_2015.shp <- [-timecheck method:wget_unzip]
 psql/input/wards <- data/shapefiles/wards/WARDS_2015.shp [method:import_shapefile]
 
 URL="https://data.cityofchicago.org/api/geospatial/5jrd-6zik?method=export&format=Shapefile"
-data/shapefiles/census_tracts/CensusTractsTIGER2010.shp <- [-timecheck method:wget_unzip]
+data/shapefiles/census_tracts.zip, data/shapefiles/census_tracts/CensusTractsTIGER2010.shp <- [-timecheck method:wget_unzip]
 psql/input/census_tracts <- data/shapefiles/census_tracts/CensusTractsTIGER2010.shp [method:import_shapefile]
 	
 URL="https://datacatalog.cookcountyil.gov/api/geospatial/jev2-4wjs?method=export&format=Shapefile"
-data/shapefiles/addresses/addressPointChi.shp <- [-timecheck method:wget_unzip]
+data/shapefiles/addresses.zip, data/shapefiles/addresses/addressPointChi.shp <- [-timecheck method:wget_unzip]
 psql/input/addresses <- data/shapefiles/addresses/addressPointChi.shp [method:import_shapefile]
 
 URL="https://data.cityofchicago.org/api/geospatial/cauq-8yn6?method=export&format=Shapefile"
-data/shapefiles/community_areas/CommAreas.shp <- [-timecheck method:wget_unzip]
+data/shapefiles/community_areas.zip, data/shapefiles/community_areas/CommAreas.shp <- [-timecheck method:wget_unzip]
 psql/input/community_areas <- data/shapefiles/community_areas/CommAreas.shp [method:import_shapefile]
 
 psql/input/assessor <- input/assessor.sh
-    $INPUT $ASSESSOR_FILE
+    $INPUT $ASSESSOR_FILE && touch $OUTPUT
 
 ;psql/input/tests <- input/tests.sh
 ;	$[INPUT] && touch $[OUTPUT]
@@ -60,9 +60,11 @@ psql/input/surnames <- input/surnames.sql, data/surnames/surnames.csv [method:ps
 
 ; download, unzip, and import buildings data
 data/shapefiles/buildings/data/Buildings.zip <- [-timecheck]
-    git clone https://github.com/Chicago/osd-building-footprints $(dirname $OUTPUT)/..
-data/shapefiles/buildings/data/Buildings.json <- data/shapefiles/buildings/data/Buildings.zip
+    git clone https://github.com/Chicago/osd-building-footprints $(dirname $(dirname $OUTPUT))
+
+data/shapefiles/buildings/data/Buildings.json <- data/shapefiles/buildings/data/Buildings.zip [-timecheck]
     unzip $INPUT -d $(dirname $OUTPUT)
+
 psql/input/buildings <- input/buildings.sh, data/shapefiles/buildings/data/Buildings.json
     $INPUT $INPUT1 && touch $OUTPUT
 
@@ -76,26 +78,21 @@ data/building_violations.csv <- [-timecheck]
 	wget -O- "https://data.cityofchicago.org/api/views/22u3-xenr/rows.csv?accessType=DOWNLOAD" | sed 's/, ,/,,/g' > $OUTPUT
 psql/input/building_violations <- input/building_violations.sql, data/building_violations.csv [method:psql]
 
-wget_acs()
-    mkdir -p $(dirname $OUTPUT)
-    cd $(dirname $OUTPUT)
-    z=$((year-4)) 
-    URL="http://www2.census.gov/acs"$year"_5yr/summaryfile/"$z"-"$year"_ACSSF_By_State_All_Tables/Illinois_Tracts_Block_Groups_Only.zip"
-    wget $URL
-
 %include acs_profile
+
+data/census-postgres/ <- [-timecheck]
+     git clone https://github.com/censusreporter/census-postgres.git $OUTPUT
+
 $(for y in {2009..2013}; do
+z="$((y-4))"
 
-echo "year=$y"
-echo "data/acssf/acs"$y"_5yr/Illinois_Tracts_Block_Groups_Only.zip <- [-timecheck method:wget_acs]"
+echo "URL=\"http://www2.census.gov/acs"$y"_5yr/summaryfile/"$z"-"$y"_ACSSF_By_State_All_Tables/Illinois_Tracts_Block_Groups_Only.zip\""
+echo "data/acs/acs"$y"_5yr.zip, data/acs/acs"$y"_5yr/g"$y"5il.txt <- [-timecheck method:wget_unzip]"
 
-echo "data/acssf/acs"$y"_5yr/data/ <- data/acssf/acs"$y"_5yr/Illinois_Tracts_Block_Groups_Only.zip [-timecheck]"
-echo "    unzip \$INPUT -d \$OUTPUT"
+echo "input/acs/generated/acs"$y"_5yr/import.sql <- input/acs/census_postgres.sh, data/census-postgres/"
+echo "    \$INPUT0 \$INPUT1/acs"$y"_5yr/ data/acs/acs"$y"_5yr/ input/acs/generated/acs"$y"_5yr/"
 
-echo "input/acs/generated/acs"$y"_5yr/import.sql <- data/census-postgres/acs"$y"_5yr/, data/acssf/acs"$y"_5yr/data/, input/acs/census_postgres.sh"
-echo "    input/acs/census_postgres.sh \$INPUT0 \$INPUT1 input/acs/generated/acs"$y"_5yr/"
-
-echo "psql/acs"$y"_5yr <- input/acs/generated/acs"$y"_5yr/import.sql [method:psql]"
+echo "psql/acs"$y"_5yr <- input/acs/generated/acs"$y"_5yr/import.sql, data/acs/acs"$y"_5yr/g"$y"5il.txt [method:psql]"
 
 done)
 %include $[PROFILE]

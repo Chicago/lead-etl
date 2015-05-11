@@ -2,7 +2,7 @@
 
 file=$1
 
-ogr2ogr -t_srs EPSG:4326 -f PostgreSQL PG:"host=$PGHOST user=$PGUSER password=$PGPASSWORD dbname=$PGDATABASE" $file -lco "schema=input" -nln buildings
+ogr2ogr -t_srs EPSG:4326 -f PostgreSQL PG:"host=$PGHOST user=$PGUSER password=$PGPASSWORD dbname=$PGDATABASE" $file -lco "schema=input" -lco "overwrite=yes" -nln buildings
 
 # fix building condition
 psql -c "

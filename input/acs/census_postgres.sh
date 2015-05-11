@@ -6,7 +6,7 @@ out="$3"
 schema=$(basename $out)
 
 mkdir -p $out
-cp $src/* $out
+cp -r $src/* $out
 
 edir=$(echo $datadir/ | sed 's/\//\\\//g')
 grep 'group1/[em][0-9]*5il' $out/import_sequences.sql | sed "s/'.*\/group1\//'"$edir"/g;s/COPY/\\\COPY/g" > $out/import_sequences_il.sql
@@ -19,7 +19,6 @@ create schema $schema;
 SET search_path = $schema, public;
 
 \i $out/create_tmp_geoheader.sql
-\i $out/drop_import_tables.sql
 \i $out/create_import_tables.sql
 \i $out/create_tmp_geoheader.sql
 
