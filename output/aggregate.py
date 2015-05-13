@@ -52,6 +52,8 @@ def __series(df, attr):
         return attr(df)
     elif attr in df.columns:
         return df[attr]
-    else:
+    elif not isinstance(attr, basestring):
         return attr
+    else:
+        raise ValueError('Invalid attribute for series: {}'.format(attr))
 

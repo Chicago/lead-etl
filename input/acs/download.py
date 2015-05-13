@@ -10,7 +10,7 @@ def read_acs(table, columns, engine=None, offsets={0:{}}, years=[2009,2010,2011,
     column_names = ['geoid']
     column_names.extend(columns.keys())
 
-    dfs = {}
+    dfs = []
     for year in years:
         for i, attrs in offsets.iteritems():
             offset = [c + i for c in columns.values()]
@@ -21,8 +21,8 @@ def read_acs(table, columns, engine=None, offsets={0:{}}, years=[2009,2010,2011,
             for attr in attrs:
                 df[attr] = attrs[attr]
             df['year'] = year
-            dfs[year] = df
-    df = pd.concat(dfs.values())
+            dfs.append(df)
+    df = pd.concat(dfs)
 
     return df
         
@@ -80,11 +80,38 @@ edu = read_acs(edu_table, edu_columns, engine, edu_offsets)
 edu_agg = aggregate(edu, get_aggregate_columns(edu, 'edu'), index=index)
 
 # HEALTH INSURANCE
-health_table='C27004'
+years=[2012,2013]
+
+health_table='B27001'
 health_columns={
     'health_count_total': 0,
+    'health_count_insured':1,
+    'health_count_uninsured':2
 }
 health_offsets = {
+    3: {'sex':'male', 'age': '<6'},
+    6: {'sex':'male', 'age': '6-17'},
+    9: {'sex':'male', 'age': '18-24'},
+    12: {'sex':'male', 'age': '25-34'},
+    15: {'sex':'male', 'age': '35-44'},
+    18: {'sex':'male', 'age': '45-54'},
+    21: {'sex':'male', 'age': '55-64'},
+    24: {'sex':'male', 'age': '65-74'},
+    27: {'sex':'male', 'age': '74+'},
+    31: {'sex':'female', 'age': '<6'},
+    34: {'sex':'female', 'age': '6-17'},
+    37: {'sex':'female', 'age': '18-24'},
+    40: {'sex':'female', 'age': '25-34'},
+    43: {'sex':'female', 'age': '35-44'},
+    46: {'sex':'female', 'age': '45-54'},
+    49: {'sex':'female', 'age': '55-64'},
+    52: {'sex':'female', 'age': '65-74'},
+    55: {'sex':'female', 'age': '74+'},
+}
+health = read_acs(health_table, health_columns, engine, health_offsets, years)
+health_agg = aggregate(health, get_aggregate_columns(health, 'health'), index=index)
+
+insurance_offsets = {
     3: {'sex':'male', 'age':'<18'},
     6: {'sex':'male', 'age':'18-64'},
     9: {'sex':'male', 'age':'65+'},
@@ -92,21 +119,18 @@ health_offsets = {
     16: {'sex':'female', 'age':'18-64'},
     19: {'sex':'female', 'age':'65+'},
 }
-
-years=[2012,2013]
-health = read_acs(health_table, health_columns, engine, health_offsets, years)
-
 insurances = ['employer', 'purchase', 'medicare', 'medicaid', 'military', 'veteran']
+insurance = pd.DataFrame(columns=['geoid', 'year', 'sex', 'age'])
 for i in range(len(insurances)):
     health_insurance_table = 'C2700' + str(4+i)
     health_insurance_columns={
-        'health_count_insured_' + insurances[i]: 2,
+        'health_count_insured_' + insurances[i] +'_total': 0,
+        'health_count_insured_' + insurances[i]: 1,
     }
 
-    insurance = read_acs(health_insurance_table, health_insurance_columns, engine, health_offsets, years)
-    health = health.merge(insurance, on=['geoid', 'year', 'sex', 'age'])
-
-health_agg = aggregate(health, get_aggregate_columns(health, 'health'), index=index)
+    df = read_acs(health_insurance_table, health_insurance_columns, engine, insurance_offsets, years)
+    insurance = insurance.merge(df, on=['geoid', 'year', 'sex', 'age'], how='outer')
+insurance_agg = aggregate(insurance, get_aggregate_columns(insurance, 'health'), index=index)
 
 # TENURE
 tenure_table='B11012'
@@ -124,5 +148,7 @@ tenure_offsets = {
 tenure = read_acs(tenure_table, tenure_columns, engine, tenure_offsets)
 tenure_agg = aggregate(tenure, get_aggregate_columns(tenure, 'tenure'), index=index)
 
-acs = tenure_agg.join((health_agg, edu_agg, race_agg, hispanic_agg))
-acs.to_csv(sys.argv[1])
+acs = tenure_agg.join((insurance_agg, health_agg, edu_agg, race_agg, hispanic_agg))
+acs.reset_index(inplace=True)
+acs['geoid']=acs['geoid'].apply(lambda g: g[7:])
+acs.to_csv(sys.argv[1], index=False)
