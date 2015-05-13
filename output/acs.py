@@ -33,10 +33,6 @@ columns = {
 
 engine = util.create_engine()
 acs = pd.read_sql('select * from input.acs', engine)
-aggregated = aggregate(acs, columns, index=['geoid','year'])
+aggregated = aggregate(acs, columns, index=['census_tract_id','year'])
 aggregated.reset_index(inplace=True)
-aggregated.sort(['geoid','year'], ascending=True, inplace=True)
-
-filled = aggregated.groupby('geoid').transform(lambda d: d.sort('year').fillna(method='backfill'))
-filled['geoid'] = aggregated['geoid']
-filled.to_sql(name='acs', schema='output', con=engine, if_exists='replace', index=False)
+aggregated.to_sql(name='acs', schema='output', con=engine, if_exists='replace', index=False)

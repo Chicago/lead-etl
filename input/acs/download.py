@@ -150,5 +150,6 @@ tenure_agg = aggregate(tenure, get_aggregate_columns(tenure, 'tenure'), index=in
 
 acs = tenure_agg.join((insurance_agg, health_agg, edu_agg, race_agg, hispanic_agg))
 acs.reset_index(inplace=True)
-acs['geoid']=acs['geoid'].apply(lambda g: g[7:])
+acs['census_tract_id']=acs['geoid'].apply(lambda g: g[7:])
+acs.drop('geoid', axis=1, inplace=True)
 acs.to_csv(sys.argv[1], index=False)

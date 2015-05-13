@@ -1,4 +1,4 @@
-psql/output/wards,psql/output/tracts <- output/aggregate_spatial.py, output/aggregate.py, output/columns.py, psql/aux/acs, psql/aux/addresses, psql/aux/assessor_summary, psql/aux/buildings_summary, psql/aux/ward_tracts
+psql/output/wards,psql/output/tracts <- output/aggregate_spatial.py, output/aggregate.py, output/columns.py, psql/aux/addresses, psql/aux/assessor_summary, psql/aux/buildings_summary, psql/aux/ward_tracts
 	python $[INPUT] && touch $[OUTPUT] && touch $[OUTPUT1]
 
 psql/output/acs <- output/acs.py, psql/input/acs

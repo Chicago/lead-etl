@@ -1,6 +1,3 @@
-; merge acs data into single table
-; psql/aux/acs <- aux/acs.sql, psql/input/acs_13_5yr_dp02, psql/input/acs_13_5yr_dp03, psql/input/acs_13_5yr_dp04, psql/input/acs_13_5yr_dp05 [method:psql]
-
 ; calculate ward-tract mapping (tracts can span multiple wards)
 psql/aux/ward_tracts <- aux/ward_tracts.sql [method:psql]
 
