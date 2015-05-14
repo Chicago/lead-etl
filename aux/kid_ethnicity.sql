@@ -4,17 +4,20 @@ create table aux.kid_ethnicity as (
 with ethnicity as (
 select 
 	k.id kid_id,
+	k.last_name,
 	s.surname is null surname_null,
 	s.ethnicity surname_ethnicity,
-	coalesce(race_pct_white*s.pct_white/100, race_pct_white, s.pct_white) p_white,
-    coalesce(race_pct_black*pct_black/100, race_pct_black, s.pct_black)  p_black,
-    coalesce(race_pct_asian*pct_api/100, race_pct_asian, pct_api) p_asian,
-    coalesce(race_pct_latino*pct_hispanic/100, race_pct_latino, pct_hispanic) p_hispanic
+	coalesce(acs.race_pct_white*s.pct_white/100, acs.race_pct_white, s.pct_white/100) p_white,
+    coalesce(acs.race_pct_black*s.pct_black/100, acs.race_pct_black, s.pct_black/100)  p_black,
+    coalesce(acs.race_pct_asian*s.pct_api/100, acs.race_pct_asian, s.pct_api/100) p_asian,
+    coalesce(acs.race_pct_hispanic*s.pct_hispanic/100, acs.race_pct_hispanic, s.pct_hispanic/100) p_hispanic
 from aux.kids k
 left join input.surnames s on k.last_name = s.surname
 left join aux.tests_geocoded t on k.id = t.kid_id
-left join aux.acs on t.census_tract_id = acs.geo_id2
-where t.minmax
+left join output.acs on 
+    acs.census_tract_id = t.census_tract_id and
+    acs.year = least ( 2013, greatest( date_part('year', k.date_of_birth), 2009 ))
+where t.test_number = 1
 )
 select e.*,
 CASE 
