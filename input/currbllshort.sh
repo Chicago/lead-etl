@@ -73,8 +73,7 @@ psql -c "
 
 PGCLIENTENCODING="latin1" \
     psql -c \
-    "\COPY input.currbllshort FROM STDIN WITH CSV HEADER;
-    ALTER TABLE input.currbllshort ADD COLUMN id SERIAL PRIMARY KEY;"
+    "\COPY input.currbllshort FROM STDIN WITH CSV HEADER;"
 
 # the original id in currbllshort is sometimes null so create a new one
 

@@ -33,8 +33,8 @@ psql/input/community_areas <- data/shapefiles/community_areas/CommAreas.shp [met
 psql/input/assessor <- input/assessor.sh
     $INPUT $ASSESSOR_FILE && touch $OUTPUT
 
-;psql/input/tests <- input/tests.sh
-;	$[INPUT] && touch $[OUTPUT]
+psql/input/m7 <- input/m7.sh
+	$INPUT && touch $OUTPUT
 	
 psql/input/currbllshort <- input/currbllshort.sh
 	# psql \copy doesn't like "" as null for non-text
