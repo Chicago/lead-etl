@@ -10,7 +10,7 @@ psql/aux/inspections <- aux/inspections.sql, psql/input/inspections [method:psql
 psql/aux/inspection_addresses <- aux/inspection_addresses.sql, psql/input/inspections, psql/aux/addresses [method:psql]
 
 ; collect complete tests (not missing name, dob, or test date)
-psql/aux/tests <- aux/tests.sql, psql/input/currbllshort [method:psql]
+psql/aux/tests <- aux/tests.sql, psql/input/currbllshort, psql/input/m7 [method:psql]
 
 ; initialize address table with Chicago addresses and geocoded addresses from currbllshort
 psql/aux/addresses <- aux/addresses.sql, psql/input/addresses, psql/input/census_tracts, psql/input/wards, psql/input/currbllshort [method:psql]
