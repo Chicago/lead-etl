@@ -4,20 +4,26 @@ CREATE TABLE aux.addresses(id serial primary key, address text unique not null, 
 
 -- load addresses from geocoded tests
 INSERT INTO aux.addresses (address, geom, census_tract_id, census_block_id, ward_id, community_area_id, source) (
-with cleaned_addresses as (
-	select distinct on (geocode_full_addr) geocode_full_addr address,
+with all_addresses as (
+    select clean_address, geocode_xcoord, geocode_ycoord, geocode_census_block_2010, geocode_ward_2015, geocode_community_area
+    from input.currbllshort
+    UNION ALL
+    select cleaned_address as clean_address, nullif(xcoord, 'ERROR')::decimal, nullif(ycoord, 'ERROR')::decimal, null, null, null
+    from input.m7
+),
+cleaned_addresses as (
+	select distinct on (clean_address) clean_address as address,
 	st_transform(st_setsrid(st_point(nullif(geocode_xcoord,-1),nullif(geocode_ycoord,-1)),3435), 4326) as geom,
 	nullif(geocode_census_block_2010, ' ') as census_block_id,
 	nullif(geocode_ward_2015, ' ')::int as ward_id,
 	nullif(regexp_replace(geocode_community_area, '[^0-9]', '', 'g'), '')::int as community_area_id
-	from input.currbllshort 
-	where nullif(geocode_full_addr, ' ') is not null order by geocode_full_addr
+	from all_addresses
+	where nullif(clean_address, ' ') is not null order by clean_address
 )
 	select a1.address, a1.geom, 
 	substring(a1.census_block_id for 11), substring(a1.census_block_id from 12), 
 	a1.ward_id, a1.community_area_id, 'tests'  
 	from cleaned_addresses a1 
-	left join aux.addresses a2 using (address) where a2.address is null
 );
 
 -- load addresses from chicago address table

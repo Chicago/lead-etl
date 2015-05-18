@@ -11,7 +11,7 @@ CREATE TABLE aux.test_addresses (
 INSERT INTO aux.test_addresses (
         SELECT t.id, a.id, 'address'
         FROM aux.tests t join aux.addresses a
-        ON t.geocode_address = a.address
+        ON t.clean_address = a.address
 );
 
 CREATE OR REPLACE VIEW tests_missing_addresses AS (

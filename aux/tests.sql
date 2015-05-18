@@ -33,4 +33,4 @@ CREATE TABLE aux.tests AS (
 	WHERE bll is not null and sample_date is not null and date_of_birth is not null and first_name is not null and last_name is not null
 );
 
-ALTER TABLE aux.tests2 ADD COLUMN id serial PRIMARY KEY;
+ALTER TABLE aux.tests ADD COLUMN id serial PRIMARY KEY;
