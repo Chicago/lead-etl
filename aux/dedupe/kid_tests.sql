@@ -24,16 +24,8 @@ minmax AS (
 	order by kid_id, bll > 5 desc, sample_date asc, m.id asc
 ),
 
--- maxmax is the last test to produce the maximum bll state
-maxmax AS (
-	select distinct on(kid_id) kid_id,test_id
-	from aux.tests m join kid_tests1 kt on m.id = kt.test_id 
-	order by kid_id, bll > 5 desc, sample_date desc, m.id asc
-)
-
 select kid_tests1.*, 
 	minmax.test_id is not null as minmax,
-	maxmax.test_id is not null as maxmax,
 	kid_tests1.test_number = 1 as min
 from kid_tests1 
 left join minmax using (test_id)
