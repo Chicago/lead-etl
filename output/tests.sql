@@ -9,10 +9,13 @@ select
         e.surname_null kid_surname_null,
         e.kid_ethnicity kid_ethnicity,
         t.sex kid_sex,
-        k.max_bll kid_max_bll,
+
+        k.minmax_bll kid_minmax_bll,
+        k.minmax_date kid_minmax_date,
 
         t.id test_id,
         t.sample_date test_date,
+        t.sample_date - k.date_of_birth as test_kid_age_days,
         t.bll test_bll,
         t.minmax test_minmax,
         t.sample_type test_type,
