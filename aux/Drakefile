@@ -20,3 +20,5 @@ psql/aux/test_addresses <- aux/test_addresses.sql, psql/aux/tests [method:psql]
 psql/aux/tests_geocoded <- aux/tests_geocoded.sql, psql/aux/kid_tests, psql/aux/tests, psql/aux/test_addresses, psql/aux/addresses [method:psql]
 
 psql/aux/kid_ethnicity <- aux/kid_ethnicity.sql, psql/input/surnames, psql/aux/tests_geocoded, psql/output/acs [method:psql]
+
+psql/aux/immunization_kids <- aux/immunization_kids.sql, psql/input/immunizations [method:psql]
