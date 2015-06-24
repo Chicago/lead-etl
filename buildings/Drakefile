@@ -1,6 +1,18 @@
 ; create schema
-psql/buildings <- 
+psql/buildings <- [-timecheck]
     psql -c "create schema if not exists buildings" && mkdir -p psql/buildings
 
+; extract buildings and generate orig_bldg_ when it is zero in input
+psql/buildings/original_buildings <- buildings/original_buildings.sql, psql/input/buildings [method:psql]
+
 ; extract all addresses from buildings address ranges
-psql/buildings/all_addresses <- buildings/all_addresses.sql, psql/input/buildings [method:psql]
+psql/buildings/original_addresses <- buildings/original_addresses.sql, psql/buildings/original_buildings [method:psql]
+
+psql/buildings/addresses <- buildings/addresses.sql, psql/buildings/original_addresses [method:psql]
+
+data/building_components.csv <- buildings/building_components.py, psql/buildings/original_buildings
+    $INPUT > $OUTPUT
+
+psql/buildings/building_components <- buildings/building_components.sql, data/building_components.csv, psql/buildings/original_buildings [method:psql]
+
+psql/buildings/building_addresses <- buildings/building_addresses.sql, psql/buildings/building_components [method:psql]
