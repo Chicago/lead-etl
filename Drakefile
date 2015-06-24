@@ -7,6 +7,8 @@ psql()
 	
 %include input/Drakefile
 
+%include buildings/Drakefile
+
 %include aux/dedupe/Drakefile
 
 %include aux/Drakefile
