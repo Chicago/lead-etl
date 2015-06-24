@@ -1,0 +1,6 @@
+; create schema
+psql/buildings <- 
+    psql -c "create schema if not exists buildings" && mkdir -p psql/buildings
+
+; extract all addresses from buildings address ranges
+psql/buildings/all_addresses <- buildings/all_addresses.sql, psql/input/buildings [method:psql]
