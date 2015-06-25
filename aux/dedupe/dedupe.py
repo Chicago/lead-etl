@@ -40,3 +40,20 @@ def components_dict_to_df(components):
 
     deduped = pd.DataFrame(deduped, columns=['id1', 'id2'])
     return deduped
+
+def insert_singletons(source_table, dest_table, id_column, engine):
+    sql = """
+    WITH singletons as (
+        select distinct {id_column} id from {source_table}
+        left join {dest_table} on {source_table}.{id_column} = {dest_table}.id2
+        where {dest_table}.id2 is null
+    )
+
+    INSERT INTO {dest_table}
+        SELECT id,id from singletons;
+    """.format(source_table=source_table, dest_table=dest_table, id_column=id_column)
+
+    conn = engine.connect()
+    trans = conn.begin()
+    conn.execute(sql)
+    trans.commit()

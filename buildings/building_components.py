@@ -17,4 +17,5 @@ edges = pd.read_sql("""
 components = dedupe.get_components(edges)
 deduped = dedupe.components_dict_to_df(components)
 
-print deduped.to_csv(index=False, header=False),
+deduped.to_sql('building_components',con=engine, schema='buildings', if_exists='replace', index=False)
+dedupe.insert_singletons('buildings.original_buildings', 'buildings.building_components', 'ogc_fid', engine)
