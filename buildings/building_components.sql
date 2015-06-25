@@ -4,8 +4,8 @@ CREATE TABLE buildings.building_components (id1 int, id2 int);
 \COPY buildings.building_components FROM data/building_components.csv WITH CSV
 
 WITH singles as (
-	select distinct orig_bldg_ id from buildings.original_buildings b
-	left join buildings.building_components bc on b.orig_bldg_ = bc.id2
+	select distinct ogc_fid id from buildings.original_buildings b
+	left join buildings.building_components bc on b.ogc_fid = bc.id2
 	where bc.id2 is null
 )
 

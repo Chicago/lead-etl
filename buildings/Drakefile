@@ -8,11 +8,14 @@ psql/buildings/original_buildings <- buildings/original_buildings.sql, psql/inpu
 ; extract all addresses from buildings address ranges
 psql/buildings/original_addresses <- buildings/original_addresses.sql, psql/buildings/original_buildings [method:psql]
 
+; get unique representative for each address
 psql/buildings/addresses <- buildings/addresses.sql, psql/buildings/original_addresses [method:psql]
 
+; deduplicate buildings
 data/building_components.csv <- buildings/building_components.py, psql/buildings/original_buildings
     $INPUT > $OUTPUT
 
 psql/buildings/building_components <- buildings/building_components.sql, data/building_components.csv, psql/buildings/original_buildings [method:psql]
 
+; associate addresses with deduplicated buildings
 psql/buildings/building_addresses <- buildings/building_addresses.sql, psql/buildings/building_components [method:psql]
