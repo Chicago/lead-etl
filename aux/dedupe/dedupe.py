@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def follow(id1, edges, visited = None, weak=True):
     if visited == None: visited = set() 
@@ -16,7 +17,10 @@ def follow(id1, edges, visited = None, weak=True):
     return visited
 
 # if sparse (a lot of disconnected vertices) find those separately (faster) 
-def get_components(vertices, edges, sparse=False):
+def get_components(edges, vertices=None):
+    if vertices is None:
+        vertices = pd.DataFrame({'id':pd.concat((edges['id1'], edges['id2'])).unique()})
+
     visited = set()
     components = {}
     
@@ -27,3 +31,12 @@ def get_components(vertices, edges, sparse=False):
             components[id1] = c
     
     return components
+
+def components_dict_to_df(components):
+    deduped = np.empty((0,2), dtype=int)
+
+    for id1 in components:
+        deduped = np.append(deduped, [[id1, id2] for id2 in components[id1]], axis=0)
+
+    deduped = pd.DataFrame(deduped, columns=['id1', 'id2'])
+    return deduped
