@@ -17,3 +17,13 @@ psql/buildings/building_components <- buildings/building_components.py, psql/bui
 
 ; associate addresses with deduplicated buildings
 psql/buildings/building_addresses <- buildings/building_addresses.sql, psql/buildings/building_components [method:psql]
+
+; collect unique buildings
+psql/buildings/buildings <- buildings/buildings.sql, psql/buildings/building_addresses [method:psql]
+
+; deduplicate building complexes
+psql/buildings/complex_components <- buildings/complex_components.py, psql/buildings/building_components
+    $INPUT && touch $OUTPUT
+
+; associate addresses with deduplicated buildings
+psql/buildings/complex_buildings <- buildings/complex_buildings.sql, psql/buildings/complex_components [method:psql]
