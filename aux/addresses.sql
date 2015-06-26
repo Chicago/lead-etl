@@ -36,6 +36,13 @@ INSERT INTO aux.addresses (address, geom, source) (
         ORDER BY cmpaddabrv, edittime desc
 );
 
+-- load addresses from chicago buildings footprint
+INSERT INTO aux.addresses (address, geom, source) (
+        SELECT a.address, a.geom, 'buildings'
+        FROM buildings.addresses a
+        left join aux.addresses a2 using(address) where a2.address is null
+);
+
 update aux.addresses a
 SET census_tract_id = 
 -- get_tract(a.geom, 'tract_id');

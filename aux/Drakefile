@@ -13,10 +13,10 @@ psql/aux/inspection_addresses <- aux/inspection_addresses.sql, psql/input/inspec
 psql/aux/tests <- aux/tests.sql, psql/input/currbllshort, psql/input/m7 [method:psql]
 
 ; initialize address table with Chicago addresses and geocoded addresses from currbllshort
-psql/aux/addresses <- aux/addresses.sql, psql/input/addresses, psql/input/census_tracts, psql/input/wards, psql/input/currbllshort, psql/input/m7 [method:psql]
+psql/aux/addresses <- aux/addresses.sql, psql/input/addresses, psql/buildings/addresses, psql/input/census_tracts, psql/input/wards, psql/input/currbllshort, psql/input/m7 [method:psql]
 
 ; match tests to addresses
-psql/aux/test_addresses <- aux/test_addresses.sql, psql/aux/tests [method:psql]
+psql/aux/test_addresses <- aux/test_addresses.sql, psql/aux/tests, psql/aux/addresses [method:psql]
 psql/aux/tests_geocoded <- aux/tests_geocoded.sql, psql/aux/kid_tests, psql/aux/tests, psql/aux/test_addresses, psql/aux/addresses [method:psql]
 
 psql/aux/kid_ethnicity <- aux/kid_ethnicity.sql, psql/input/surnames, psql/aux/tests_geocoded, psql/output/acs [method:psql]
