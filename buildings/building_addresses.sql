@@ -7,3 +7,4 @@ from buildings.addresses a join buildings.building_components bc
 on a.ogc_fid = bc.id2
 );
 
+alter table buildings.building_addresses add unique(address_id);

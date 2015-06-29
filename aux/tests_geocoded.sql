@@ -10,6 +10,8 @@ create table aux.tests_geocoded as (
 	join aux.tests t on b.test_id = t.id 
 	left join aux.test_addresses g on t.id = g.test_id  
 	left join aux.addresses a on g.address_id = a.id
+        left join aux.building_addresses ba on a.id = ba.address_id
+        left join buildings.complex_buildings cb on ba.building_id = cb.building_id
 );
 
 -- create index tests_geocoded_census_sample_idx on aux.tests_geocoded (census_tract_id, sample_date);

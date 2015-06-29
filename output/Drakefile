@@ -8,6 +8,11 @@ psql/output/tests <- output/tests.sql, psql/aux/kids, psql/aux/kid_ethnicity, ps
 
 psql/output/kid_addresses <- output/kid_addresses.sql, psql/aux/tests_geocoded, psql/aux/addresses, psql/aux/kids [method:psql]
 
-psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/aux/assessor_summary [method:psql]
+; psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/aux/assessor_summary [method:psql]
+
+; aggregate building characteristics to complex level
+psql/output/complexes <- output/complexes.py, psql/buildings/complex_buildings, psql/input/buildings, psql/buildings/building_components
+    $INPUT && touch $OUTPUT
 
 psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/inspections, psql/aux/inspection_addresses [method:psql]
+

@@ -27,3 +27,4 @@ psql/buildings/complex_components <- buildings/complex_components.py, psql/build
 
 ; associate addresses with deduplicated buildings
 psql/buildings/complex_buildings <- buildings/complex_buildings.sql, psql/buildings/complex_components [method:psql]
+

@@ -5,3 +5,5 @@ create table buildings.addresses as (
     from buildings.original_addresses
     order by address, edit_date asc
 );
+
+alter table buildings.addresses add unique (address);

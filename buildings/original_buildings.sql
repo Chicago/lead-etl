@@ -9,5 +9,5 @@ create table buildings.original_buildings as (
         edit_date,
         st_transform(st_setsrid(st_point(x_coord,y_coord),3435), 4326) as geom
     from input.buildings
-    where st_name1 is not null
+    where st_name1 is not null and bldg_statu='ACTIVE' and non_standa is null
 );

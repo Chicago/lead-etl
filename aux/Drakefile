@@ -22,3 +22,6 @@ psql/aux/tests_geocoded <- aux/tests_geocoded.sql, psql/aux/kid_tests, psql/aux/
 psql/aux/kid_ethnicity <- aux/kid_ethnicity.sql, psql/input/surnames, psql/aux/tests_geocoded, psql/output/acs [method:psql]
 
 psql/aux/immunization_kids <- aux/immunization_kids.sql, psql/input/immunizations [method:psql]
+
+psql/aux/building_addreses <- aux/building_addresses.sql, psql/buildings/building_addresses [method:psql]
+psql/aux/complex_addreses <- aux/complex_addresses.sql, psql/buildings/complex_buildings, psql/buildings/building_addresses, psql/buildings/addresses, psql/aux/addresses [method:psql]
