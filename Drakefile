@@ -16,5 +16,5 @@ psql()
 %include output/Drakefile
 
 ; write data to pickled data frames
-data/output/ <- model/write_data.py, model/params/kid_hazard.yaml, psql/output/tests, psql/output/inspections, psql/output/addresses, psql/output/wards, psql/output/tracts, psql/output/acs
+data/output/ <- model/write_data.py, model/params/kid_hazard.yaml, psql/output/tests, psql/output/inspections, psql/output/addresses, psql/output/wards, psql/output/tracts, psql/output/acs, psql/output/complexes
 	$INPUT $OUTPUT $INPUT1

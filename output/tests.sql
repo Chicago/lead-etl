@@ -21,6 +21,7 @@ select
         t.sample_type test_type,
         
         t.address_id,
+        t.complex_id,
         t.address_method
 
 from aux.kids k

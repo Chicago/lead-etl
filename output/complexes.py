@@ -3,6 +3,9 @@ from lead.model import util
 import pandas as pd
 import numpy as np
 from lead.output.aggregate import aggregate
+from lead.model.data import prefix_columns
+from lead.model.util import PgSQLDatabase
+import sys
 
 columns0 = {
     'area': {'numerator': 'area', 'func':np.mean},
@@ -21,9 +24,9 @@ columns0 = {
 columns = {
     'building_count': {'numerator':1},
     'area_sum': {'numerator': 'area'},
-    'year_built_avg' : {'numerator':'year_built', 'func':np.mean},
-    'year_built_min' : {'numerator':'year_built', 'func':np.min},
-    'year_built_max' : {'numerator':'year_built', 'func':np.max},
+    'year' : {'numerator':'year_built', 'func':np.mean},
+    'year_min' : {'numerator':'year_built', 'func':np.min},
+    'year_max' : {'numerator':'year_built', 'func':np.max},
     'address_count' : {'numerator' : 'address_count'},
     'condition_sound_prop': {'numerator': 'condition_sound_prop', 'denominator':'condition_not_null'},
     'condition_major_prop': {'numerator': 'condition_major_prop', 'denominator':'condition_not_null'},
@@ -55,5 +58,44 @@ buildings_ag.reset_index(inplace=True)
 
 # complex-level aggregation
 df = complex_buildings.merge(buildings_ag, left_on='building_id', right_on='id1')
-complex_ag = aggregate(df, columns, index='complex_id')
-complex_ag.to_sql('complexes', engine, schema='output', if_exists='replace', index=True)
+buildings_ag = aggregate(df, columns, index='complex_id')
+
+# aggregate assessor to complex
+assessor = pd.read_sql("select * from aux.assessor_summary", engine)
+addresses = pd.read_sql("select id, address, census_tract_id, ward_id from aux.addresses", engine)
+complex_addresses = pd.read_sql("select * from aux.complex_addresses", engine)
+df0 = assessor.merge(addresses, on='address').merge(complex_addresses, left_on='id', right_on='address_id')
+
+assessor_columns = {
+    'count' : {'numerator' : 'count', 'func': np.mean},
+    'land_value' : {'numerator': 'land_value'},
+    'improved_value' : {'numerator': 'improved_value'},
+    'total_value': {'numerator': 'total_value'},
+    'age_min':{'numerator': 'age', 'func': np.min},
+    'age':{'numerator': 'age', 'func': np.mean},
+    'age_max':{'numerator': 'age', 'func': np.max},
+    'apartments':{'numerator':'apartments'},
+    'rooms':{'numerator':'rooms'},
+    'beds':{'numerator':'beds'},
+    'baths':{'numerator':'baths'},
+    'building_area':{'numerator':'building_area'},
+    'land_area':{'numerator':'land_area'},
+    'residential':{'numerator':'residential', 'denominator':1}
+}
+
+assessor_ag = aggregate(df0, assessor_columns, index='complex_id')
+
+buildings_ag['null'] = False
+assessor_ag['null'] = False
+
+prefix_columns(buildings_ag, 'building_')
+prefix_columns(assessor_ag, 'assessor_')
+
+complexes = buildings_ag.join(assessor_ag, how='outer')
+complexes['building_null'].fillna(True, inplace=True)
+complexes['assessor_null'].fillna(True, inplace=True)
+
+prefix_columns(complexes, 'complex_')
+
+db = PgSQLDatabase(engine)
+db.to_sql(frame=complexes,name='complexes',if_exists='replace', index=True, schema='output')
