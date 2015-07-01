@@ -34,7 +34,7 @@ columns = {
     'condition_uninhabitable_prop': {'numerator': 'condition_uninhabitable_prop', 'denominator':'condition_not_null'},
     'stories_avg' : {'numerator':'stories', 'func':np.mean},
     'units_avg' : {'numerator':'units'},
-    'pre_1978_prop' : {'numerator': 'pre_1978', 'denominator': lambda b: b.pre_1978.isnull()},
+    'pre_1978_prop' : {'numerator': 'pre_1978', 'denominator': lambda b: b.pre_1978.notnull()},
 }
 
 engine = util.create_engine()
