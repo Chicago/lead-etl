@@ -8,7 +8,7 @@ create table input.immunizations (
     first_name text,
     last_name text,
     date_of_birth date,
-    sex char,
+    sex text,
     address text,
     address2 text,
     city text,
@@ -18,4 +18,4 @@ create table input.immunizations (
 );
 "
 
-psql -c "\copy input.immunizations from '$1' with csv header"
+cut -d, -f11-20 $1 | psql -c "\copy input.immunizations from stdin with csv header"
