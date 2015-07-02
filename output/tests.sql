@@ -12,6 +12,8 @@ select
 
         k.minmax_bll kid_minmax_bll,
         k.minmax_date kid_minmax_date,
+        k.max_bll kid_max_bll,
+        k.max_date kid_max_date,
 
         t.id test_id,
         t.sample_date test_date,

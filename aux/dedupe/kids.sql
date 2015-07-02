@@ -37,9 +37,13 @@ count(*) as num_tests,
 max(minmax::int*test_number) as minmax_test_number,
 min(t.sample_date) as min_sample_date,
 max(t.sample_date) as max_sample_date,
+
 max(t.bll) as max_bll,
+to_timestamp(max(kt.max::int * extract(epoch from t.sample_date)))::date as max_date,
+
 max(kt.minmax::int*t.bll) as minmax_bll,
 to_timestamp(max(kt.minmax::int * extract(epoch from t.sample_date)))::date as minmax_date
+
 from aux.kid_tests kt
 join aux.tests t on kt.test_id = t.id
 group by kt.kid_id

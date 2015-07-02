@@ -22,13 +22,21 @@ minmax AS (
 	select distinct on(kid_id) kid_id,test_id
 	from aux.tests m join kid_tests1 kt on m.id = kt.test_id 
 	order by kid_id, bll > 5 desc, sample_date asc, m.id asc
+),
+
+max AS (
+	select distinct on(kid_id) kid_id,test_id
+	from aux.tests m join kid_tests1 kt on m.id = kt.test_id 
+	order by kid_id, bll desc, sample_date asc, m.id asc
 )
 
 select kid_tests1.*, 
 	minmax.test_id is not null as minmax,
+	max.test_id is not null as max,
 	kid_tests1.test_number = 1 as min
 from kid_tests1 
 left join minmax using (test_id)
+left join max using (test_id)
 );
 
 
