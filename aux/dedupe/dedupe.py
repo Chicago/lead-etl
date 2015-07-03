@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from lead.model.util import execute_sql
 
 def follow(id1, edges, visited = None, weak=True):
     if visited == None: visited = set() 
@@ -53,7 +54,4 @@ def insert_singletons(source_table, dest_table, id_column, engine):
         SELECT id,id from singletons;
     """.format(source_table=source_table, dest_table=dest_table, id_column=id_column)
 
-    conn = engine.connect()
-    trans = conn.begin()
-    conn.execute(sql)
-    trans.commit()
+    execute_sql(engine, sql)
