@@ -30,6 +30,10 @@ URL="https://data.cityofchicago.org/api/geospatial/cauq-8yn6?method=export&forma
 data/shapefiles/community_areas.zip, data/shapefiles/community_areas/CommAreas.shp <- [-timecheck method:wget_unzip]
 psql/input/community_areas <- data/shapefiles/community_areas/CommAreas.shp [method:import_shapefile]
 
+URL="https://data.cityofchicago.org/api/geospatial/mfzt-js4n?method=export&format=Shapefile"
+data/shapefiles/census_blocks.zip, data/shapefiles/census_blocks/CensusBlockTIGER2010.shp <- [-timecheck method:wget_unzip]
+psql/input/census_blocks <- data/shapefiles/census_blocks/CensusBlockTIGER2010.shp [method:import_shapefile]
+
 psql/input/assessor <- input/assessor.sh
     $INPUT $ASSESSOR_FILE && touch $OUTPUT
 
