@@ -86,19 +86,21 @@ def aggregate_tests(tests, level, today, delta):
     return df
 
 if __name__ == '__main__':
-    tests = pd.read_pickle(os.path.join(sys.argv[1], 'tests.pkl'))
-    addresses = pd.read_pickle(os.path.join(sys.argv[1], 'addresses.pkl'))
+    tests = pd.read_pickle(sys.argv[1])
+    addresses = pd.read_pickle(sys.argv[2])
     tests = tests.merge(addresses, on='address_id')
+
     engine = create_engine()
-    #execute_sql(engine, 'DROP TABLE IF EXISTS output.tests_aggregated')
     db = PgSQLDatabase(engine)
-    year = int(sys.argv[2])
+
+    year = int(sys.argv[3])
     end_date = date(year,1,1)
 
     censored_tests = censor_tests(tests, end_date)
 
     level_deltas = {
         'address_id': [-1] + range(1,11),
+        'census_block_id': [-1] + range(1,11),
         'census_tract_id': [-1] + range(1,11),
     }
     

@@ -21,7 +21,7 @@ cleaned_addresses as (
 	where nullif(clean_address, ' ') is not null order by clean_address
 )
 	select a1.address, a1.geom, 
-	substring(a1.census_block_id for 11), substring(a1.census_block_id from 12), 
+	substring(a1.census_block_id for 11), a1.census_block_id, 
 	a1.ward_id, a1.community_area_id, 'tests'  
 	from cleaned_addresses a1 
 );
@@ -43,18 +43,25 @@ INSERT INTO aux.addresses (address, geom, source) (
         left join aux.addresses a2 using(address) where a2.address is null
 );
 
+-- set census tract and block ids
+with address_blocks as (
+    select a.id, (select c.geoid10 from input.census_blocks c where st_contains(c.geom, a.geom) limit 1)
+    from aux.addresses a
+    where a.census_tract_id is null or a.census_block_id is null
+)
 update aux.addresses a
-SET census_tract_id = 
--- get_tract(a.geom, 'tract_id');
--- chicago tracts table lookup is faster! does postgis tiger not use a spatial index?
-(select c.geoid10 from input.census_tracts c where st_contains(c.geom, a.geom) limit 1)
-WHERE census_tract_id is null;
+set
+    census_tract_id = substring(geoid10 for 11),
+    census_block_id = geoid10
+FROM address_blocks ab
+WHERE a.id = ab.id;
 
+-- ward id
 UPDATE aux.addresses a
 SET ward_id = (select w.ward::int from input.wards w where st_contains(w.geom, a.geom) and w.ward != 'OUT' limit 1)
 WHERE ward_id is null;
 
-
+-- community area id
 UPDATE aux.addresses a
 SET community_area_id = (select c.area_numbe::int from input.community_areas c where st_contains(c.geom, a.geom) limit 1)
 WHERE community_area_id is null;

@@ -4,6 +4,10 @@ PYTHONPATH=..
 
 psql()
 	psql -v ON_ERROR_STOP=1 -f $[INPUT] && touch $[OUTPUT]
+
+pickle_table()
+	TABLENAME=$(echo $INPUT1 | sed 's/.*psql\///;s/\//./')
+        output/pickle_table.py $TABLENAME $OUTPUT
 	
 %include input/Drakefile
 
@@ -14,7 +18,3 @@ psql()
 %include aux/Drakefile
 
 %include output/Drakefile
-
-; write data to pickled data frames
-data/output/ <- model/write_data.py, model/params/kid_hazard.yaml, psql/output/tests, psql/output/inspections, psql/output/addresses, psql/output/wards, psql/output/tracts, psql/output/acs, psql/output/complexes
-	$INPUT $OUTPUT $INPUT1
