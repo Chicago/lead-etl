@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 import sys
+import os
 
 from lead.model.util import create_engine, count_unique, execute_sql, PgSQLDatabase
 from lead.output.aggregate import aggregate
@@ -12,12 +13,10 @@ from dateutil.parser import parse
 
 # does not modify passed tests dataframe
 # optionally populate start_ and end_columns with start_ and end_dates
-def censor_tests(tests, end_date, start_date=None):
+def censor_tests(tests, end_date):
     tests = tests[tests['test_date'] < end_date]
-    if start_date is not None:
-        tests = tests[tests['test_date'] >= start_date]
     
-    to_revise = (tests['kid_minmax_date'] >= end_date) | (tests['kid_max_date'] < start_date)
+    to_revise = (tests['kid_minmax_date'] >= end_date)
     df = tests[to_revise]
     tests = tests[~to_revise] # these tests are fine, keep them to concat later
     df.drop(['kid_max_date','kid_max_bll', 'kid_minmax_date', 'kid_minmax_bll'], axis=1, inplace=True)
@@ -41,9 +40,12 @@ def censor_tests(tests, end_date, start_date=None):
     return df
 
 # delta is number of days
-# when delta is None, aggregate all tests
-def aggregate_tests(tests, level, today, delta = None, multiaddress=False, metadata=True):
-    tests = censor_tests(tests, today, today-timedelta(delta))
+# when delta is -1, aggregate all tests
+def aggregate_tests(tests, level, today, delta):
+    if delta != -1:
+        start_date = date(end_date.year-delta, end_date.month, end_date.day)
+        tests = tests[tests['test_date'] >= start_date]
+
     ebll_test_count = lambda t: (t.test_bll > 5).astype(int)
     ebll_kid_ids = lambda t: t.kid_id.where(t.test_bll > 5)
 
@@ -61,7 +63,11 @@ def aggregate_tests(tests, level, today, delta = None, multiaddress=False, metad
         'bll_min': {'numerator': 'test_bll', 'func':np.min},
         'bll_std': {'numerator': 'test_bll', 'func':np.std},
 
-         # todo calculate max and minmax bll correctly and characterize distribution of those
+        'kid_max_bll_avg': {'numerator': 'kid_max_bll', 'func':np.mean},
+        'kid_max_bll_median': {'numerator': 'kid_max_bll', 'func':np.median},
+        'kid_max_bll_max': {'numerator': 'kid_max_bll', 'func':np.max},
+        'kid_max_bll_min': {'numerator': 'kid_max_bll', 'func':np.min},
+        'kid_max_bll_std': {'numerator': 'kid_max_bll', 'func':np.std},
          
         'kid_count': {'numerator': 'kid_id', 'func':count_unique},
          # count number of kids with
@@ -77,24 +83,37 @@ def aggregate_tests(tests, level, today, delta = None, multiaddress=False, metad
     df['kid_ebll_ever_prop'] = df['kid_ebll_ever_count']/df['kid_count']
     df['kid_ebll_future_prop'] = df['kid_ebll_future_count']/df['kid_count']
   
-    if metadata:
-        df.reset_index(inplace=True)
-        df.rename(columns={level:'aggregation_id'}, inplace=True)
-        df['aggregation_level'] = level
-        df['aggregation_delta'] = delta
-        df['aggregation_end'] = today
- 
     return df
 
-tests = pd.read_pickle(sys.argv[1])
-engine = create_engine()
-execute_sql(engine, 'DROP TABLE IF EXISTS output.tests_aggregated')
-db = PgSQLDatabase(engine)
+if __name__ == '__main__':
+    tests = pd.read_pickle(os.path.join(sys.argv[1], 'tests.pkl'))
+    addresses = pd.read_pickle(os.path.join(sys.argv[1], 'addresses.pkl'))
+    tests = tests.merge(addresses, on='address_id')
+    engine = create_engine()
+    #execute_sql(engine, 'DROP TABLE IF EXISTS output.tests_aggregated')
+    db = PgSQLDatabase(engine)
+    year = int(sys.argv[2])
+    end_date = date(year,1,1)
 
-level = sys.argv[2] + '_id'
-end_date = parse(sys.argv[3]).date()
-delta = 365*int(sys.argv[4])
+    censored_tests = censor_tests(tests, end_date)
 
-df = aggregate_tests(tests, level, end_date, delta, multiaddress=True, metadata=True)
-db.to_sql(df, 'tests_aggregated', if_exists='append', schema='output', pk=['aggregation_level, aggregation_delta, aggregation_end, aggregation_id'])
-
+    level_deltas = {
+        'address_id': [-1] + range(1,11),
+        'census_tract_id': [-1] + range(1,11),
+    }
+    
+    for level,deltas in level_deltas.iteritems():
+        for delta in deltas:
+            print year, level, delta
+            df = censored_tests[censored_tests[level].notnull()]
+            df = aggregate_tests(df, level, end_date, delta)
+            df.reset_index(inplace=True)
+            df.rename(columns={level:'aggregation_id'}, inplace=True)
+            df['aggregation_level'] = level
+            df['aggregation_delta'] = delta
+            df['aggregation_end'] = end_date
+        
+            r = db.to_sql(df, 'tests_aggregated', if_exists='append', schema='output', pk=['aggregation_level, aggregation_delta, aggregation_end, aggregation_id'], index=False)
+            if r != 0:
+                sys.exit(r)
+        

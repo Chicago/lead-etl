@@ -16,3 +16,7 @@ psql/output/complexes <- output/complexes.py, psql/buildings/complex_buildings, 
 
 psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/inspections, psql/aux/inspection_addresses [method:psql]
 
+psql/output/tests_aggregated <- output/aggregate_tests.py, data/output/
+     psql -c 'DROP TABLE IF EXISTS output.tests_aggregated'
+     for y in {2007..2012}; do echo $y ; done | parallel --ungroup --delay 5 $INPUT $INPUT1
+     touch $OUTPUT
