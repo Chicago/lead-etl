@@ -26,5 +26,5 @@ psql/aux/immunization_kids <- aux/immunization_kids.sql, psql/input/immunization
 psql/aux/complex_addreses <- aux/complex_addresses.sql, psql/buildings/complex_buildings, psql/buildings/building_addresses, psql/buildings/addresses, psql/aux/addresses [method:psql]
 
 ; building level aggregation of footprint data
-psql/aux/buildings <- output/buildings.py, psql/input/buildings, psql/buildings/building_components
+psql/aux/buildings <- aux/buildings.py, psql/input/buildings, psql/buildings/building_components
     $INPUT && touch $OUTPUT
