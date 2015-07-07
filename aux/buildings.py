@@ -4,11 +4,13 @@ import pandas as pd
 import numpy as np
 from lead.output.aggregate import aggregate
 from lead.model.util import PgSQLDatabase, prefix_columns
+from sqlalchemy.dialects.postgresql import ARRAY
+from  sqlalchemy.types import Integer
 import sys
 
 columns0 = {
     'area': {'numerator': 'area', 'func':np.mean},
-    'year_built' : {'numerator':'year_built', 'func':np.mean},
+    'years_built' : {'numerator':'year_built', 'func': lambda l: list(l)},
     'address_count' : {'numerator' : lambda b: (b.t_add1 - b.f_add1)/2+1, 'func':np.max},
     'condition_not_null' : {'numerator' : 'bldg_condi_not_null', 'func':np.any},
     'condition_sound_prop': {'numerator':lambda b: b.bldg_condi == 'SOUND', 'denominator':'bldg_condi_not_null'},
@@ -38,5 +40,8 @@ buildings_ag = aggregate(df0, columns0, index='id1')
 buildings_ag.reset_index(inplace=True)
 buildings_ag.rename(columns={'id1':'building_id'}, inplace=True)
 
+# convert int[] to postgresql string rep so it works with \copy
+buildings_ag['years_built'] = df['years_built'].apply(lambda a: '"{' + str.join(',', map(str, a)) + '}"')
+
 db = PgSQLDatabase(engine)
-db.to_sql(frame=buildings_ag, name='buildings',if_exists='replace', index=True, schema='aux')
+db.to_sql(frame=buildings_ag, name='buildings',if_exists='replace', index=False, schema='aux', dtype={'years_built':ARRAY(Integer)})

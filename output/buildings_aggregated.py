@@ -9,9 +9,9 @@ import sys
 building_columns = {
     'building_count': {'numerator':1},
     'area_sum': {'numerator': 'area'},
-    'year' : {'numerator':'year_built', 'func':np.mean},
-    'year_min' : {'numerator':'year_built', 'func':np.min},
-    'year_max' : {'numerator':'year_built', 'func':np.max},
+    'year' : {'numerator':'year_built', 'func': lambda y: np.mean(np.concatenate(y))},
+    'year_min' : {'numerator':'year_built', 'func': lambda y: np.min(np.concatenate(y))},
+    'year_max' : {'numerator':'year_built', 'func':lambda y: np.max(np.concatenate(y))},
     'address_count' : {'numerator' : 'address_count'},
     'condition_sound_prop': {'numerator': 'condition_sound_prop', 'denominator':'condition_not_null'},
     'condition_major_prop': {'numerator': 'condition_major_prop', 'denominator':'condition_not_null'},
@@ -74,5 +74,5 @@ if __name__ == '__main__':
     
         df['building_null'].fillna(True, inplace=True)
         df['assessor_null'].fillna(True, inplace=True)
-        
+
         db.to_sql(frame=df,name='buildings_aggregated',if_exists='append', index=False, schema='output')
