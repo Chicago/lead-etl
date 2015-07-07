@@ -5,9 +5,8 @@ import numpy as np
 import sys
 import os
 
-from lead.model.util import create_engine, count_unique, execute_sql, PgSQLDatabase
+from lead.model.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns
 from lead.output.aggregate import aggregate
-from lead.model import data
 
 from datetime import date,timedelta
 from dateutil.parser import parse

@@ -3,8 +3,7 @@ from lead.model import util
 import pandas as pd
 import numpy as np
 from lead.output.aggregate import aggregate
-from lead.model.data import prefix_columns
-from lead.model.util import PgSQLDatabase
+from lead.model.util import PgSQLDatabase, prefix_columns
 import sys
 
 columns0 = {
