@@ -5,7 +5,7 @@ import numpy as np
 from lead.output.aggregate import aggregate
 from lead.model.util import PgSQLDatabase, prefix_columns
 from sqlalchemy.dialects.postgresql import ARRAY
-from  sqlalchemy.types import Integer
+from  sqlalchemy.types import Float
 import sys
 
 columns0 = {
@@ -41,7 +41,7 @@ buildings_ag.reset_index(inplace=True)
 buildings_ag.rename(columns={'id1':'building_id'}, inplace=True)
 
 # convert int[] to postgresql string rep so it works with \copy
-buildings_ag['years_built'] = buildings_ag['years_built'].apply(lambda a: '"{' + str.join(',', map(str, a)) + '}"')
+buildings_ag['years_built'] = buildings_ag['years_built'].apply(lambda a: '{' + str.join(',', map(str, a)) + '}')
 
 db = PgSQLDatabase(engine)
-db.to_sql(frame=buildings_ag, name='buildings',if_exists='replace', index=False, schema='aux', dtype={'years_built':ARRAY(Integer)})
+db.to_sql(frame=buildings_ag, name='buildings',if_exists='replace', index=False, schema='aux', dtype={'years_built':ARRAY(Float)})

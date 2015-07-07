@@ -9,9 +9,9 @@ import sys
 building_columns = {
     'building_count': {'numerator':1},
     'area_sum': {'numerator': 'area'},
-    'year' : {'numerator':'year_built', 'func': lambda y: np.mean(np.concatenate(y))},
-    'year_min' : {'numerator':'year_built', 'func': lambda y: np.min(np.concatenate(y))},
-    'year_max' : {'numerator':'year_built', 'func':lambda y: np.max(np.concatenate(y))},
+    'year' : {'numerator':'years_built', 'func': lambda y: np.mean(np.concatenate(y.values))},
+    'year_min' : {'numerator':'years_built', 'func': lambda y: np.min(np.concatenate(y.values))},
+    'year_max' : {'numerator':'years_built', 'func':lambda y: np.max(np.concatenate(y.values))},
     'address_count' : {'numerator' : 'address_count'},
     'condition_sound_prop': {'numerator': 'condition_sound_prop', 'denominator':'condition_not_null'},
     'condition_major_prop': {'numerator': 'condition_major_prop', 'denominator':'condition_not_null'},
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     util.execute_sql(engine, 'DROP TABLE IF EXISTS output.buildings_aggregated')
     db = PgSQLDatabase(engine)
     
-    buildings = pd.read_sql('select b.*, a.* from aux.buildings b join aux.complex_addresses ca using (building_id) join output.addresses a using(address_id)', engine)
+    buildings = pd.read_sql('select b.*, a.* from aux.buildings b join aux.complex_addresses ca using (building_id) join output.addresses a using(address_id) limit 100', engine)
     assessor = pd.read_sql("select * from aux.assessor_summary ass join output.addresses using (address)", engine)
     
     levels = ['complex_id', 'census_block_id', 'census_tract_id', 'ward_id', 'community_area_id']
