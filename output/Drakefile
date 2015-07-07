@@ -1,5 +1,5 @@
-psql/output/wards,psql/output/tracts <- output/aggregate_spatial.py, output/aggregate.py, output/columns.py, psql/aux/addresses, psql/aux/assessor_summary, psql/aux/buildings_summary, psql/aux/ward_tracts
-	python $[INPUT] && touch $[OUTPUT] && touch $[OUTPUT1]
+;psql/output/wards,psql/output/tracts <- output/aggregate_spatial.py, output/aggregate.py, output/columns.py, psql/aux/addresses, psql/aux/assessor_summary, psql/aux/buildings_summary, psql/aux/ward_tracts
+;	python $[INPUT] && touch $[OUTPUT] && touch $[OUTPUT1]
 
 psql/output/acs <- output/acs.py, psql/input/acs
     $INPUT && touch $OUTPUT
@@ -21,7 +21,7 @@ psql/output/tests_aggregated <- output/tests_aggregated.py, data/output/tests.pk
      for y in {2007..2012}; do echo $y ; done | parallel --ungroup --delay 5 $INPUT $INPUT1 $INPUT2
      touch $OUTPUT
 
-$(for table in tests inspections addresses wards tracts acs complexes; do
+$(for table in tests inspections addresses acs; do
 
 echo "data/output/"$table".pkl <- psql/output/"$table" [method:pickle_table]"
 

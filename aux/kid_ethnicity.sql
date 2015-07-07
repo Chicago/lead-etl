@@ -15,7 +15,7 @@ from aux.kids k
 left join input.surnames s on k.last_name = s.surname
 left join aux.tests_geocoded t on k.id = t.kid_id
 left join output.acs on 
-    acs.census_tract_id = t.census_tract_id and
+    acs.census_tract_id = cast(t.census_tract_id as double precision) and
     acs.year = least ( 2013, greatest( date_part('year', k.date_of_birth), 2009 ))
 where t.test_number = 1
 )

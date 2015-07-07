@@ -3,7 +3,6 @@ psql/aux/ward_tracts <- aux/ward_tracts.sql [method:psql]
 
 ; summarize assessor and buildings data per address (sources have multiple entries per address over time)
 psql/aux/assessor_summary <- aux/assessor_summary.sql [method:psql]
-psql/aux/buildings_summary <- aux/buildings_summary.sql [method:psql]
 
 ; match inspections with addresses
 psql/aux/inspections <- aux/inspections.sql, psql/input/inspections [method:psql]
