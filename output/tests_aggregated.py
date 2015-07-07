@@ -102,7 +102,7 @@ def read_sql_batch(engine, level_deltas, end_dates, left):
             left = left.merge(t, on=[level, 'aggregation_end'], how='left', copy=False)
 
     left.fillna(0, inplace=True)
-    return df
+    return left
 
 def read_sql(engine, level, end_dates, delta):
     end_dates='(' + str.join(',',map(lambda d: "'" + str(d) + "'", end_dates)) + ')'

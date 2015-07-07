@@ -22,9 +22,7 @@ select
         t.minmax test_minmax,
         t.sample_type test_type,
         
-        t.address_id,
-        t.complex_id,
-        t.address_method
+        t.address_id
 
 from aux.kids k
 join aux.tests_geocoded t on k.id = t.kid_id
