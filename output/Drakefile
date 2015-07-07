@@ -11,12 +11,12 @@ psql/output/kid_addresses <- output/kid_addresses.sql, psql/aux/tests_geocoded, 
 psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/aux/complex_addresses [method:psql]
 
 ; aggregate building characteristics to complex level
-psql/output/buildings_aggregated <- output/aggregate_buildings.py, psql/output/addresses, psql/aux/buildings, psql/aux/complex_addresses, psql/aux/assessor_summary
+psql/output/buildings_aggregated <- output/buildings_aggregated.py, psql/output/addresses, psql/aux/buildings, psql/aux/complex_addresses, psql/aux/assessor_summary
     $INPUT && touch $OUTPUT
 
 psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/inspections, psql/aux/inspection_addresses [method:psql]
 
-psql/output/tests_aggregated <- output/aggregate_tests.py, data/output/tests.pkl, data/output/addresses.pkl
+psql/output/tests_aggregated <- output/tests_aggregated.py, data/output/tests.pkl, data/output/addresses.pkl
      psql -c 'DROP TABLE IF EXISTS output.tests_aggregated'
      for y in {2007..2012}; do echo $y ; done | parallel --ungroup --delay 5 $INPUT $INPUT1 $INPUT2
      touch $OUTPUT

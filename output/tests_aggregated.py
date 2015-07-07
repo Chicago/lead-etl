@@ -7,6 +7,7 @@ import os
 
 from lead.model.util import create_engine, count_unique, execute_sql, PgSQLDatabase
 from lead.output.aggregate import aggregate
+from lead.model import data
 
 from datetime import date,timedelta
 from dateutil.parser import parse
@@ -85,6 +86,35 @@ def aggregate_tests(tests, level, today, delta):
   
     return df
 
+# left is an optional dataframe with index <level>, aggregaton_end
+# it is left-joined to ensure returned df has the specified rows
+def read_sql_batch(engine, level_deltas, end_dates, left):
+    dfs = []
+    for level in level_deltas:
+        for delta in level_deltas[level]:
+            t = read_sql(engine, level, end_dates, delta)
+            t.rename(columns={'aggregation_id':level, 'aggregation_end':'join_year'}, inplace=True)
+            t['join_year']=t['aggregation_end'].apply(lambda d: d.year)
+            t.drop(['aggregation_delta', 'aggregation_level'],inplace=True,axis=1)
+            t.set_index([level,'aggregation_end'], inplace=True)
+            
+            prefix = str(delta) + 'y' if delta != -1 else 'all'
+            data.prefix_columns(t, level[:-3] + '_tests_' + prefix + '_')
+            left = left.merge(t, on=[level, 'aggregation_end'], how='left', copy=False)
+
+    left.fillna(0, inplace=True)
+    return df
+
+def read_sql(engine, level, end_dates, delta):
+    end_dates='(' + str.join(',',map(lambda d: "'" + str(d) + "'", end_dates)) + ')'
+    sql = """
+    select * from output.tests_aggregated where aggregation_level='{level}' 
+    and aggregation_end in {end_dates} and aggregation_delta = {delta}
+    """.format(level=level, end_dates=end_dates, delta=delta)
+
+    t = pd.read_sql(sql, engine)
+    return t
+
 if __name__ == '__main__':
     tests = pd.read_pickle(sys.argv[1])
     addresses = pd.read_pickle(sys.argv[2])
@@ -115,7 +145,8 @@ if __name__ == '__main__':
             df['aggregation_delta'] = delta
             df['aggregation_end'] = end_date
         
-            r = db.to_sql(df, 'tests_aggregated', if_exists='append', schema='output', pk=['aggregation_level, aggregation_delta, aggregation_end, aggregation_id'], index=False)
+            r = db.to_sql(df, 'tests_aggregated', if_exists='append', schema='output', 
+                          pk=['aggregation_level, aggregation_delta, aggregation_end, aggregation_id'], index=False)
             if r != 0:
                 sys.exit(r)
         
