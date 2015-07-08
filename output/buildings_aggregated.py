@@ -61,8 +61,8 @@ if __name__ == '__main__':
         buildings_ag = aggregate(buildings_subset, building_columns, index=level)
         assessor_ag = aggregate(assessor_subset, assessor_columns, index=level)
         
-        buildings_ag['null'] = False
-        assessor_ag['null'] = False
+        buildings_ag['not_null'] = True
+        assessor_ag['not_null'] = True
         
         prefix_columns(buildings_ag, 'building_')
         prefix_columns(assessor_ag, 'assessor_')
@@ -72,7 +72,7 @@ if __name__ == '__main__':
         df.reset_index(inplace=True)
         df.rename(columns={level:'aggregation_id'}, inplace=True)
     
-        df['building_null'].fillna(True, inplace=True)
-        df['assessor_null'].fillna(True, inplace=True)
+        df['building_not_null'].fillna(False, inplace=True)
+        df['assessor_not_null'].fillna(False, inplace=True)
 
         db.to_sql(frame=df,name='buildings_aggregated',if_exists='append', index=False, schema='output')
