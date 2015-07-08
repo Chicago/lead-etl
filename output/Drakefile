@@ -16,10 +16,17 @@ psql/output/buildings_aggregated <- output/buildings_aggregated.py, psql/output/
 
 psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/inspections, psql/aux/inspection_addresses [method:psql]
 
-psql/output/tests_aggregated <- output/tests_aggregated.py, data/output/tests.pkl, data/output/addresses.pkl
-     psql -c 'DROP TABLE IF EXISTS output.tests_aggregated'
-     for y in {2007..2012}; do echo $y ; done | parallel --ungroup --delay 5 $INPUT $INPUT1 $INPUT2
-     touch $OUTPUT
+;psql/output/tests_aggregated <- output/tests_aggregated.py, data/output/tests.pkl, data/output/addresses.pkl
+;     psql -c 'DROP TABLE IF EXISTS output.tests_aggregated'
+;     for y in {2007..2012}; do echo $y ; done | parallel --ungroup --delay 5 $INPUT $INPUT1 $INPUT2
+;     touch $OUTPUT
+
+$(for y in {2007..2013}; do
+
+echo "psql/output/tests_aggregated_"$y" <- output/tests_aggregated.py, data/output/tests.pkl, data/output/addresses.pkl"
+echo "    \$INPUT \$INPUT1 \$INPUT2 "$y" && touch \$OUTPUT"
+
+done)
 
 $(for table in tests inspections addresses acs; do
 

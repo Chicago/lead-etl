@@ -54,4 +54,4 @@ def insert_singletons(source_table, dest_table, id_column, engine):
         SELECT id,id from singletons;
     """.format(source_table=source_table, dest_table=dest_table, id_column=id_column)
 
-    execute_sql(engine, sql)
+    execute_sql(sql, engine)

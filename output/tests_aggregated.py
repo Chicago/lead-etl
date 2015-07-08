@@ -104,6 +104,8 @@ if __name__ == '__main__':
         'census_tract_id': [-1] + range(1,11),
     }
     
+    execute_sql("delete from output.tests_aggregated where aggregation_end='{end_date}'".format(end_date=end_date), engine)
+
     for level,deltas in level_deltas.iteritems():
         for delta in deltas:
             print year, level, delta
@@ -116,7 +118,7 @@ if __name__ == '__main__':
             df['aggregation_end'] = end_date
         
             r = db.to_sql(df, 'tests_aggregated', if_exists='append', schema='output', 
-                          pk=['aggregation_level, aggregation_delta, aggregation_end, aggregation_id'], index=False)
+                          pk=['aggregation_end, aggregation_delta, aggregation_level, aggregation_id'], index=False)
             if r != 0:
                 sys.exit(r)
         

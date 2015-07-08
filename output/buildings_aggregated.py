@@ -41,7 +41,7 @@ assessor_columns = {
 
 if __name__ == '__main__':
     engine = util.create_engine()
-    util.execute_sql(engine, 'DROP TABLE IF EXISTS output.buildings_aggregated')
+    util.execute_sql('DROP TABLE IF EXISTS output.buildings_aggregated', engine)
     db = PgSQLDatabase(engine)
     
     buildings = pd.read_sql('select b.*, a.* from aux.buildings b join aux.complex_addresses ca using (building_id) join output.addresses a using(address_id) limit 100', engine)
