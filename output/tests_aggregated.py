@@ -16,7 +16,7 @@ from dateutil.parser import parse
 def censor_tests(tests, end_date):
     tests = tests[tests['test_date'] < end_date]
     
-    to_revise = (tests['kid_minmax_date'] >= end_date)
+    to_revise = (tests['kid_max_date'] >= end_date)
     df = tests[to_revise]
     tests = tests[~to_revise] # these tests are fine, keep them to concat later
     df.drop(['kid_max_date','kid_max_bll', 'kid_minmax_date', 'kid_minmax_bll'], axis=1, inplace=True)
