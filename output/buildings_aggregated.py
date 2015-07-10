@@ -44,7 +44,7 @@ if __name__ == '__main__':
     util.execute_sql('DROP TABLE IF EXISTS output.buildings_aggregated', engine)
     db = PgSQLDatabase(engine)
     
-    buildings = pd.read_sql('select b.*, a.* from aux.buildings b join aux.complex_addresses ca using (building_id) join output.addresses a using(address_id) limit 100', engine)
+    buildings = pd.read_sql('select b.*, a.* from aux.buildings b join aux.complex_addresses ca using (building_id) join output.addresses a using(address_id)', engine)
     assessor = pd.read_sql("select * from aux.assessor_summary ass join output.addresses using (address)", engine)
     
     levels = ['complex_id', 'census_block_id', 'census_tract_id', 'ward_id', 'community_area_id']
