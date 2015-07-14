@@ -36,7 +36,14 @@ assessor_columns = {
     'baths':{'numerator':'baths'},
     'building_area':{'numerator':'building_area'},
     'land_area':{'numerator':'land_area'},
-    'residential':{'numerator':'residential', 'denominator':1}
+
+    'residential':{'numerator':'residential', 'denominator': 'count'},
+    'incentive':{'numerator':'incentive', 'denominator': 'count'},
+    'multifamily':{'numerator':'multifamily', 'denominator': 'count'},
+    'industrial':{'numerator':'industrial', 'denominator': 'count'},
+    'commercial':{'numerator':'commercial', 'denominator': 'count'},
+    'brownfield':{'numerator':'brownfield', 'denominator': 'count'},
+    'nonprofit':{'numerator':'nonprofit', 'denominator': 'count'},
 }
 
 if __name__ == '__main__':
@@ -44,19 +51,19 @@ if __name__ == '__main__':
     util.execute_sql('DROP TABLE IF EXISTS output.buildings_aggregated', engine)
     db = PgSQLDatabase(engine)
     
-    buildings = pd.read_sql('select b.*, a.* from aux.buildings b join aux.complex_addresses ca using (building_id) join output.addresses a using(address_id)', engine)
+    buildings = pd.read_sql('select * from aux.buildings b join output.addresses a using(building_id)', engine)
     assessor = pd.read_sql("select * from aux.assessor_summary ass join output.addresses using (address)", engine)
     
-    levels = ['complex_id', 'census_block_id', 'census_tract_id', 'ward_id', 'community_area_id']
+    levels = ['building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id', 'community_area_id']
     
     for level in levels:
         print level
-        # use double because a) tract and block are too big for int and b) pandas missing ints suck
-        buildings[level] = buildings[level].astype(np.float64)
-        assessor[level] = assessor[level].astype(np.float64)
-    
         buildings_subset = buildings[buildings[level].notnull()]
         assessor_subset = assessor[assessor[level].notnull()]
+
+        # use double because a) tract and block are too big for int and b) pandas missing ints suck
+        buildings_subset[level] = buildings_subset[level].astype(np.float64)
+        assessor_subset[level] = assessor_subset[level].astype(np.float64)
     
         buildings_ag = aggregate(buildings_subset, building_columns, index=level)
         assessor_ag = aggregate(assessor_subset, assessor_columns, index=level)
@@ -75,4 +82,4 @@ if __name__ == '__main__':
         df['building_not_null'].fillna(False, inplace=True)
         df['assessor_not_null'].fillna(False, inplace=True)
 
-        db.to_sql(frame=df,name='buildings_aggregated',if_exists='append', index=False, schema='output')
+        db.to_sql(frame=df,name='buildings_aggregated',if_exists='append', index=False, schema='output', pk=['aggregation_level','aggregation_id'])

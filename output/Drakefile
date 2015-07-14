@@ -1,10 +1,7 @@
-;psql/output/wards,psql/output/tracts <- output/aggregate_spatial.py, output/aggregate.py, output/columns.py, psql/aux/addresses, psql/aux/assessor_summary, psql/aux/buildings_summary, psql/aux/ward_tracts
-;	python $[INPUT] && touch $[OUTPUT] && touch $[OUTPUT1]
-
 psql/output/acs <- output/acs.py, psql/input/acs
     $INPUT && touch $OUTPUT
 
-psql/output/tests <- output/tests.sql, psql/aux/kids, psql/aux/kid_ethnicity, psql/aux/tests_geocoded, psql/aux/assessor_summary, psql/aux/buildings_summary, psql/aux/address_tests, psql/aux/address_inspections [method:psql]
+psql/output/tests <- output/tests.sql, psql/aux/kids, psql/aux/kid_ethnicity, psql/aux/tests_geocoded [method:psql]
 
 psql/output/kid_addresses <- output/kid_addresses.sql, psql/aux/tests_geocoded, psql/aux/addresses, psql/aux/kids [method:psql]
 
@@ -15,11 +12,6 @@ psql/output/buildings_aggregated <- output/buildings_aggregated.py, psql/output/
     $INPUT && touch $OUTPUT
 
 psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/inspections, psql/aux/inspection_addresses [method:psql]
-
-;psql/output/tests_aggregated <- output/tests_aggregated.py, data/output/tests.pkl, data/output/addresses.pkl
-;     psql -c 'DROP TABLE IF EXISTS output.tests_aggregated'
-;     for y in {2007..2012}; do echo $y ; done | parallel --ungroup --delay 5 $INPUT $INPUT1 $INPUT2
-;     touch $OUTPUT
 
 $(for y in {2007..2013}; do
 

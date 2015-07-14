@@ -11,6 +11,14 @@ from lead.output.aggregate import aggregate
 from datetime import date,timedelta
 from dateutil.parser import parse
 
+level_deltas = {
+    'address_id': [-1] + [1,3,5,7],
+    'building_id': [-1] + [1,3,5,7],
+    'complex_id': [-1] + [1,3,5],
+    'census_block_id': [-1] + [1,3,5],
+    'census_tract_id': [-1] + [1],
+    'ward_id': [1]
+}
 # does not modify passed tests dataframe
 # optionally populate start_ and end_columns with start_ and end_dates
 def censor_tests(tests, end_date):
@@ -74,7 +82,10 @@ def aggregate_tests(tests, level, today, delta):
         'kid_ebll_here_count': {'numerator': ebll_kid_ids, 'func': count_unique }, # ebll here
         'kid_ebll_first_count': {'numerator': lambda t: (t.test_minmax & (t.test_bll > 5))}, # first ebll here
         'kid_ebll_ever_count' : {'numerator': lambda t: t.kid_id.where( (t.kid_minmax_bll > 5) ), 'func': count_unique}, # ever ebll
-        'kid_ebll_future_count': {'numerator': lambda t: t.kid_id.where( (t.kid_minmax_bll > 5) & (t.kid_minmax_date >= t.test_date) ), 'func': count_unique} # future ebll
+        'kid_ebll_future_count': {'numerator': lambda t: t.kid_id.where( (t.kid_minmax_bll > 5) & (t.kid_minmax_date >= t.test_date) ), 'func': count_unique}, # future ebll
+
+        'address_count': {'numerator': 'address_id', 'func': count_unique},
+        'address_ebll_count': {'numerator': lambda t: t.address_id.where(t.test_bll > 5), 'func': count_unique},
     }
 
     df = aggregate(tests, TEST_COLUMNS, index=level)
@@ -82,6 +93,7 @@ def aggregate_tests(tests, level, today, delta):
     df['kid_ebll_first_prop'] = df['kid_ebll_first_count']/df['kid_count']
     df['kid_ebll_ever_prop'] = df['kid_ebll_ever_count']/df['kid_count']
     df['kid_ebll_future_prop'] = df['kid_ebll_future_count']/df['kid_count']
+    df['address_ebll_prop'] = df['address_ebll_count']/df['address_count']
   
     return df
 
@@ -98,19 +110,20 @@ if __name__ == '__main__':
 
     censored_tests = censor_tests(tests, end_date)
 
-    level_deltas = {
-        'address_id': [-1] + range(1,11),
-        'census_block_id': [-1] + range(1,11),
-        'census_tract_id': [-1] + range(1,11),
-    }
     
-    execute_sql("delete from output.tests_aggregated where aggregation_end='{end_date}'".format(end_date=end_date), engine)
+    #execute_sql("delete from output.tests_aggregated where aggregation_end='{end_date}'".format(end_date=end_date), engine)
 
     for level,deltas in level_deltas.iteritems():
         for delta in deltas:
             print year, level, delta
+
+            # non-null level
             df = censored_tests[censored_tests[level].notnull()]
+            # only include it if it also occurs in the future
+            df = df[df[level].isin( tests[tests.test_date >= end_date][level].unique() )]
+
             df = aggregate_tests(df, level, end_date, delta)
+
             df.reset_index(inplace=True)
             df.rename(columns={level:'aggregation_id'}, inplace=True)
             df['aggregation_level'] = level
