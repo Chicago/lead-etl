@@ -109,3 +109,4 @@ psql/input/acs <- input/acs/import.py, data/acs.csv
 
 psql/input/immunizations <- input/immunizations.sh
    $INPUT $IMMUNIZATIONS_FILE && touch $OUTPUT
+
