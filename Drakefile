@@ -11,7 +11,7 @@ pickle_table()
 	
 %include input/Drakefile
 
-%include input/wic/Drakefile
+%include wic/Drakefile
 
 %include buildings/Drakefile
 

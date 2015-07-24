@@ -13,14 +13,15 @@ data/wic/grep/ <- data/wic/pdftotext/
         grep -v $'\(^$\|Program\|report\|Request\|Infants\|Filter\|Records Selected\|GRAND TOTAL\|Printed\|^\f\)' "$filename" > $OUTPUT/$(basename "$filename")
     done
 
-data/wic/csv/ <- data/wic/grep/, input/wic/to_csv.sh, input/wic/to_csv.py
+data/wic/csv/ <- data/wic/grep/, wic/to_csv.sh, wic/to_csv.py
     $INPUT1 
 
 psql/input/wic <- data/wic/csv/
     psql -c 'DROP TABLE IF EXISTS input.wic'
-    psql -c 'CREATE TABLE input.wic (first_name text, last_name text, address text, zip text, date_of_birth text, household_income int, household_size int, assistance1 int, assistance2 int, assistance3 int, assistance4 int, assistance5 int, clinic text);'
+    psql -c 'CREATE TABLE input.wic (first_name text, last_name text, address text, zip int, date_of_birth date, household_income int, household_size int, assistance1 int, assistance2 int, assistance3 int, assistance4 int, assistance5 int, clinic text);'
     for filename in $INPUT/*_I.txt; do
         echo $filename
-        psql -c "\copy input.wic from '"$filename"' with csv"
+        psql -c "\copy input.wic from '"$filename"' with csv header"
     done
+    touch $OUTPUT
 

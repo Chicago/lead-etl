@@ -30,13 +30,16 @@ def join_lines(lines):
     return ''.join(offset_lines)
 
 lines = iter(content)
+printed_header = False # has the header been printed yet?
+
 for line in lines:
-    if line.startswith('Cur_'):
-        #print line
+    if line.startswith('Cur_') or line.startswith('CUR_'):
+        if line.startswith('CUR_'): # headers in Erie pdf are spilled across three lines :(
+            line = join_lines((line, lines.next(), lines.next()[1:]))
         column_positions, column_names = get_column_positions(line)
-    elif line.startswith('CUR_'): # headers in Erie pdf are spilled across three lines :(
-        line = join_lines((line, lines.next(), lines.next()[1:]))
-        column_positions, column_names = get_column_positions(line)
+        if not printed_header:
+            print str.join(',',column_names)
+            printed_header = True
     elif line.startswith(' '): # fix multiline names in Englewood pdf :(
         pass # TODO: append to name of previous line
     else:
