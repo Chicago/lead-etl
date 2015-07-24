@@ -16,12 +16,10 @@ data/wic/grep/ <- data/wic/pdftotext/
 data/wic/csv/ <- data/wic/grep/, wic/to_csv.sh, wic/to_csv.py
     $INPUT1 
 
-psql/input/wic <- data/wic/csv/
-    psql -c 'DROP TABLE IF EXISTS input.wic'
-    psql -c 'CREATE TABLE input.wic (first_name text, last_name text, address text, zip int, date_of_birth date, household_income int, household_size int, assistance1 int, assistance2 int, assistance3 int, assistance4 int, assistance5 int, clinic text);'
+psql/input/wic <- data/wic/csv/, wic/copy_wic.py
+    psql -c "DROP TABLE IF EXISTS input.wic"
     for filename in $INPUT/*_I.txt; do
         echo $filename
-        psql -c "\copy input.wic from '"$filename"' with csv header"
+        $INPUT1 $filename
     done
     touch $OUTPUT
-

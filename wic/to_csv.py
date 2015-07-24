@@ -1,12 +1,24 @@
 #!/usr/bin/python
 
 import sys
+import numpy as np
 
 with open(sys.argv[1]) as f:
     content = f.read().replace(',',' ').splitlines()
 
 column_names=['Cur_frst_t','Cur_last_t','Addr_ln1_t','Addr_zi', 'Birth_d', 'Hse_inc_', 'Hseh', 'Pa_c']
-column_names += ['ADDR_ZIP_N', 'IRTH_D', 'HSE_INC_A', 'HSEHLD_N', '_CDE1_C'] #+ ['PA_CDE{}_C'.format(i) for i in range(1,6)]
+
+replace_columns = np.array([
+    ['ADDR_ZIP_N', 'Addr_zi_t'],
+    ['IRTH_D', 'Birth_d'],
+    ['HSE_INC_A', 'Hse_inc_'], 
+    ['HSEHLD_N', 'Hseh'],
+    ['_CDE1_C', 'Pa_c'],
+    ['PA_C', 'Pa_c']
+])
+
+column_names += replace_columns[:,0]
+
 import re
 boundaries = re.compile('(' + str.join('|', column_names) + ')', re.IGNORECASE)
 def get_column_positions(header):
@@ -29,6 +41,13 @@ def join_lines(lines):
     offset_lines = [line[offset:] for line,offset in zip(lines, offsets)]
     return ''.join(offset_lines)
 
+# use uniform names for columns and enumerate Pa_c1,...Pa_c5
+def fix_header(header):
+    for old_column,new_column in replace_columns:
+        header = header.replace(old_column,new_column)
+    return header.lower()
+
+
 lines = iter(content)
 printed_header = False # has the header been printed yet?
 
@@ -38,7 +57,7 @@ for line in lines:
             line = join_lines((line, lines.next(), lines.next()[1:]))
         column_positions, column_names = get_column_positions(line)
         if not printed_header:
-            print str.join(',',column_names)
+            print fix_header(str.join(',',column_names))
             printed_header = True
     elif line.startswith(' '): # fix multiline names in Englewood pdf :(
         pass # TODO: append to name of previous line

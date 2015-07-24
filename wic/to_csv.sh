@@ -7,10 +7,10 @@ for filename in $INPUT/*_I.txt; do
     $INPUT2 $filename |
     sed 's/[ ]\+,/,/g'  | # right strip fields
     sed 's/,\([0-9]\+\)[ ]\+\([0-9]\+\),,/,\1,\2,/g' | # ugly fix Englewood issues
-    awk -v clinic="$clinic" 'BEGIN {FS = OFS = ","} {NF=13; if (NR != 1) { $13=clinic } else { $13="clinic"}; print}' > $OUTPUT/$(basename "$filename")
+    awk -v clinic="$clinic" 'BEGIN {FS = OFS = ","} {NF=13; if (NR != 1) { $13=clinic } else { $13="clinic"; $12="pa_c5";$11="pa_c4";$10="pa_c3";$9="pa_c2";$8="pa_c1"}; print}' > $OUTPUT/$(basename "$filename")
 done
 # LowerWest has first and last name columns switched :(
-awk 'BEGIN {FS = OFS = ","} {t = $1; $1 = $2; $2 = t; print;}' $OUTPUT/LowerWest_I.txt > $OUTPUT/tmp && mv $OUTPUT/tmp $OUTPUT/LowerWest_I.txt 
+#awk 'BEGIN {FS = OFS = ","} {t = $1; $1 = $2; $2 = t; print;}' $OUTPUT/LowerWest_I.txt > $OUTPUT/tmp && mv $OUTPUT/tmp $OUTPUT/LowerWest_I.txt 
 # Englewood switched zip address dob
-awk 'BEGIN {FS = OFS = ","} {t = $3; $3 = $4; $4 = $5; $5 = t; print;}' $OUTPUT/Englewood_I.txt > $OUTPUT/tmp && mv $OUTPUT/tmp $OUTPUT/Englewood_I.txt 
-awk 'BEGIN {FS = OFS = ","} {t = $3; $3 = $4; $4 = $5; $5 = t; print;}' $OUTPUT/WestsideHP_I.txt > $OUTPUT/tmp && mv $OUTPUT/tmp $OUTPUT/WestsideHP_I.txt 
+#awk 'BEGIN {FS = OFS = ","} {t = $3; $3 = $4; $4 = $5; $5 = t; print;}' $OUTPUT/Englewood_I.txt > $OUTPUT/tmp && mv $OUTPUT/tmp $OUTPUT/Englewood_I.txt 
+#awk 'BEGIN {FS = OFS = ","} {t = $3; $3 = $4; $4 = $5; $5 = t; print;}' $OUTPUT/WestsideHP_I.txt > $OUTPUT/tmp && mv $OUTPUT/tmp $OUTPUT/WestsideHP_I.txt 
