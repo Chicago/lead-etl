@@ -27,3 +27,5 @@ psql/aux/complex_addresses <- aux/complex_addresses.sql, psql/buildings/complex_
 ; building level aggregation of footprint data
 psql/aux/buildings <- aux/buildings.py, psql/input/buildings, psql/buildings/building_components
     $INPUT && touch $OUTPUT
+
+psql/aux/wic <- aux/wic.sql, psql/input/wic [method:psql]
