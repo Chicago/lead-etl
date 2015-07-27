@@ -28,5 +28,9 @@ psql/aux/complex_addresses <- aux/complex_addresses.sql, psql/buildings/complex_
 psql/aux/buildings <- aux/buildings.py, psql/input/buildings, psql/buildings/building_components
     $INPUT && touch $OUTPUT
 
-psql/aux/wic <- aux/wic.sql, psql/input/wic [method:psql]
+;psql/aux/wic <- aux/wic.sql, psql/input/wic [method:psql]
+
+psql/aux/wic <- aux/wic.py, psql/input/wic
+    $INPUT && touch $OUTPUT
+
 psql/aux/wic_kids <- aux/wic_kids.sql, psql/aux/wic, psql/aux/kid_tests [method:psql]
