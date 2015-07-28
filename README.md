@@ -36,7 +36,7 @@ Here we process the data to prepare for model building. TODO details.
 Here we assmeble the data for modeling. TODO details.
 
 ##model
-Here we run models using [GNU Parallel](http://www.gnu.org/software/parallel/) and pickle the results.
+Here we use our [drain pipeline](https://github.com/dssg/drain/) to run run models in parallel and pickle the results.
 
 
 # Running the model
