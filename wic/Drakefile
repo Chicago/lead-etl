@@ -4,13 +4,13 @@ data/wic/pdftotext/ <- [-timecheck]
         pdftotext -layout "$filename" $OUTPUT/$(basename "$filename" .pdf).txt
     done
 
-data/wic/grep/ <- data/wic/pdftotext/
+data/wic/grep/ <- data/wic/pdftotext/, wic/grep.sh
     mkdir -p $OUTPUT
     rm $OUTPUT/*.txt
-    for filename in $INPUT/*_I.txt; do
+    for filename in $INPUT/*.txt; do
         clinic=$(basename "$filename" .txt | sed 's/_I$//')
         # remove header and formatting lines from pdf output
-        grep -v $'\(^$\|Program\|report\|Request\|Infants\|Filter\|Records Selected\|GRAND TOTAL\|Printed\|^\f\)' "$filename" > $OUTPUT/$(basename "$filename")
+        grep -v $'\(^$\|Program\|report\|Request\|Prenatal\|Infants\|Filter\|Records Selected\|GRAND TOTAL\|Printed\|^\f\)' "$filename" > $OUTPUT/$(basename "$filename")
     done
 
 data/wic/csv/ <- data/wic/grep/, wic/to_csv.sh, wic/to_csv.py
@@ -18,7 +18,7 @@ data/wic/csv/ <- data/wic/grep/, wic/to_csv.sh, wic/to_csv.py
 
 psql/input/wic <- data/wic/csv/, wic/copy_wic.py
     psql -c "DROP TABLE IF EXISTS input.wic"
-    for filename in $INPUT/*_I.txt; do
+    for filename in $INPUT/*_I.csv; do
         echo $filename
         $INPUT1 $filename
     done
