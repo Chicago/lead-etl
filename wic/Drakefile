@@ -1,24 +1,28 @@
+; dump pdf to text
 data/wic/pdftotext/ <- [-timecheck]
     mkdir -p $OUTPUT
     for filename in $WIC_DIR/*.pdf; do
         pdftotext -layout "$filename" $OUTPUT/$(basename "$filename" .pdf).txt
     done
 
-data/wic/grep/ <- data/wic/pdftotext/, wic/grep.sh
+; remove header and formatting lines from pdf output
+data/wic/grep/ <- data/wic/pdftotext/
     mkdir -p $OUTPUT
     rm $OUTPUT/*.txt
     for filename in $INPUT/*.txt; do
         clinic=$(basename "$filename" .txt | sed 's/_I$//')
-        # remove header and formatting lines from pdf output
-        grep -v $'\(^$\|Program\|report\|Request\|Prenatal\|Infants\|Filter\|Records Selected\|GRAND TOTAL\|Printed\|^\f\)' "$filename" > $OUTPUT/$(basename "$filename")
+        grep -v $'\(^$\|Program\|report\|Request\|Pregnant\|Prenatal\|Infants\|Filter\|Records Selected\|GRAND TOTAL\|Printed\|^\f\)' "$filename" > $OUTPUT/$(basename "$filename")
     done
 
+; convert to csv and add clinic column
 data/wic/csv/ <- data/wic/grep/, wic/to_csv.sh, wic/to_csv.py
     $INPUT1 
 
+; copy to database
 psql/input/wic <- data/wic/csv/, wic/copy_wic.py
-    psql -c "DROP TABLE IF EXISTS input.wic"
-    for filename in $INPUT/*_I.csv; do
+    psql -c "DROP TABLE IF EXISTS input.wic_infant; DROP TABLE IF EXISTS input.wic_pregnant;"
+    # WestTown has all the fields so create table based on that by sorting in reverse order
+    for filename in `ls -r $INPUT/*.csv`; do
         echo $filename
         $INPUT1 $filename
     done
