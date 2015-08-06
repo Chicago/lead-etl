@@ -12,6 +12,8 @@ psql/output/buildings_aggregated <- output/buildings_aggregated.py, psql/output/
     $INPUT && touch $OUTPUT
 
 psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/inspections, psql/aux/inspection_addresses [method:psql]
+psql/output/inspections_aggregated <- output/inspections_aggregated.py, data/output/inspections.pkl, data/output/addresses.pkl
+    $INPUT $INPUT1 $INPUT2 && touch $OUTPUT
 
 $(for y in {2007..2013}; do
 

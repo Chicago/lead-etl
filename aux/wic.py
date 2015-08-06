@@ -63,9 +63,9 @@ select cur_frst_t first_name,
        birth_d::date as date_of_birth,
        nullif(hseh, 0) household_size,
        hse_inc_ household_income,
-       array[pa_c1, pa_c2, pa_c3, pa_c4, pa_c5] as public_assistance,
+       array[pa_c, "pa_c.1", "pa_c.2", "pa_c.3", "pa_c.4"] as public_assistance,
        clinic
-from input.wic
+from input.wic_infant
 """, engine)
 
 wic.public_assistance = wic.public_assistance.apply(psql_array)
@@ -81,8 +81,8 @@ wic_columns = {
     'household_income_median': {'numerator': 'household_income', 'func':np.max},
     
     'public_assistance': {'numerator':'public_assistance', 'func': lambda d: list(np.concatenate(d.values))},
+    'clinic': {'numerator':'clinic', 'func':lambda d: d.values[0]},
 }
-
 
 wic_agg = aggregate(wic, wic_columns, index=['first_name', 'last_name','date_of_birth'])
 
