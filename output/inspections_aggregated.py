@@ -9,7 +9,11 @@ from itertools import product
 from lead.model.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns, join_years
 from lead.output.aggregate import aggregate
 
+from drain import data
+
 from datetime import date
+
+CLOSURE_CODES = [0, 1, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13]
 
 def censor_inspections(inspections, end_date, delta):
     max_date = inspections[['init_date', 'comply_date']].max(axis=1)
@@ -21,6 +25,7 @@ def censor_inspections(inspections, end_date, delta):
     else:
         inspections = inspections[ (min_date < end_date) | (max_date < end_date) ].copy()
     
+    inspections['closure'] = inspections.closure.where(inspections.comply_date.isnull() | (inspections.comply_date < end_date))
     inspections['comply_date'] = inspections.comply_date.where(inspections.comply_date < end_date)
     inspections['init_date'] = inspections.init_date.where(inspections.init_date < end_date)
 
@@ -38,6 +43,8 @@ def aggregate_inspections(inspections, levels):
     for column in ['hazard_int','hazard_ext']:
         inspections[column].fillna(True, inplace=True)
         inspections[column] = inspections[column].astype(int)
+
+    data.binarize(inspections, {'closure':CLOSURE_CODES}, all_classes=True)
 
     inspections['comply'] = inspections.comply_date.notnull()
     inspections['init'] = inspections.init_date.notnull()
@@ -62,12 +69,13 @@ def aggregate_inspections(inspections, levels):
         'days_since_last_comply': {'numerator': lambda i: (i['aggregation_end'] - i['comply_date']) / day, 'func': 'min'},
     }
 
+    for i in CLOSURE_CODES:
+        INSPECTION_COLUMNS['closure_' + str(i)] = { 'numerator' : 'closure_' + str(i)}
+
     r = []
     for level in levels:
         #INSPECTION_COLUMNS['pct_inspected'] = {'numerator': 1, 'denominator': level + '_res_count', 'denominator_func': np.max}
         df = aggregate(inspections, INSPECTION_COLUMNS, index=[level])
-        df['days_since_last_init'] = pd.to_timedelta(df['days_since_last_init'], 'D').astype(int)
-        df['days_since_last_comply'] = pd.to_timedelta(df['days_since_last_comply'], 'D').astype(int)
         df.reset_index(inplace=True)
         df['aggregation_level'] = level
         df.rename(columns={level:'aggregation_id'}, inplace=True)
