@@ -27,3 +27,5 @@ $(for table in tests inspections addresses acs; do
 echo "data/output/"$table".pkl <- psql/output/"$table" [method:pickle_table]"
 
 done)
+
+psql/output/wic <- output/wic.sql, psql/aux/wic_kids, psql/aux/wic [method:psql]

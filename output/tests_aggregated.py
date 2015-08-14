@@ -14,10 +14,9 @@ from dateutil.parser import parse
 level_deltas = {
     'address_id': [-1] + [1,3,5,7],
     'building_id': [-1] + [1,3,5,7],
-    'complex_id': [-1] + [1,3,5],
-    'census_block_id': [-1] + [1,3,5],
-    'census_tract_id': [-1] + [1],
-    'ward_id': [1]
+    'complex_id': [-1] + [1,3,5,7],
+    'census_block_id': [-1] + [1,3,5,7],
+    'census_tract_id': [-1] + [1,3,5,7],
 }
 # does not modify passed tests dataframe
 # optionally populate start_ and end_columns with start_ and end_dates
