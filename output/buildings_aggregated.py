@@ -9,9 +9,9 @@ import sys
 building_columns = {
     'building_count': {'numerator':1},
     'area_sum': {'numerator': 'area'},
-    'year' : {'numerator':'years_built', 'func': lambda y: np.mean(np.concatenate(y.values))},
-    'year_min' : {'numerator':'years_built', 'func': lambda y: np.min(np.concatenate(y.values))},
-    'year_max' : {'numerator':'years_built', 'func':lambda y: np.max(np.concatenate(y.values))},
+    'year' : {'numerator':'years_built', 'func': lambda y: np.nanmean(np.concatenate(y.values))},
+    'year_min' : {'numerator':'years_built', 'func': lambda y: np.nanmin(np.concatenate(y.values))},
+    'year_max' : {'numerator':'years_built', 'func':lambda y: np.nanmax(np.concatenate(y.values))},
     'address_count' : {'numerator' : 'address_count'},
     'condition_sound_prop': {'numerator': 'condition_sound_prop', 'denominator':'condition_not_null'},
     'condition_major_prop': {'numerator': 'condition_major_prop', 'denominator':'condition_not_null'},
