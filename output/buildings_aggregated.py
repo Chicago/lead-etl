@@ -3,13 +3,13 @@ from lead.model import util
 import pandas as pd
 import numpy as np
 from lead.output.aggregate import aggregate
-from lead.model.util import PgSQLDatabase,prefix_columns
+from drain.util import PgSQLDatabase,prefix_columns
 import sys
 
 building_columns = {
     'building_count': {'numerator':1},
     'area_sum': {'numerator': 'area'},
-    'year' : {'numerator':'years_built', 'func': lambda y: np.nanmean(np.concatenate(y.values))},
+    'year' : {'numerator':'years_built', 'func': lambda y: np.nanmedian(np.concatenate(y.values))},
     'year_min' : {'numerator':'years_built', 'func': lambda y: np.nanmin(np.concatenate(y.values))},
     'year_max' : {'numerator':'years_built', 'func':lambda y: np.nanmax(np.concatenate(y.values))},
     'address_count' : {'numerator' : 'address_count'},
@@ -17,19 +17,19 @@ building_columns = {
     'condition_major_prop': {'numerator': 'condition_major_prop', 'denominator':'condition_not_null'},
     'condition_minor_prop': {'numerator': 'condition_minor_prop', 'denominator':'condition_not_null'},
     'condition_uninhabitable_prop': {'numerator': 'condition_uninhabitable_prop', 'denominator':'condition_not_null'},
-    'stories_avg' : {'numerator':'stories', 'func':np.mean},
+    'stories_avg' : {'numerator':'stories', 'func':'mean'},
     'units_avg' : {'numerator':'units'},
     'pre_1978_prop' : {'numerator': 'pre_1978', 'denominator': lambda b: b.pre_1978.notnull()},
 }
 
 assessor_columns = {
-    'count' : {'numerator' : 'count', 'func': np.mean},
+    'count' : {'numerator' : 'count', 'func': 'mean'},
     'land_value' : {'numerator': 'land_value'},
     'improved_value' : {'numerator': 'improved_value'},
     'total_value': {'numerator': 'total_value'},
-    'age_min':{'numerator': 'age', 'func': np.min},
-    'age':{'numerator': 'age', 'func': np.mean},
-    'age_max':{'numerator': 'age', 'func': np.max},
+    'age_min':{'numerator': 'age', 'func': 'min'},
+    'age':{'numerator': 'age', 'func': 'median'},
+    'age_max':{'numerator': 'age', 'func': 'max'},
     'apartments':{'numerator':'apartments'},
     'rooms':{'numerator':'rooms'},
     'beds':{'numerator':'beds'},
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     buildings = pd.read_sql('select * from aux.buildings b join output.addresses a using(building_id)', engine)
     assessor = pd.read_sql("select * from aux.assessor_summary ass join output.addresses using (address)", engine)
     
-    levels = ['building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id', 'community_area_id']
+    levels = ['building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id', 'community_area_id' ]
     
     for level in levels:
         print level

@@ -9,16 +9,16 @@ from  sqlalchemy.types import Float
 import sys
 
 columns0 = {
-    'area': {'numerator': 'area', 'func':np.mean},
+    'area': {'numerator': 'area', 'func':np.nanmean},
     'years_built' : {'numerator':'year_built', 'func': lambda l: list(l)},
-    'address_count' : {'numerator' : lambda b: (b.t_add1 - b.f_add1)/2+1, 'func':np.max},
+    'address_count' : {'numerator' : lambda b: (b.t_add1 - b.f_add1)/2+1, 'func':np.nanmax},
     'condition_not_null' : {'numerator' : 'bldg_condi_not_null', 'func':np.any},
     'condition_sound_prop': {'numerator':lambda b: b.bldg_condi == 'SOUND', 'denominator':'bldg_condi_not_null'},
     'condition_major_prop': {'numerator':lambda b: b.bldg_condi == 'NEEDS MAJOR REPAIR', 'denominator':'bldg_condi_not_null'},
     'condition_minor_prop': {'numerator':lambda b: b.bldg_condi == 'NEEDS MINOR REPAIR', 'denominator':'bldg_condi_not_null'},
     'condition_uninhabitable_prop': {'numerator':lambda b: b.bldg_condi == 'UNINHABITABLE', 'denominator':'bldg_condi_not_null'},
-    'stories' : {'numerator':'stories', 'func':np.mean},
-    'units' : {'numerator':'no_of_unit', 'func': np.mean},
+    'stories' : {'numerator':'stories', 'func':np.nanmean},
+    'units' : {'numerator':'no_of_unit', 'func': np.nanmean},
     'pre_1978' : {'numerator' : lambda b: b.year_built < 1978, 'func':np.any}
 }
 
