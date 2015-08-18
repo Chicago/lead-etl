@@ -121,6 +121,9 @@ if __name__ == '__main__':
             # only include it if it also occurs in the future
             df = df[df[level].isin( tests[tests.test_date >= end_date][level].unique() )]
 
+            if delta != -1:
+                df = df[df.test_kid_age_days < 1095]
+
             df = aggregate_tests(df, level, end_date, delta)
 
             df.reset_index(inplace=True)
