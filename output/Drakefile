@@ -15,7 +15,10 @@ psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/
 psql/output/inspections_aggregated <- output/inspections_aggregated.py, data/output/inspections.pkl, data/output/addresses.pkl
     $INPUT $INPUT1 $INPUT2 && touch $OUTPUT
 
-psql/output/permits_aggregated <- output/permits_aggregated.py, data/output/addresses.pkl
+psql/output/permits_aggregated <- output/permits_aggregated.py, data/output/addresses.pkl, psql/aux/building_permits
+    $INPUT $INPUT1 && touch $OUTPUT
+
+psql/output/violations_aggregated <- output/violations_aggregated.py, data/output/addresses.pkl, psql/input/building_violations
     $INPUT $INPUT1 && touch $OUTPUT
 
 $(for y in {2007..2013}; do

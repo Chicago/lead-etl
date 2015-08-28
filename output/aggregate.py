@@ -57,3 +57,11 @@ def __series(df, attr):
     else:
         raise ValueError('Invalid attribute for series: {}'.format(attr))
 
+def censor(df, date_column, end_date, delta):
+    df = df[ df[date_column] < end_date ]
+
+    if delta != -1:
+        start_date = end_date - np.timedelta64(delta*365, 'D')
+        df = df[ df[date_column] > start_date ]
+
+    return df

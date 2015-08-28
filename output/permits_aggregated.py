@@ -7,22 +7,13 @@ import os
 from itertools import product
 
 from lead.model.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns, join_years
-from lead.output.aggregate import aggregate
+from lead.output.aggregate import aggregate, censor
 
 from drain import data
 
 from datetime import date
 
 PERMIT_TYPES = ['electric_wiring', 'elevator_equipment', 'signs', 'new_construction', 'renovation_alteration', 'easy_permit_process', 'porch_construction', 'wrecking_demolition', 'scaffolding', 'reinstate_revoked_pmt', 'for_extension_of_pmt']
-
-def censor_permits(permits, end_date, delta):
-    permits = permits[ permits.issue_date > end_date ]
-
-    if delta != -1:
-        start_date = end_date - np.timedelta64(delta*365, 'D')
-        permits = permits[ permits.issue_date > start_date ]
-    
-    return permits
 
 def aggregate_permits(permits, levels):
     PERMIT_COLUMNS = {
@@ -31,6 +22,7 @@ def aggregate_permits(permits, levels):
 
     for permit_type in PERMIT_TYPES:
         PERMIT_COLUMNS['permit_type_' + permit_type] = { 'numerator' : 'permit_type_' + permit_type}
+        PERMIT_COLUMNS['permit_type_' + permit_type + '_prop'] = { 'numerator' : 'permit_type_' + permit_type, 'denominator': 1}
 
     r = []
     for level in levels:
@@ -59,7 +51,7 @@ if __name__ == '__main__':
     def aggregated_permits():
         for delta,end_date in product(deltas, end_dates):
             print end_date, delta
-            censored_permits = censor_permits(permits, end_date, delta)
+            censored_permits = censor(permits, 'issue_date', end_date, delta)
             df = aggregate_permits(censored_permits, levels)
             df['aggregation_end'] = end_date
             df['aggregation_delta']=delta
