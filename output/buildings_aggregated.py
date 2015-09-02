@@ -7,7 +7,7 @@ from drain.util import PgSQLDatabase,prefix_columns
 import sys
 
 building_columns = {
-    'building_count': {'numerator':1},
+    'count': {'numerator':1},
     'area_sum': {'numerator': 'area'},
     'year' : {'numerator':'years_built', 'func': lambda y: np.nanmedian(np.concatenate(y.values))},
     'year_min' : {'numerator':'years_built', 'func': lambda y: np.nanmin(np.concatenate(y.values))},
@@ -71,7 +71,7 @@ if __name__ == '__main__':
         buildings_ag['not_null'] = True
         assessor_ag['not_null'] = True
         
-        prefix_columns(buildings_ag, 'building_')
+        prefix_columns(buildings_ag, 'footprint_')
         prefix_columns(assessor_ag, 'assessor_')
         
         df = buildings_ag.join(assessor_ag, how='outer')
@@ -79,7 +79,7 @@ if __name__ == '__main__':
         df.reset_index(inplace=True)
         df.rename(columns={level:'aggregation_id'}, inplace=True)
     
-        df['building_not_null'].fillna(False, inplace=True)
+        df['footprint_not_null'].fillna(False, inplace=True)
         df['assessor_not_null'].fillna(False, inplace=True)
 
         db.to_sql(frame=df,name='buildings_aggregated',if_exists='append', index=False, schema='output', pk=['aggregation_level','aggregation_id'])
