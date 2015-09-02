@@ -1,5 +1,7 @@
 psql/aux/kids_initial <- aux/dedupe/kids_initial.sql, psql/aux/tests [method:psql]
 
+psql/aux/name_frequencies <- aux/dedupe/name_frequencies.sql, psql/aux/kids_initial [method:psql]
+
 psql/aux/kid_edges <- aux/dedupe/kid_edges.sql, psql/aux/kids_initial [method:psql]
 
 data/kid_components.csv <- aux/dedupe/kid_components.py, psql/aux/kid_edges
