@@ -23,7 +23,7 @@ select
         t.minmax test_minmax,
         t.sample_type test_type,
         
-        t.address_id
+        t.address_id, t.apt address_apt
 
 from aux.kids k
 join aux.tests_geocoded t on k.id = t.kid_id

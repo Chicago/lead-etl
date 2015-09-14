@@ -1,7 +1,7 @@
 drop table if exists aux.tests_geocoded;
 
 create table aux.tests_geocoded as (
-	select b.kid_id, t.id, t.sex, t.bll, b.minmax, b.min, b.test_number,
+	select b.kid_id, t.id, t.sex, t.bll, b.minmax, b.min, b.test_number, t.apt,
 	b.kid_initial_id, t.sample_date, t.sample_type,
 	g.address_id, g.method address_method,
 	a.address, a.geom,a.census_tract_id, a.ward_id, a.community_area_id, ca.complex_id

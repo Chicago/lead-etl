@@ -13,6 +13,10 @@ from drain import data
 
 from datetime import date
 
+levels = ['address_id', 'building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id']
+deltas = [-1,1,3]
+level_deltas = {level:deltas for level in levels}
+
 VIOLATION_KEYWORDS = ['water', 'paint', 'window', 'wall', 'porch']
 
 def aggregate_violations(violations, levels):
@@ -49,8 +53,6 @@ if __name__ == '__main__':
     violations = violations.merge(addresses, how='inner', on='address',copy=False)
     print len(violations)
 
-    levels = ['address_id', 'building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id']
-    deltas = [-1,1,3]
     end_dates = map(lambda y: np.datetime64(date(y,1,1)), range(2007, 2015))
 
     def aggregated_violations():

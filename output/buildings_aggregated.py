@@ -6,6 +6,9 @@ from lead.output.aggregate import aggregate
 from drain.util import PgSQLDatabase,prefix_columns
 import sys
 
+
+levels = ['building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id', 'community_area_id' ]
+
 building_columns = {
     'count': {'numerator':1},
     'area_sum': {'numerator': 'area'},
@@ -53,8 +56,6 @@ if __name__ == '__main__':
     
     buildings = pd.read_sql('select * from aux.buildings b join output.addresses a using(building_id)', engine)
     assessor = pd.read_sql("select * from aux.assessor_summary ass join output.addresses using (address)", engine)
-    
-    levels = ['building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id', 'community_area_id' ]
     
     for level in levels:
         print level

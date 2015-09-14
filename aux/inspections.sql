@@ -6,6 +6,7 @@ create table aux.inspections as (
 	hazard_ext,
 	init_date2 init_date,
 	comply_date2 comply_date,
+        apt,
         clo closure
 	FROM input.inspections
 	WHERE init_date2 is not null OR comply_date2 is not null

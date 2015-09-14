@@ -15,6 +15,10 @@ from datetime import date
 
 CLOSURE_CODES = [0, 1, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13]
 
+levels = ['address_id', 'building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id']
+deltas = [-1, 1, 3]
+level_deltas = {level:deltas for level in levels}
+
 def censor_inspections(inspections, end_date, delta):
     max_date = inspections[['init_date', 'comply_date']].max(axis=1)
     min_date = inspections[['init_date', 'comply_date']].min(axis=1)
@@ -95,8 +99,6 @@ if __name__ == '__main__':
     addresses = pd.read_pickle(sys.argv[2])
     inspections = inspections.merge(addresses, on='address_id')
 
-    levels = ['address_id', 'building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id']
-    deltas = [-1, 1, 3]#, 5, 7, 9]
     end_dates = map(lambda y: np.datetime64(date(y,1,1)), range(2007, 2015))
 
     def aggregated_inspections():
