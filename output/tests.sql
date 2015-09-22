@@ -3,8 +3,8 @@ drop table if exists output.tests;
 create table output.tests as (
 select
         k.id kid_id,
---        k.first_name kid_first_name,
---        k.last_name kid_last_name,
+        k.first_name kid_first_name,
+        k.last_name kid_last_name,
         k.date_of_birth kid_date_of_birth,
         e.surname_null kid_surname_null,
         e.kid_ethnicity kid_ethnicity,
@@ -29,3 +29,15 @@ from aux.kids k
 join aux.tests_geocoded t on k.id = t.kid_id
 left join aux.kid_ethnicity e on k.id = e.kid_id
 );
+
+with fill as (
+    select distinct on(t1.test_id) t1.test_id, t2.address_id
+    from output.tests t1 join output.tests t2 using (kid_id)
+    where t1.address_id is null and
+          t2.address_id is not null and
+          t1.test_date >= t2.test_date
+    order by t1.test_id, t2.test_date asc
+)
+UPDATE output.tests t set address_id = f.address_id
+FROM fill f
+where t.test_id = f.test_id;
