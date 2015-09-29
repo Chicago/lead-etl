@@ -27,6 +27,9 @@ def censor_tests(tests, end_date):
     df = tests[to_revise]
     tests = tests[~to_revise] # these tests are fine, keep them to concat later
     df.drop(['kid_max_date','kid_max_bll', 'kid_minmax_date', 'kid_minmax_bll'], axis=1, inplace=True)
+
+    # TODO: here a max is the maximum age at test
+    #max_idx = df
     
     # here max refers to maximum bll
     max_idx = df.groupby('kid_id')['test_bll'].idxmax()
@@ -121,9 +124,6 @@ if __name__ == '__main__':
             # only include it if it also occurs in the future
             df = df[df[level].isin( tests[tests.test_date >= end_date][level].unique() )]
 
-            if delta != -1:
-                df = df[df.test_kid_age_days < 1095]
-
             df = aggregate_tests(df, level, end_date, delta)
 
             df.reset_index(inplace=True)
@@ -136,4 +136,3 @@ if __name__ == '__main__':
                           pk=['aggregation_end, aggregation_delta, aggregation_level, aggregation_id'], index=False)
             if r != 0:
                 sys.exit(r)
-        

@@ -3,8 +3,6 @@ psql/output/acs <- output/acs.py, psql/input/acs
 
 psql/output/tests <- output/tests.sql, psql/aux/kids, psql/aux/kid_ethnicity, psql/aux/tests_geocoded [method:psql]
 
-psql/output/kid_addresses <- output/kid_addresses.sql, psql/aux/tests_geocoded, psql/aux/addresses, psql/aux/kids [method:psql]
-
 psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/aux/complex_addresses [method:psql]
 
 ; aggregate building characteristics to complex level
@@ -27,6 +25,9 @@ echo "psql/output/tests_aggregated_"$y" <- output/tests_aggregated.py, data/outp
 echo "    \$INPUT \$INPUT1 \$INPUT2 "$y" && touch \$OUTPUT"
 
 done)
+
+psql/output/tests_aggregated <- psql/output/tests_aggregated_2007,psql/output/tests_aggregated_2008,psql/output/tests_aggregated_2009,psql/output/tests_aggregated_2010,psql/output/tests_aggregated_2011,psql/output/tests_aggregated_2012,psql/output/tests_aggregated_2013
+    touch $OUTPUT
 
 $(for table in tests inspections addresses acs; do
 

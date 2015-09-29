@@ -14,6 +14,8 @@ select
         k.minmax_date kid_minmax_date,
         k.max_bll kid_max_bll,
         k.max_date kid_max_date,
+        k.max_sample_date kid_max_sample_date,
+        k.min_sample_date kid_min_sample_date,
         t.test_number kid_test_number,
 
         t.id test_id,
@@ -23,21 +25,23 @@ select
         t.minmax test_minmax,
         t.sample_type test_type,
         
-        t.address_id, t.apt address_apt
+        --t.address_id,
+        CASE WHEN t.address in ('5001 S MICHIGAN AVE', '1634 W POLK ST', '810 W MONTROSE AVE') THEN null ELSE t.address_id END,
+        t.apt address_apt
 
 from aux.kids k
 join aux.tests_geocoded t on k.id = t.kid_id
 left join aux.kid_ethnicity e on k.id = e.kid_id
 );
 
-with fill as (
-    select distinct on(t1.test_id) t1.test_id, t2.address_id
-    from output.tests t1 join output.tests t2 using (kid_id)
-    where t1.address_id is null and
-          t2.address_id is not null and
-          t1.test_date >= t2.test_date
-    order by t1.test_id, t2.test_date asc
-)
-UPDATE output.tests t set address_id = f.address_id
-FROM fill f
-where t.test_id = f.test_id;
+--with fill as (
+--    select distinct on(t1.test_id) t1.test_id, t2.address_id
+--    from output.tests t1 join output.tests t2 using (kid_id)
+--    where t1.address_id is null and
+--          t2.address_id is not null and
+--          t1.test_date >= t2.test_date
+--    order by t1.test_id, t2.test_date asc
+--)
+--UPDATE output.tests t set address_id = f.address_id
+--FROM fill f
+--where t.test_id = f.test_id;
