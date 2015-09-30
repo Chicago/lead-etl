@@ -23,13 +23,18 @@ level_deltas = {
 def censor_tests(tests, end_date):
     tests = tests[tests['test_date'] < end_date]
     
-    to_revise = (tests['kid_max_date'] >= end_date)
+    to_revise = (tests['kid_max_sample_date'] >= end_date)
     df = tests[to_revise]
+    df.sort('test_date', inplace=True, ascending=True) # sort in place by date so ties in bll are broken by earliest test for max_test_date
     tests = tests[~to_revise] # these tests are fine, keep them to concat later
-    df.drop(['kid_max_date','kid_max_bll', 'kid_minmax_date', 'kid_minmax_bll'], axis=1, inplace=True)
+    df = df.drop(['kid_max_date','kid_max_bll', 'kid_minmax_date', 'kid_minmax_bll', 'kid_max_sample_date', 'kid_max_sample_age_days'], axis=1)
 
-    # TODO: here a max is the maximum age at test
-    #max_idx = df
+    # here a max is the maximum age at test
+    max_idx = df.groupby('kid_id')['test_kid_age_days'].idxmax()
+    max_tests = df.ix[max_idx]
+    max_tests = max_tests[['kid_id', 'test_kid_age_days', 'test_date']].rename(
+            columns = {'test_kid_age_days':'kid_max_sample_age_days', 'test_date':'kid_max_sample_date'})
+    df = df.merge(max_tests)
     
     # here max refers to maximum bll
     max_idx = df.groupby('kid_id')['test_bll'].idxmax()
