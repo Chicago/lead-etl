@@ -27,13 +27,13 @@ def censor_tests(tests, end_date):
     df = tests[to_revise]
     df.sort('test_date', inplace=True, ascending=True) # sort in place by date so ties in bll are broken by earliest test for max_test_date
     tests = tests[~to_revise] # these tests are fine, keep them to concat later
-    df = df.drop(['kid_max_date','kid_max_bll', 'kid_minmax_date', 'kid_minmax_bll', 'kid_max_sample_date', 'kid_max_sample_age_days'], axis=1)
+    df = df.drop(['kid_max_date','kid_max_bll', 'kid_minmax_date', 'kid_minmax_bll', 'kid_max_sample_date'], axis=1)
 
     # here a max is the maximum age at test
     max_idx = df.groupby('kid_id')['test_kid_age_days'].idxmax()
     max_tests = df.ix[max_idx]
     max_tests = max_tests[['kid_id', 'test_kid_age_days', 'test_date']].rename(
-            columns = {'test_kid_age_days':'kid_max_sample_age_days', 'test_date':'kid_max_sample_date'})
+            columns = {'test_date':'kid_max_sample_date'})
     df = df.merge(max_tests)
     
     # here max refers to maximum bll
@@ -83,9 +83,17 @@ def aggregate_tests(tests, level, today, delta):
         'kid_max_bll_max': {'numerator': 'kid_max_bll', 'func':np.max},
         'kid_max_bll_min': {'numerator': 'kid_max_bll', 'func':np.min},
         'kid_max_bll_std': {'numerator': 'kid_max_bll', 'func':np.std},
-         
+
+        # how old are these kids that are getting poisoned? TODO: create first_address variable so that these are not weighted by number of tests!
+        'kid_ebll_minmax_age_mean': {'numerator': lambda t: t.kid_minmax_age_days.where(t.kid_minmax_bll > 5), 'func': 'mean'},
+        'kid_ebll_minmax_age_median': {'numerator': lambda t: t.kid_minmax_age_days.where(t.kid_minmax_bll > 5), 'func': 'median'},
+
+        # how old are these kids getting tested at?
+        'kid_ebll_min_sample_age_mean': {'numerator': 'kid_min_sample_age_days', 'func': 'mean'},
+        'kid_ebll_min_sample_age_median': {'numerator': 'kid_min_sample_age_days', 'func': 'median'},
+
         'kid_count': {'numerator': 'kid_id', 'func':count_unique},
-         # count number of kids with
+        # count number of kids with
         'kid_ebll_here_count': {'numerator': ebll_kid_ids, 'func': count_unique }, # ebll here
         'kid_ebll_first_count': {'numerator': lambda t: (t.test_minmax & (t.test_bll > 5))}, # first ebll here
         'kid_ebll_ever_count' : {'numerator': lambda t: t.kid_id.where( (t.kid_minmax_bll > 5) ), 'func': count_unique}, # ever ebll
@@ -114,9 +122,14 @@ if __name__ == '__main__':
 
     year = int(sys.argv[3])
     end_date = date(year,1,1)
+    
+    all_tests = tests
+    tests = censor_tests(all_tests, end_date)
 
-    censored_tests = censor_tests(tests, end_date)
-
+    tests['kid_minmax_age_days'] = (tests.kid_minmax_date - tests.kid_date_of_birth) / np.timedelta64(1, 'D')
+    #tests['kid_max_age_days'] = (tests.kid_max_date - tests.kid_date_of_birth) / np.timedelta64(1, 'D')
+    tests['kid_min_sample_age_days'] = (tests.kid_min_sample_date - tests.kid_date_of_birth) / np.timedelta64(1, 'D')
+    #tests['kid_max_sample_age_days'] = (tests.kid_min_sample_date - tests.kid_date_of_birth) / np.timedelta64(1, 'D')
     
     #execute_sql("delete from output.tests_aggregated where aggregation_end='{end_date}'".format(end_date=end_date), engine)
 
@@ -125,9 +138,9 @@ if __name__ == '__main__':
             print year, level, delta
 
             # non-null level
-            df = censored_tests[censored_tests[level].notnull()]
-            # only include it if it also occurs in the future
-            df = df[df[level].isin( tests[tests.test_date >= end_date][level].unique() )]
+            df = tests[tests[level].notnull()]
+            # shortcut: only include it if it also occurs in the future
+            df = df[df[level].isin( all_tests[all_tests.test_date >= end_date][level].unique() )]
 
             df = aggregate_tests(df, level, end_date, delta)
 
