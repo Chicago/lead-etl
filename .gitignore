@@ -1,4 +1,6 @@
 model/output
+input/acs/generated
+model/params
 .*
 !.gitignore
 *.pyc
