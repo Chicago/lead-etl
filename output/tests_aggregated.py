@@ -32,7 +32,7 @@ def censor_tests(tests, end_date):
     # here a max is the maximum age at test
     max_idx = df.groupby('kid_id')['test_kid_age_days'].idxmax()
     max_tests = df.ix[max_idx]
-    max_tests = max_tests[['kid_id', 'test_kid_age_days', 'test_date']].rename(
+    max_tests = max_tests[['kid_id', 'test_date']].rename(
             columns = {'test_date':'kid_max_sample_date'})
     df = df.merge(max_tests)
     

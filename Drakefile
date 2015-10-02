@@ -11,7 +11,7 @@ psql()
 
 pickle_table()
 	TABLENAME=$(echo $INPUT | sed 's/.*psql\///;s/\//./')
-        output/pickle_table.py $TABLENAME $OUTPUT
+        $[BASE]/output/pickle_table.py $TABLENAME $OUTPUT
 	
 %include $[BASE]/input/Drakefile
 
