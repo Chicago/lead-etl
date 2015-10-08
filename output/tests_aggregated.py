@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import sys
 import os
+from sqlalchemy.types import REAL,DATE,INTEGER,TEXT,DECIMAL
 
 from lead.model.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns
 from lead.output.aggregate import aggregate
@@ -12,11 +13,11 @@ from datetime import date,timedelta
 from dateutil.parser import parse
 
 level_deltas = {
+    'census_tract_id': [-1] + [1,3,5,7],
     'address_id': [-1] + [1,3,5,7],
     'building_id': [-1] + [1,3,5,7],
     'complex_id': [-1] + [1,3,5,7],
     'census_block_id': [-1] + [1,3,5,7],
-    'census_tract_id': [-1] + [1,3,5,7],
 }
 # does not modify passed tests dataframe
 # optionally populate start_ and end_columns with start_ and end_dates
@@ -60,6 +61,8 @@ def aggregate_tests(tests, level, today, delta):
     if delta != -1:
         start_date = date(end_date.year-delta, end_date.month, end_date.day)
         tests = tests[tests['test_date'] >= start_date]
+    else:
+        start_date = tests.test_date.min()
 
     ebll_test_count = lambda t: (t.test_bll > 5).astype(int)
     ebll_kid_ids = lambda t: t.kid_id.where(t.test_bll > 5)
@@ -93,13 +96,19 @@ def aggregate_tests(tests, level, today, delta):
         'kid_ebll_min_sample_age_median': {'numerator': 'kid_min_sample_age_days', 'func': 'median'},
 
         'kid_count': {'numerator': 'kid_id', 'func':count_unique},
+        'family_count': {'numerator': 'kid_last_name', 'func':count_unique},
+        'family_ebll_count': {'numerator': lambda t: t.kid_last_name.where( t.kid_max_bll > 5), 'func':count_unique},
+
+        # a kid is 'susceptible' in this period if they hadn't been poisoned by the start of the period
+        'kid_susceptible_count': {'numerator': lambda t: t.kid_id.where( (t.kid_max_bll <= 5) | (t.kid_minmax_date >= start_date) ), 'func':count_unique},
+
         # count number of kids with
         'kid_ebll_here_count': {'numerator': ebll_kid_ids, 'func': count_unique }, # ebll here
         'kid_ebll_first_count': {'numerator': lambda t: (t.test_minmax & (t.test_bll > 5))}, # first ebll here
         'kid_ebll_ever_count' : {'numerator': lambda t: t.kid_id.where( (t.kid_minmax_bll > 5) ), 'func': count_unique}, # ever ebll
         'kid_ebll_future_count': {'numerator': lambda t: t.kid_id.where( (t.kid_minmax_bll > 5) & (t.kid_minmax_date >= t.test_date) ), 'func': count_unique}, # future ebll
 
-        'address_count': {'numerator': 'address_id', 'func': count_unique},
+        'address_tested_count': {'numerator': 'address_id', 'func': count_unique},
         'address_ebll_count': {'numerator': lambda t: t.address_id.where(t.test_bll > 5), 'func': count_unique},
     }
 
@@ -108,8 +117,31 @@ def aggregate_tests(tests, level, today, delta):
     df['kid_ebll_first_prop'] = df['kid_ebll_first_count']/df['kid_count']
     df['kid_ebll_ever_prop'] = df['kid_ebll_ever_count']/df['kid_count']
     df['kid_ebll_future_prop'] = df['kid_ebll_future_count']/df['kid_count']
-    df['address_ebll_prop'] = df['address_ebll_count']/df['address_count']
+    df['address_tested_ebll_prop'] = df['address_ebll_count']/df['address_tested_count']
+    df['family_ebll_prop'] = df['family_ebll_count']/df['family_count']
+
+    df['kid_ebll_future_prop'] = df['kid_ebll_future_count']/df['kid_susceptible_count']
+    df['kid_ebll_first_prop'] = df['kid_ebll_first_count']/df['kid_susceptible_count']
+
+    df = df.astype(float, copy=False)
   
+    df.reset_index(inplace=True)
+    df.rename(columns={level:'aggregation_id'}, inplace=True)
+    df['aggregation_level'] = level
+    df['aggregation_delta'] = delta
+    df['aggregation_end'] = end_date
+
+    return df
+
+def aggregate_addresses(addresses, level):
+    ADDRESS_COLUMNS={'residential_count':{'numerator':'address_residential', 'func':'sum'}}
+
+    df = aggregate(addresses, ADDRESS_COLUMNS, index=level)
+
+    df.reset_index(inplace=True)
+    df.rename(columns={level:'aggregation_id'}, inplace=True)
+    df['aggregation_level'] = level
+    
     return df
 
 if __name__ == '__main__':
@@ -130,8 +162,7 @@ if __name__ == '__main__':
     #tests['kid_max_age_days'] = (tests.kid_max_date - tests.kid_date_of_birth) / np.timedelta64(1, 'D')
     tests['kid_min_sample_age_days'] = (tests.kid_min_sample_date - tests.kid_date_of_birth) / np.timedelta64(1, 'D')
     #tests['kid_max_sample_age_days'] = (tests.kid_min_sample_date - tests.kid_date_of_birth) / np.timedelta64(1, 'D')
-    
-    #execute_sql("delete from output.tests_aggregated where aggregation_end='{end_date}'".format(end_date=end_date), engine)
+    residential = pd.concat( (aggregate_addresses(addresses, level) for level in level_deltas), copy=False)
 
     for level,deltas in level_deltas.iteritems():
         for delta in deltas:
@@ -141,16 +172,18 @@ if __name__ == '__main__':
             df = tests[tests[level].notnull()]
             # shortcut: only include it if it also occurs in the future
             df = df[df[level].isin( all_tests[all_tests.test_date >= end_date][level].unique() )]
-
             df = aggregate_tests(df, level, end_date, delta)
 
-            df.reset_index(inplace=True)
-            df.rename(columns={level:'aggregation_id'}, inplace=True)
-            df['aggregation_level'] = level
-            df['aggregation_delta'] = delta
-            df['aggregation_end'] = end_date
-        
-            r = db.to_sql(df, 'tests_aggregated', if_exists='append', schema='output', 
-                          pk=['aggregation_end, aggregation_delta, aggregation_level, aggregation_id'], index=False)
+            df = df.merge(residential, on=['aggregation_level', 'aggregation_id'])
+            df['address_test_prop'] = df['address_tested_count'] / df['residential_count']
+            df['address_ebll_prop'] = df['address_ebll_count'] / df['residential_count']
+
+            pk = {'aggregation_end':DATE, 'aggregation_delta':INTEGER, 'aggregation_level':TEXT, 'aggregation_id':DECIMAL}
+            dtype = {c:REAL for c in df.columns if c not in pk}
+            dtype.update(pk)
+            pk = str.join(',', pk.keys())
+
+            r = db.to_sql(df, 'tests_aggregated_temp', if_exists='append', schema='output', 
+                          pk=pk, dtype=dtype, index=False)
             if r != 0:
                 sys.exit(r)

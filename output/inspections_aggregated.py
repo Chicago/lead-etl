@@ -8,6 +8,7 @@ from itertools import product
 
 from lead.model.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns, join_years
 from lead.output.aggregate import aggregate
+from lead.output.tests_aggregated import aggregate_addresses
 
 from drain import data
 
@@ -52,6 +53,8 @@ def aggregate_inspections(inspections, levels):
 
     inspections['comply'] = inspections.comply_date.notnull()
     inspections['init'] = inspections.init_date.notnull()
+    inspections['hazard'] = inspections.hazard_int | inspections.hazard_ext
+    inspections['hazard_both'] = inspections.hazard_int & inspections.hazard_ext
 
     dt = (inspections['comply_date'] - inspections['init_date']).where(inspections['comply'])
     day = np.timedelta64(1, 'D')
@@ -62,15 +65,26 @@ def aggregate_inspections(inspections, levels):
         'inspected': {'numerator':'init', 'func': np.max},
         'complied': {'numerator':'comply', 'func': np.max},
         #TODO: percent of all houses inspected, number/prop of *unique* compliances (by addr_id or by address_id)
-        'hazard_int_count': {'numerator':lambda i: i['hazard_int'] & ~i['comply']},
-        'hazard_ext_count': {'numerator':lambda i: i['hazard_ext']},
+	'hazard_int_count': {'numerator': 'hazard_int'},
+        'hazard_ext_count': {'numerator': 'hazard_ext'},
+	'hazard_count': {'numerator': 'hazard'},
+	'hazard_both_count': {'numerator': 'hazard_both'},
+
         'hazard_int_prop': {'numerator':'hazard_int', 'denominator':1},
         'hazard_ext_prop': {'numerator':'hazard_ext', 'denominator':1},
+        'hazard_ext_prop': {'numerator':'hazard', 'denominator':1},
+        'hazard_ext_prop': {'numerator':'hazard_both', 'denominator':1},
+
         'compliance_count': {'numerator': 'comply'},
         'compliance_prop': {'numerator': 'comply', 'denominator': 1},
         'avg_init_to_comply_days': {'numerator': 'days_to_compliance', 'func':'mean'},
         'days_since_last_init': {'numerator': lambda i: (i['aggregation_end'] - i['init_date']) / day, 'func': 'min'},
         'days_since_last_comply': {'numerator': lambda i: (i['aggregation_end'] - i['comply_date']) / day, 'func': 'min'},
+
+        'address_count': {'numerator': 'address_id', 'func':count_unique},
+        'address_init_count': {'numerator': lambda i: i.address_id.where(i.init), 'func':count_unique},
+        'address_comply_count': {'numerator': lambda i: i.address_id.where(i.comply), 'func':count_unique},
+        'address_hazard_count': {'numerator': lambda i: i.address_id.where(i.hazard), 'func':count_unique },
     }
 
     for i in CLOSURE_CODES:
@@ -101,6 +115,8 @@ if __name__ == '__main__':
 
     end_dates = map(lambda y: np.datetime64(date(y,1,1)), range(2007, 2015))
 
+    residential = pd.concat((aggregate_addresses(addresses, level) for level in levels), copy=False)
+
     def aggregated_inspections():
         for delta,end_date in product(deltas, end_dates):
             print end_date, delta
@@ -108,6 +124,13 @@ if __name__ == '__main__':
             df = aggregate_inspections(censored_inspections, levels)
             df['aggregation_end'] = end_date
             df['aggregation_delta']=delta
+
+            df = df.merge(residential, on=['aggregation_level', 'aggregation_id'])
+            df['address_prop'] = df['address_count']/df['residential_count']
+            df['address_init_prop'] = df['address_init_count']/df['residential_count']
+            df['address_comply_prop'] = df['address_comply_count']/df['residential_count']
+            df['address_hazard_prop'] = df['address_hazard_count']/df['residential_count']
+
             yield df
     
     df = pd.concat(aggregated_inspections())

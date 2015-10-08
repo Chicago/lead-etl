@@ -1,13 +1,13 @@
 import_shapefile()
-	BASENAME=$(echo $INPUT | sed 's/.shp//') 
-	# get table name from output, e.g. change $BASE/psql/input/wards gives input.wards
-	TABLENAME=$(echo $OUTPUT | sed 's/.*psql\///;s/\//./') 
-	# ogr2ogr doesn't like an existing file
-	rm -f "$BASENAME"4326.*
-	ogr2ogr -t_srs EPSG:4326 "$BASENAME"4326.shp $INPUT
-	# -q suppresses query output which for large shapefiles seems to slow down the import
-	shp2pgsql -I -D -d -s 4326 "$BASENAME"4326.shp $TABLENAME | psql -q
-	touch $OUTPUT
+        BASENAME=$(echo $INPUT | sed 's/.shp//')
+        # get table name from output, e.g. change $BASE/psql/input/wards gives input.wards
+        TABLENAME=$(echo $OUTPUT | sed 's/.*psql\///;s/\//./')
+        # ogr2ogr doesn't like an existing file
+        rm -f "$BASENAME"4326.*
+        ogr2ogr -t_srs EPSG:4326 "$BASENAME"4326.shp $INPUT
+        # -q suppresses query output which for large shapefiles seems to slow down the import
+        shp2pgsql -I -D -d -s 4326 "$BASENAME"4326.shp $TABLENAME | psql -q
+        touch $OUTPUT
 
 wget_unzip()
     mkdir -p $(dirname $OUTPUT0)
