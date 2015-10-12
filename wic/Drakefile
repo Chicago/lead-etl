@@ -27,3 +27,6 @@ psql/input/wic <- data/wic/csv/, wic/copy_wic.py
         $INPUT1 $filename
     done
     touch $OUTPUT
+
+psql/input/wic_addresses <- wic/wic_addresses.py
+    python $INPUT $WIC_INFANTS_GEOCODED_FILE $WIC_PREGNANT_GEOCODED_FILE && touch $OUTPUT

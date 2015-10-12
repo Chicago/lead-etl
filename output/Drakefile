@@ -19,11 +19,11 @@ psql/output/permits_aggregated <- output/permits_aggregated.py, data/output/addr
 psql/output/violations_aggregated <- output/violations_aggregated.py, data/output/addresses.pkl, psql/input/building_violations
     $INPUT $INPUT1 && touch $OUTPUT
 
-psql/output/tests_aggregated_init <- output/tests_aggregated_init.sql [method:psql]
+psql/output/tests_aggregated_init <- output/tests_aggregated_init.sql, data/output/tests.pkl, data/output/addresses.pkl [method:psql]
 
 $(for y in {2007..2013}; do
 
-echo "psql/output/tests_aggregated_"$y" <- output/tests_aggregated.py, data/output/tests.pkl, data/output/addresses.pkl, psql/output/tests_aggregated_init"
+echo "psql/output/tests_aggregated_"$y" <- output/tests_aggregated.py, psql/output/tests_aggregated_init"
 echo "    \$INPUT \$INPUT1 \$INPUT2 "$y" && touch \$OUTPUT || rm $INPUT3"
 
 done)

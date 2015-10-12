@@ -43,6 +43,14 @@ INSERT INTO aux.addresses (address, geom, source) (
         left join aux.addresses a2 using(address) where a2.address is null
 );
 
+-- load addresses from wic
+INSERT INTO aux.addresses (address, geom, source) (
+    select distinct on (address) address,
+    st_transform(st_setsrid(st_point("XCOORD", "YCOORD"),3435), 4326) as geom, 'wic'
+    from input.wic_addresses a left join aux.addresses a2 using (address) where a2.address is null
+    order by address
+);
+
 -- set census tract and block ids
 with address_blocks as (
     select a.id, (select c.geoid10 from input.census_blocks c where st_contains(c.geom, a.geom) limit 1)
