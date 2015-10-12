@@ -13,4 +13,4 @@ for i in xrange(4):
     dtype['pa_c.'+str(i)] = float
 
 df = pd.read_csv(sys.argv[1], dtype=dtype)
-db.to_sql(df, tablename, if_exists='append', schema='input', index=False)
+db.to_sql(df, tablename, if_exists='append', schema='wic', index=False)

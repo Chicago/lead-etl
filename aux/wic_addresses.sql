@@ -1,8 +1,5 @@
-with wic_addresses as (
-    select "FULL_ADDR" as address,
-    st_transform(st_setsrid(st_point("XCOORD", "YCOORD"),3435), 4326) as geom
-    from input.wic_addresses left join aux.addresses on "FULL_ADDR"=address
-    where address is null
-)
+DROP TABLE IF EXISTS aux.wic_addresses;
 
-insert into aux.addresses (address, lat 
+CREATE TABLE aux.wic_addresses AS (
+    select wk.kid_id, a.id address_id from wic.wic_infant w join wic.wic_kids wk on w.id = wk.wic_id join wic.wic_addresses using (addr_ln1_t, addr_zi) join aux.addresses a using (address)
+);

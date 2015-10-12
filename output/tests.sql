@@ -27,11 +27,14 @@ select
         
         --t.address_id,
         CASE WHEN t.address in ('5001 S MICHIGAN AVE', '1634 W POLK ST', '810 W MONTROSE AVE') THEN null ELSE t.address_id END,
-        t.apt address_apt
+        t.apt address_apt,
+
+        w.kid_id is not null as wic
 
 from aux.kids k
 join aux.tests_geocoded t on k.id = t.kid_id
 left join aux.kid_ethnicity e on k.id = e.kid_id
+left join aux.wic_kids w on t.kid_id = w.kid_id
 );
 
 --with fill as (

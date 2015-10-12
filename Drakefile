@@ -1,7 +1,11 @@
 BASE:=.
 
 psql()
-    psql -v ON_ERROR_STOP=1 -f $[INPUT] && touch $[OUTPUT]
+    psql -v ON_ERROR_STOP=1 -f $INPUT && touch $OUTPUT
+
+psql_schema()
+    schema=$(basename $OUTPUT)
+    psql -v ON_ERROR_STOP=1 -c "DROP SCHEMA IF EXISTS $schema CASCADE; CREATE SCHEMA $schema" && mkdir -p $OUTPUT && touch $OUTPUT/schema
 
 pickle_table()
 	TABLENAME=$(echo $INPUT | sed 's/.*psql\///;s/\//./')

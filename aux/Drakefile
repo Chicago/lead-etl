@@ -36,4 +36,5 @@ psql/aux/building_permits <- aux/building_permits.py, psql/input/building_permit
 psql/aux/wic <- aux/wic.py, psql/input/wic
     $INPUT && touch $OUTPUT
 
-psql/aux/wic_kids <- aux/wic_kids.sql, psql/aux/wic, psql/aux/kid_tests [method:psql]
+psql/aux/wic_addresses <- aux/wic_addresses.sql, psql/wic/wic_infant, psql/wic/wic_kids, psql/wic/wic_addresses, psql/aux/addresses [method:psql]
+

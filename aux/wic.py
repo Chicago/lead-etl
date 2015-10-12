@@ -65,8 +65,9 @@ select cur_frst_t first_name,
        hse_inc_ household_income,
        array[pa_c, "pa_c.1", "pa_c.2", "pa_c.3", "pa_c.4"] as public_assistance,
        clinic,
-       addr_ln1_t address
-from input.wic_infant
+       addr_ln1_t address,
+       kid_id
+from wic.wic_infant wi join wic.wic_kids wk on wi.id = wk.wic_id
 """, engine)
 
 wic.public_assistance = wic.public_assistance.apply(psql_array)
@@ -83,17 +84,13 @@ wic_columns = {
     
     'public_assistance': {'numerator':'public_assistance', 'func': lambda d: list(np.concatenate(d.values))},
     'clinic': {'numerator':'clinic', 'func':lambda d: d.values[0]},
-    'address': {'numerator':'address', 'func': lambda d: d.values[0] }
 }
 
-wic_agg = aggregate(wic, wic_columns, index=['first_name', 'last_name','date_of_birth'])
+wic_agg = aggregate(wic, wic_columns, index='kid_id')
 
 array_to_dummies(wic_agg, 'public_assistance', public_assistance_codes)
 
 wic_agg.drop('public_assistance', inplace=True, axis=1)
 
-wic_agg.reset_index(inplace=True)
-wic_agg.index.names=['id']
-
 db = util.PgSQLDatabase(engine)
-db.to_sql(frame = wic_agg, name='wic', schema='aux',if_exists='replace', index=True)
+db.to_sql(frame = wic_agg, name='wic_kids', schema='aux',if_exists='replace', index=True)

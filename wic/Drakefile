@@ -1,3 +1,5 @@
+psql/wic/ <- [method:psql_schema -timecheck]
+
 ; dump pdf to text
 data/wic/pdftotext/ <- [-timecheck]
     mkdir -p $OUTPUT
@@ -19,14 +21,22 @@ data/wic/csv/ <- data/wic/grep/, wic/to_csv.sh, wic/to_csv.py
     $INPUT1 
 
 ; copy to database
-psql/input/wic <- data/wic/csv/, wic/copy_wic.py
+psql/wic/wic_infant, psql/wic/wic_pregnant <- data/wic/csv/, wic/copy_wic.py
     psql -c "DROP TABLE IF EXISTS input.wic_infant; DROP TABLE IF EXISTS input.wic_pregnant;"
     # WestTown has all the fields so create table based on that by sorting in reverse order
     for filename in `ls -r $INPUT/*.csv`; do
         echo $filename
         $INPUT1 $filename
     done
-    touch $OUTPUT
+    psql -c "ALTER TABLE wic.wic_infant ADD id SERIAL PRIMARY KEY; ALTER TABLE wic.wic_pregnant ADD id SERIAL PRIMARY KEY;"
+    touch $OUTPUTS
 
-psql/input/wic_addresses <- wic/wic_addresses.py
+psql/wic/wic_addresses <- wic/wic_addresses.py
     python $INPUT $WIC_INFANTS_GEOCODED_FILE $WIC_PREGNANT_GEOCODED_FILE && touch $OUTPUT
+
+psql/wic/wic_dedupe <- wic/wic_dedupe.sql, psql/wic/wic_infant, psql/aux/kid_tests, psql/aux/kid_components, psql/aux/kids_initial, psql/aux/tests [method:psql]
+
+psql/wic/wic_components <- wic/wic_components.py
+    python $INPUT && touch $OUTPUT
+
+psql/wic/wic_kids <- wic/wic_kids.sql [method:psql]
