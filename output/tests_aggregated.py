@@ -114,9 +114,7 @@ def aggregate_tests(tests, level, today, delta):
 
     df = aggregate(tests, TEST_COLUMNS, index=level)
     df['kid_ebll_here_prop'] = df['kid_ebll_here_count']/df['kid_count']
-    df['kid_ebll_first_prop'] = df['kid_ebll_first_count']/df['kid_count']
     df['kid_ebll_ever_prop'] = df['kid_ebll_ever_count']/df['kid_count']
-    df['kid_ebll_future_prop'] = df['kid_ebll_future_count']/df['kid_count']
     df['address_tested_ebll_prop'] = df['address_ebll_count']/df['address_tested_count']
     df['family_ebll_prop'] = df['family_ebll_count']/df['family_count']
 
