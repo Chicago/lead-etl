@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import pandas as pd
 import sys
-from lead.model import util
+from drain import util
 
 tablename = 'wic_' + ('pregnant' if sys.argv[1].endswith('_P.csv') else 'infant')
 

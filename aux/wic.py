@@ -1,9 +1,10 @@
 #!/usr/bin/python
-
 import numpy as np
-from lead.model import util
 from lead.output.aggregate import aggregate
 import pandas as pd
+from drain import util
+from drain.util import mode
+from sqlalchemy.types import Integer
 
 def psql_array(d):
     d = np.array(d, dtype=np.float)
@@ -66,24 +67,28 @@ select cur_frst_t first_name,
        array[pa_c, "pa_c.1", "pa_c.2", "pa_c.3", "pa_c.4"] as public_assistance,
        clinic,
        addr_ln1_t address,
-       kid_id
+       kid_id,
+       a.id address_id
 from wic.wic_infant wi join wic.wic_kids wk on wi.id = wk.wic_id
+    left join wic.wic_addresses using (addr_ln1_t, addr_zi)
+    left join aux.addresses a using (address)
 """, engine)
 
 wic.public_assistance = wic.public_assistance.apply(psql_array)
 
 wic_columns = {
     'count': {'numerator':1},
-    'household_size_min': {'numerator': 'household_size', 'func':np.min},
-    'household_size_max': {'numerator': 'household_size', 'func':np.max},
-    'household_size_median': {'numerator': 'household_size', 'func':np.max},
+    'household_size_min': {'numerator': 'household_size', 'func':'min'},
+    'household_size_max': {'numerator': 'household_size', 'func':'max'},
+    'household_size_median': {'numerator': 'household_size', 'func':'max'},
     
-    'household_income_min': {'numerator': 'household_income', 'func':np.min},
-    'household_income_max': {'numerator': 'household_income', 'func':np.max},
-    'household_income_median': {'numerator': 'household_income', 'func':np.max},
+    'household_income_min': {'numerator': 'household_income', 'func':'min'},
+    'household_income_max': {'numerator': 'household_income', 'func':'max'},
+    'household_income_median': {'numerator': 'household_income', 'func':'max'},
     
     'public_assistance': {'numerator':'public_assistance', 'func': lambda d: list(np.concatenate(d.values))},
-    'clinic': {'numerator':'clinic', 'func':lambda d: d.values[0]},
+    'clinic': {'numerator':'clinic', 'func': mode},
+    'address_id': {'numerator':'address_id', 'func': mode}
 }
 
 wic_agg = aggregate(wic, wic_columns, index='kid_id')

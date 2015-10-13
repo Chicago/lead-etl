@@ -29,14 +29,14 @@ psql/wic/wic_infant, psql/wic/wic_pregnant <- data/wic/csv/, wic/copy_wic.py
         $INPUT1 $filename
     done
     psql -c "ALTER TABLE wic.wic_infant ADD id SERIAL PRIMARY KEY; ALTER TABLE wic.wic_pregnant ADD id SERIAL PRIMARY KEY;"
-    touch $OUTPUTS
+    touch $OUTPUT0 $OUTPUT1
 
 psql/wic/wic_addresses <- wic/wic_addresses.py
     python $INPUT $WIC_INFANTS_GEOCODED_FILE $WIC_PREGNANT_GEOCODED_FILE && touch $OUTPUT
 
 psql/wic/wic_dedupe <- wic/wic_dedupe.sql, psql/wic/wic_infant, psql/aux/kid_tests, psql/aux/kid_components, psql/aux/kids_initial, psql/aux/tests [method:psql]
 
-psql/wic/wic_components <- wic/wic_components.py
+psql/wic/wic_components <- wic/wic_components.py, psql/wic/wic_dedupe
     python $INPUT && touch $OUTPUT
 
-psql/wic/wic_kids <- wic/wic_kids.sql [method:psql]
+psql/wic/wic_kids <- wic/wic_kids.sql, psql/wic/wic_components [method:psql]

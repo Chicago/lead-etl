@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from lead.model import util
+from drain import util
 import pandas as pd
 import numpy as np
 from lead.output.aggregate import aggregate

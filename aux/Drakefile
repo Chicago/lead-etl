@@ -31,9 +31,7 @@ psql/aux/buildings <- aux/buildings.py, psql/input/buildings, psql/buildings/bui
 psql/aux/building_permits <- aux/building_permits.py, psql/input/building_permits
     $INPUT && touch $OUTPUT
 
-;psql/aux/wic <- aux/wic.sql, psql/input/wic [method:psql]
-
-psql/aux/wic <- aux/wic.py, psql/input/wic
+psql/aux/wic_kids <- aux/wic.py, psql/wic/wic_kids
     $INPUT && touch $OUTPUT
 
 psql/aux/wic_addresses <- aux/wic_addresses.sql, psql/wic/wic_infant, psql/wic/wic_kids, psql/wic/wic_addresses, psql/aux/addresses [method:psql]

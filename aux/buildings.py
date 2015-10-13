@@ -1,9 +1,9 @@
 #!/usr/bin/python
-from lead.model import util
+from drain import util
 import pandas as pd
 import numpy as np
 from lead.output.aggregate import aggregate
-from lead.model.util import PgSQLDatabase, prefix_columns
+from drain.util import PgSQLDatabase, prefix_columns
 from sqlalchemy.dialects.postgresql import ARRAY
 from  sqlalchemy.types import Float
 import sys

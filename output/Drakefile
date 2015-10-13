@@ -1,7 +1,7 @@
 psql/output/acs <- output/acs.py, psql/input/acs
     $INPUT && touch $OUTPUT
 
-psql/output/tests <- output/tests.sql, psql/aux/kids, psql/aux/kid_ethnicity, psql/aux/tests_geocoded [method:psql]
+psql/output/tests <- output/tests.sql, psql/aux/kids, psql/aux/kid_ethnicity, psql/aux/tests_geocoded, psql/aux/wic_kids [method:psql]
 
 psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/aux/complex_addresses [method:psql]
 
@@ -23,7 +23,7 @@ psql/output/tests_aggregated_init <- output/tests_aggregated_init.sql, data/outp
 
 $(for y in {2007..2013}; do
 
-echo "psql/output/tests_aggregated_"$y" <- output/tests_aggregated.py, psql/output/tests_aggregated_init"
+echo "psql/output/tests_aggregated_"$y" <- output/tests_aggregated.py, data/output/tests.pkl, data/output/addresses.pkl, psql/output/tests_aggregated_init"
 echo "    \$INPUT \$INPUT1 \$INPUT2 "$y" && touch \$OUTPUT || rm $INPUT3"
 
 done)

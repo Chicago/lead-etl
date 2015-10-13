@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import pandas as pd
-from lead.model import util
+from drain import util
 import sys
 
 engine = util.create_engine()

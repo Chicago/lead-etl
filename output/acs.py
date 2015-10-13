@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-from lead.model import util
+from drain import util
 from lead.output.aggregate import aggregate
 import pandas as pd
 

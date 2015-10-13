@@ -11,7 +11,7 @@ drop table if exists wic.wic_kid_edges;
 
 create table wic.wic_kid_edges as (
 
-select w.id wic_id, kt.kid_id kid_id
+select w.id wic_id, kt.kid_id kid_id, substring(t.first_name for 1) || substring(t.last_name for 1) as initials
 
 from aux.tests t join wic.wic_kids_original w using (first_name,last_name,date_of_birth)
 join aux.kid_tests kt on kt.test_id = t.id

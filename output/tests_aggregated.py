@@ -6,7 +6,7 @@ import sys
 import os
 from sqlalchemy.types import REAL,DATE,INTEGER,TEXT,DECIMAL
 
-from lead.model.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns
+from drain.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns
 from lead.output.aggregate import aggregate
 
 from datetime import date,timedelta

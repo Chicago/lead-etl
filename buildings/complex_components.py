@@ -2,7 +2,7 @@
 
 import pandas as pd
 import numpy as np
-from lead.model import util
+from drain import util
 from lead.aux.dedupe import dedupe
 
 engine = util.create_engine()
