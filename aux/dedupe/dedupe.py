@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from lead.model.util import execute_sql
+from drain.util import execute_sql
 
 def follow(id1, edges, visited = None, weak=True):
     if visited == None: visited = set() 
