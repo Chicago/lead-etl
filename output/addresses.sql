@@ -3,7 +3,13 @@ DROP TABLE IF EXISTS output.addresses;
 CREATE TABLE output.addresses AS (
 
 with tested_addresses as (
-    select address_id from aux.test_addresses group by address_id
+    select address_id from (
+        select address_id from output.tests 
+        UNION ALL 
+        select wic_address_id from output.tests
+        UNION ALL
+        select address_id from output.inspections) t 
+    group by address_id
 ),
 
 residential_complexes as (
