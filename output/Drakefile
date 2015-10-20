@@ -1,9 +1,11 @@
+psql/output/ <- [-timecheck method:psql_schema]
+
 psql/output/acs <- output/acs.py, psql/input/acs
     $INPUT && touch $OUTPUT
 
 psql/output/tests <- output/tests.sql, psql/aux/kids, psql/aux/kid_ethnicity, psql/aux/tests_geocoded, psql/aux/wic_kids [method:psql]
 
-psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/aux/complex_addresses [method:psql]
+psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/aux/complex_addresses, psql/output/tests [method:psql]
 
 ; aggregate building characteristics to complex level
 psql/output/buildings_aggregated <- output/buildings_aggregated.py, psql/output/addresses, psql/aux/buildings, psql/aux/complex_addresses, psql/aux/assessor_summary
