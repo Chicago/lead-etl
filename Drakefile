@@ -1,5 +1,3 @@
-BASE:=.
-
 psql()
     psql -v ON_ERROR_STOP=1 -f $INPUT && touch $OUTPUT
 
