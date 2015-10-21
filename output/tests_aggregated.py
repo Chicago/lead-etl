@@ -7,7 +7,7 @@ import os
 from sqlalchemy.types import REAL,DATE,INTEGER,TEXT,DECIMAL
 
 from drain.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns
-from drain import aggregate
+from drain.aggregate import aggregate
 
 from datetime import date,timedelta
 from dateutil.parser import parse

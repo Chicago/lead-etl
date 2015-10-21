@@ -5,14 +5,13 @@ import numpy as np
 import sys
 import os
 from itertools import product
+from datetime import date
 
 from drain.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns, join_years
-from drain import aggregate
-from lead.output.tests_aggregated import aggregate_addresses
-
+from drain.aggregate import aggregate
 from drain import data
 
-from datetime import date
+from lead.output.tests_aggregated import aggregate_addresses
 
 CLOSURE_CODES = [0, 1, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13]
 

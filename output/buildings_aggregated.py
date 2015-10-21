@@ -1,10 +1,11 @@
 #!/usr/bin/python
-from drain import util
 import pandas as pd
 import numpy as np
-from drain import aggregate
-from drain.util import PgSQLDatabase,prefix_columns
 import sys
+
+from drain import util
+from drain.aggregate import aggregate
+from drain.util import PgSQLDatabase,prefix_columns
 
 
 levels = ['building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id', 'community_area_id' ]

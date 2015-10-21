@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 from lead.model import util
-from drain import aggregate
+from drain.aggregate import aggregate
 import sys
 
 def read_acs(table, columns, engine=None, offsets={0:{}}, years=[2009,2010,2011,2012,2013]):

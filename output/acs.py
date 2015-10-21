@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 from drain import util
-from drain import aggregate
+from drain.aggregate import aggregate
 import pandas as pd
 
 columns = {
