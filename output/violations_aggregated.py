@@ -7,7 +7,7 @@ import os
 from itertools import product
 
 from drain.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns, join_years
-from lead.output.aggregate import aggregate, censor
+from drain import aggregate, censor
 
 from drain import data
 
@@ -59,9 +59,7 @@ if __name__ == '__main__':
         for delta,end_date in product(deltas, end_dates):
             print end_date, delta
             censored_violations = censor(violations, 'violation_date', end_date, delta)
-            print len(censored_violations)
             df = aggregate_violations(censored_violations, levels)
-            print len(df)
             df['aggregation_end'] = end_date
             df['aggregation_delta']=delta
             yield df

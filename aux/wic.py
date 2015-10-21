@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import numpy as np
-from lead.output.aggregate import aggregate
+from drain import aggregate
 import pandas as pd
 from drain import util
 from drain.util import mode

@@ -7,7 +7,7 @@ import os
 from itertools import product
 
 from drain.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns, join_years
-from lead.output.aggregate import aggregate
+from drain import aggregate
 from lead.output.tests_aggregated import aggregate_addresses
 
 from drain import data
