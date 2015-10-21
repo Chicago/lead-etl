@@ -18,14 +18,14 @@ ACS_PROFILE:=/home/epotash/lead/acs_profile
 %include $[PROFILE]
 PYTHONPATH=/home/epotash/
 
-%include $[BASE]/input/Drakefile
+%include input/Drakefile
 
-%include $[BASE]/wic/Drakefile
+%include wic/Drakefile
 
-%include $[BASE]/buildings/Drakefile
+%include buildings/Drakefile
 
-%include $[BASE]/aux/dedupe/Drakefile
+%include aux/dedupe/Drakefile
 
-%include $[BASE]/aux/Drakefile
+%include aux/Drakefile
 
-%include $[BASE]/output/Drakefile
+%include output/Drakefile
