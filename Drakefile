@@ -1,3 +1,5 @@
+BASE:=.
+
 psql()
     psql -v ON_ERROR_STOP=1 -f $INPUT && touch $OUTPUT
 
@@ -16,14 +18,14 @@ ACS_PROFILE:=/home/epotash/lead/acs_profile
 %include $[PROFILE]
 PYTHONPATH=/home/epotash/
 
-%include input/Drakefile
+%include $[BASE]/input/Drakefile
 
-%include wic/Drakefile
+%include $[BASE]/wic/Drakefile
 
-%include buildings/Drakefile
+%include $[BASE]/buildings/Drakefile
 
-%include aux/dedupe/Drakefile
+%include $[BASE]/aux/dedupe/Drakefile
 
-%include aux/Drakefile
+%include $[BASE]/aux/Drakefile
 
-%include output/Drakefile
+%include $[BASE]/output/Drakefile

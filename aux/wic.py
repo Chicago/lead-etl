@@ -87,14 +87,14 @@ wic_columns = {
     'household_income_max': {'numerator': 'household_income', 'func':'max'},
     'household_income_median': {'numerator': 'household_income', 'func':'max'},
     
-    'public_assistance': {'numerator':'public_assistance', 'func': lambda d: list(np.concatenate(d.values))},
+    'public_assistance': {'numerator':'public_assistance', 'func': set},
     'clinic': {'numerator':'clinic', 'func': mode},
     'address_id': {'numerator':'address_id', 'func': mode}
 }
 
 wic_agg = aggregate(wic, wic_columns, index='kid_id')
 
-array_to_dummies(wic_agg, 'public_assistance', public_assistance_codes)
+data.binarize_set(wic_agg, 'public_assistance', public_assistance_codes)
 
 wic_agg.drop('public_assistance', inplace=True, axis=1)
 
