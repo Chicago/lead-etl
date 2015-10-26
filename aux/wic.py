@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from sqlalchemy.types import Integer
 
-from drain import util
+from drain import util, data
 from drain.aggregate import aggregate
 from drain.util import mode
 
@@ -87,7 +87,7 @@ wic_columns = {
     'household_income_max': {'numerator': 'household_income', 'func':'max'},
     'household_income_median': {'numerator': 'household_income', 'func':'max'},
     
-    'public_assistance': {'numerator':'public_assistance', 'func': set},
+    'public_assistance': {'numerator':'public_assistance', 'func': lambda d: set(np.concatenate(d.values))},
     'clinic': {'numerator':'clinic', 'func': mode},
     'address_id': {'numerator':'address_id', 'func': mode}
 }
