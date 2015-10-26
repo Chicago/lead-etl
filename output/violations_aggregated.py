@@ -6,7 +6,7 @@ import sys
 import os
 from itertools import product
 
-from drain.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns, join_years
+from drain.util import create_engine, execute_sql, PgSQLDatabase,prefix_columns, join_years
 from drain.aggregate import aggregate, censor
 from drain import data
 

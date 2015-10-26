@@ -6,7 +6,7 @@ import sys
 import os
 from sqlalchemy.types import REAL,DATE,INTEGER,TEXT,DECIMAL
 
-from drain.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns
+from drain.util import create_engine, execute_sql, PgSQLDatabase,prefix_columns
 from drain.aggregate import aggregate
 
 from datetime import date,timedelta
@@ -15,8 +15,8 @@ from dateutil.parser import parse
 level_deltas = {
     'census_tract_id': [-1] + [1,3,5,7],
     'address_id': [-1] + [1,3,5,7],
-    'building_id': [-1] + [1,3,5,7],
-    'complex_id': [-1] + [1,3,5,7],
+    'building_id': [1], #[-1] + [1,3,5,7],
+    'complex_id': [1], #[-1] + [1,3,5,7],
     'census_block_id': [-1] + [1,3,5,7],
 }
 # does not modify passed tests dataframe
@@ -64,62 +64,69 @@ def aggregate_tests(tests, level, today, delta):
     else:
         start_date = tests.test_date.min()
 
-    ebll_test_count = lambda t: (t.test_bll > 5).astype(int)
-    ebll_kid_ids = lambda t: t.kid_id.where(t.test_bll > 5)
-
     TEST_COLUMNS = {
         'count': {'numerator': 1},
-        'tested': {'numerator': 1, 'func': np.max},
-        'poisoned': {'numerator': lambda t: (t.test_bll > 5).astype(int), 'func':np.max},
+        'tested': {'numerator': 1, 'func': 'any'},
 
-        'ebll_count': {'numerator': ebll_test_count},
-        'ebll_prop': {'numerator': ebll_test_count, 'denominator': 1},
+        'bll_mean': {'numerator': 'test_bll', 'func':'mean'},
+        'bll_median': {'numerator': 'test_bll', 'func':'median'},
+        'bll_max': {'numerator': 'test_bll', 'func':'max'},
+        'bll_min': {'numerator': 'test_bll', 'func':'min'},
+        'bll_std': {'numerator': 'test_bll', 'func':'std'},
 
-        'bll_avg': {'numerator': 'test_bll', 'func':np.mean},
-        'bll_median': {'numerator': 'test_bll', 'func':np.median},
-        'bll_max': {'numerator': 'test_bll', 'func':np.max},
-        'bll_min': {'numerator': 'test_bll', 'func':np.min},
-        'bll_std': {'numerator': 'test_bll', 'func':np.std},
-
-        'kid_max_bll_avg': {'numerator': 'kid_max_bll', 'func':np.mean},
-        'kid_max_bll_median': {'numerator': 'kid_max_bll', 'func':np.median},
-        'kid_max_bll_max': {'numerator': 'kid_max_bll', 'func':np.max},
-        'kid_max_bll_min': {'numerator': 'kid_max_bll', 'func':np.min},
-        'kid_max_bll_std': {'numerator': 'kid_max_bll', 'func':np.std},
+        'kid_max_bll_mean': {'numerator': 'kid_max_bll', 'func':'mean'},
+        'kid_max_bll_median': {'numerator': 'kid_max_bll', 'func':'median'},
+        'kid_max_bll_max': {'numerator': 'kid_max_bll', 'func':'max'},
+        'kid_max_bll_min': {'numerator': 'kid_max_bll', 'func':'min'},
+        'kid_max_bll_std': {'numerator': 'kid_max_bll', 'func':'std'},
 
         # how old are these kids that are getting poisoned? TODO: create first_address variable so that these are not weighted by number of tests!
-        'kid_ebll_minmax_age_mean': {'numerator': lambda t: t.kid_minmax_age_days.where(t.kid_minmax_bll > 5), 'func': 'mean'},
         'kid_ebll_minmax_age_median': {'numerator': lambda t: t.kid_minmax_age_days.where(t.kid_minmax_bll > 5), 'func': 'median'},
-
+        'kid_ebll_minmax_age_mean': {'numerator': lambda t: t.kid_minmax_age_days.where(t.kid_minmax_bll > 5), 'func': 'mean'},
         # how old are these kids getting tested at?
-        'kid_ebll_min_sample_age_mean': {'numerator': 'kid_min_sample_age_days', 'func': 'mean'},
-        'kid_ebll_min_sample_age_median': {'numerator': 'kid_min_sample_age_days', 'func': 'median'},
+        'kid_min_sample_age_median': {'numerator': 'kid_min_sample_age_days', 'func': 'median'},
+        'kid_min_sample_age_mean': {'numerator': 'kid_min_sample_age_days', 'func': 'mean'},
 
-        'kid_count': {'numerator': 'kid_id', 'func':count_unique},
-        'family_count': {'numerator': 'kid_last_name', 'func':count_unique},
-        'family_ebll_count': {'numerator': lambda t: t.kid_last_name.where( t.kid_max_bll > 5), 'func':count_unique},
+        'kid_count': {'numerator': 'kid_id', 'func': 'nunique'},
+        'family_count': {'numerator': 'kid_last_name', 'func': 'nunique'},
 
         # a kid is 'susceptible' in this period if they hadn't been poisoned by the start of the period
-        'kid_susceptible_count': {'numerator': lambda t: t.kid_id.where( (t.kid_max_bll <= 5) | (t.kid_minmax_date >= start_date) ), 'func':count_unique},
-
-        # count number of kids with
-        'kid_ebll_here_count': {'numerator': ebll_kid_ids, 'func': count_unique }, # ebll here
-        'kid_ebll_first_count': {'numerator': lambda t: (t.test_minmax & (t.test_bll > 5))}, # first ebll here
-        'kid_ebll_ever_count' : {'numerator': lambda t: t.kid_id.where( (t.kid_minmax_bll > 5) ), 'func': count_unique}, # ever ebll
-        'kid_ebll_future_count': {'numerator': lambda t: t.kid_id.where( (t.kid_minmax_bll > 5) & (t.kid_minmax_date >= t.test_date) ), 'func': count_unique}, # future ebll
-
-        'address_tested_count': {'numerator': 'address_id', 'func': count_unique},
-        'address_ebll_count': {'numerator': lambda t: t.address_id.where(t.test_bll > 5), 'func': count_unique},
+        'kid_susceptible_count': {'numerator': lambda t: t.kid_id.where( (t.kid_max_bll <= 5) | (t.kid_minmax_date >= start_date) ), 'func': 'nunique'},
+        'address_tested_count': {'numerator': 'address_id', 'func': 'nunique'},
     }
 
-    df = aggregate(tests, TEST_COLUMNS, index=level)
-    df['kid_ebll_here_prop'] = df['kid_ebll_here_count']/df['kid_count']
-    df['kid_ebll_ever_prop'] = df['kid_ebll_ever_count']/df['kid_count']
-    df['address_tested_ebll_prop'] = df['address_ebll_count']/df['address_tested_count']
-    df['family_ebll_prop'] = df['family_ebll_count']/df['family_count']
+    for threshold in (5,10):
+        ebll_test = lambda t: (t.test_bll > threshold)
+        ebll_kid_ids = lambda t: t.kid_id.where(t.test_bll > threshold)
 
-    df['kid_ebll_future_prop'] = df['kid_ebll_future_count']/df['kid_susceptible_count']
-    df['kid_ebll_first_prop'] = df['kid_ebll_first_count']/df['kid_susceptible_count']
+        bll = 'ebll%s' % threshold
+        ebll_columns = {
+            'poisoned_' + bll: {'numerator': ebll_test, 'func':'any'},
+             bll+'_count': {'numerator': ebll_test},
+            'family_' + bll +'_count': {'numerator': lambda t: t.kid_last_name.where( t.kid_max_bll > threshold), 'func': 'nunique'},
+            'kid_' + bll + '_here_count': {'numerator': ebll_kid_ids, 'func': 'nunique' }, # ebll here
+            'kid_' + bll + '_first_count': {'numerator': lambda t: (t.test_minmax & (t.test_bll > threshold))}, # first ebll here
+            'kid_' + bll + '_ever_count' : {'numerator': lambda t: t.kid_id.where( (t.kid_minmax_bll > threshold) ), 'func': 'nunique'}, # ever ebll
+            'kid_' + bll + '_future_count': {'numerator': lambda t: t.kid_id.where( (t.kid_minmax_bll > threshold) & (t.kid_minmax_date >= t.test_date) ), 'func': 'nunique'}, # future ebll
+    
+            'address_' + bll + '_count': {'numerator': lambda t: t.address_id.where(t.test_bll > threshold), 'func': 'nunique'},
+        }
+        TEST_COLUMNS.update(ebll_columns)
+        
+
+    df = aggregate(tests, TEST_COLUMNS, index=level)
+
+    for threshold in (5,10):
+        bll = 'ebll%s' % threshold
+        df[bll+'_prop'] = df[bll+'_count']/df['count']
+    
+        df['kid_'+bll+'_here_prop'] = df['kid_'+bll+'_here_count']/df['kid_count']
+        df['kid_'+bll+'_ever_prop'] = df['kid_'+bll+'_ever_count']/df['kid_count']
+        df['address_tested_'+bll+'_prop'] = df['address_'+bll+'_count']/df['address_tested_count']
+        df['family_'+bll+'_prop'] = df['family_'+bll+'_count']/df['family_count']
+    
+        df['kid_'+bll+'_future_prop'] = df['kid_'+bll+'_future_count']/df['kid_susceptible_count']
+        df['kid_'+bll+'_first_prop'] = df['kid_'+bll+'_first_count']/df['kid_susceptible_count']
 
     df = df.astype(float, copy=False)
   
@@ -157,9 +164,7 @@ if __name__ == '__main__':
     tests = censor_tests(all_tests, end_date)
 
     tests['kid_minmax_age_days'] = (tests.kid_minmax_date - tests.kid_date_of_birth) / np.timedelta64(1, 'D')
-    #tests['kid_max_age_days'] = (tests.kid_max_date - tests.kid_date_of_birth) / np.timedelta64(1, 'D')
     tests['kid_min_sample_age_days'] = (tests.kid_min_sample_date - tests.kid_date_of_birth) / np.timedelta64(1, 'D')
-    #tests['kid_max_sample_age_days'] = (tests.kid_min_sample_date - tests.kid_date_of_birth) / np.timedelta64(1, 'D')
     residential = pd.concat( (aggregate_addresses(addresses, level) for level in level_deltas), copy=False)
 
     for level,deltas in level_deltas.iteritems():
@@ -174,7 +179,8 @@ if __name__ == '__main__':
 
             df = df.merge(residential, on=['aggregation_level', 'aggregation_id'])
             df['address_test_prop'] = df['address_tested_count'] / df['residential_count']
-            df['address_ebll_prop'] = df['address_ebll_count'] / df['residential_count']
+            df['address_ebll5_prop'] = df['address_ebll5_count'] / df['residential_count']
+            df['address_ebll10_prop'] = df['address_ebll10_count'] / df['residential_count']
 
             pk = {'aggregation_end':DATE, 'aggregation_delta':INTEGER, 'aggregation_level':TEXT, 'aggregation_id':DECIMAL}
             dtype = {c:REAL for c in df.columns if c not in pk}

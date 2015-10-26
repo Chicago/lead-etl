@@ -7,7 +7,7 @@ import os
 from itertools import product
 from datetime import date
 
-from drain.util import create_engine, count_unique, execute_sql, PgSQLDatabase,prefix_columns, join_years
+from drain.util import create_engine, execute_sql, PgSQLDatabase,prefix_columns, join_years
 from drain.aggregate import aggregate
 from drain import data
 
@@ -80,10 +80,10 @@ def aggregate_inspections(inspections, levels):
         'days_since_last_init': {'numerator': lambda i: (i['aggregation_end'] - i['init_date']) / day, 'func': 'min'},
         'days_since_last_comply': {'numerator': lambda i: (i['aggregation_end'] - i['comply_date']) / day, 'func': 'min'},
 
-        'address_count': {'numerator': 'address_id', 'func':count_unique},
-        'address_init_count': {'numerator': lambda i: i.address_id.where(i.init), 'func':count_unique},
-        'address_comply_count': {'numerator': lambda i: i.address_id.where(i.comply), 'func':count_unique},
-        'address_hazard_count': {'numerator': lambda i: i.address_id.where(i.hazard), 'func':count_unique },
+        'address_count': {'numerator': 'address_id', 'func': 'nunique'},
+        'address_init_count': {'numerator': lambda i: i.address_id.where(i.init), 'func': 'nunique'},
+        'address_comply_count': {'numerator': lambda i: i.address_id.where(i.comply), 'func': 'nunique'},
+        'address_hazard_count': {'numerator': lambda i: i.address_id.where(i.hazard), 'func': 'nunique' },
     }
 
     for i in CLOSURE_CODES:
