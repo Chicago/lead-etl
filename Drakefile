@@ -5,8 +5,11 @@ psql()
 
 ; create a schema (does not drop)
 psql_schema()
+    #dirname=$(dirname $OUTPUT)
+    #schema=$(basename $dirname)
     schema=$(basename $OUTPUT)
-    psql -v ON_ERROR_STOP=1 -c "CREATE SCHEMA IF NOT EXISTS $schema" && mkdir -p $OUTPUT
+    #psql -v ON_ERROR_STOP=1 -c "CREATE SCHEMA IF NOT EXISTS $schema" && mkdir -p $dirname && touch $OUTPUT
+    psql -v ON_ERROR_STOP=1 -c "CREATE SCHEMA IF NOT EXISTS $schema" && mkdir -p $OUTPUT && touch $OUTPUT/schema
 
 pickle_table()
 	TABLENAME=$(echo $INPUT | sed 's/.*psql\///;s/\//./')

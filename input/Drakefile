@@ -110,3 +110,11 @@ psql/input/acs <- input/acs/import.py, data/acs.csv
 psql/input/immunizations <- input/immunizations.sh
    $INPUT $IMMUNIZATIONS_FILE && touch $OUTPUT
 
+psql/cornerstone/ <- [method:psql_schema -timecheck]
+
+$(for table in Partaddr PartPgm PartEnrl Prenatl; do
+
+echo "psql/cornerstone/"$table" <- \$[CORNERSTONE_DIR]/"$table".dbf"
+echo "    ogr2ogr -f PostgreSQL PG:'host=\$[PGHOST] user=\$[PGUSER] password=\$[PGPASSWORD] dbname=\$[PGDATABASE]' \$INPUT -lco 'schema=cornerstone' -lco 'overwrite=yes' && touch \$OUTPUT"
+
+done)

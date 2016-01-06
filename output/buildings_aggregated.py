@@ -4,11 +4,11 @@ import numpy as np
 import sys
 
 from drain import util
+from drain.data import level_index
 from drain.aggregate import aggregate
 from drain.util import PgSQLDatabase,prefix_columns
 
-
-levels = ['building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id', 'community_area_id' ]
+aggregations = ['building', 'complex', 'block', 'tract', 'ward', 'community' ]
 
 building_columns = {
     'count': {'numerator':1},
@@ -58,8 +58,8 @@ if __name__ == '__main__':
     buildings = pd.read_sql('select * from aux.buildings b join output.addresses a using(building_id)', engine)
     assessor = pd.read_sql("select * from aux.assessor_summary ass join output.addresses using (address)", engine)
     
-    for level in levels:
-        print level
+    for level in aggregations:
+        level = level_index(level)
         buildings_subset = buildings[buildings[level].notnull()]
         assessor_subset = assessor[assessor[level].notnull()]
 

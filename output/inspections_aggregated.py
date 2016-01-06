@@ -9,15 +9,16 @@ from datetime import date
 
 from drain.util import create_engine, execute_sql, PgSQLDatabase,prefix_columns, join_years
 from drain.aggregate import aggregate
+from drain.data import level_index
 from drain import data
 
 from lead.output.tests_aggregated import aggregate_addresses
 
 CLOSURE_CODES = [0, 1, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13]
 
-levels = ['address_id', 'building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id']
+levels = ['address', 'building', 'complex', 'block', 'tract', 'ward']
 deltas = [-1, 1, 3]
-level_deltas = {level:deltas for level in levels}
+aggregations = {level:deltas for level in levels}
 
 def censor_inspections(inspections, end_date, delta):
     max_date = inspections[['init_date', 'comply_date']].max(axis=1)
@@ -91,8 +92,9 @@ def aggregate_inspections(inspections, levels):
 
     r = []
     for level in levels:
+        level = level_index(level)
         #INSPECTION_COLUMNS['pct_inspected'] = {'numerator': 1, 'denominator': level + '_res_count', 'denominator_func': np.max}
-        df = aggregate(inspections, INSPECTION_COLUMNS, index=[level])
+        df = aggregate(inspections, INSPECTION_COLUMNS, index=level)
         df.reset_index(inplace=True)
         df['aggregation_level'] = level
         df.rename(columns={level:'aggregation_id'}, inplace=True)
@@ -114,7 +116,7 @@ if __name__ == '__main__':
 
     end_dates = map(lambda y: np.datetime64(date(y,1,1)), range(2007, 2015))
 
-    residential = pd.concat((aggregate_addresses(addresses, level) for level in levels), copy=False)
+    residential = pd.concat((aggregate_addresses(addresses, level_index(level)) for level in levels), copy=False)
 
     def aggregated_inspections():
         for delta,end_date in product(deltas, end_dates):

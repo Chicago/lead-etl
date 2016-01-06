@@ -8,13 +8,14 @@ from itertools import product
 
 from drain.util import create_engine, execute_sql, PgSQLDatabase,prefix_columns, join_years
 from drain.aggregate import aggregate, censor
+from drain.data import level_index
 from drain import data
 
 from datetime import date
 
-levels = ['address_id', 'building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id']
+levels = ['address', 'building', 'complex', 'block', 'tract', 'ward']
 deltas = [-1,1,3]
-level_deltas = {level:deltas for level in levels}
+aggregations = {level:deltas for level in levels}
 
 VIOLATION_KEYWORDS = ['water', 'paint', 'window', 'wall', 'porch']
 
@@ -29,7 +30,8 @@ def aggregate_violations(violations, levels):
 
     r = []
     for level in levels:
-        df = aggregate(violations, VIOLATION_COLUMNS, index=[level])
+        level = level_index(level)
+        df = aggregate(violations, VIOLATION_COLUMNS, index=level)
         df.reset_index(inplace=True)
         df['aggregation_level'] = level
         df.rename(columns={level:'aggregation_id'}, inplace=True)
