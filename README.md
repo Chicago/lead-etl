@@ -40,8 +40,22 @@ Here we use our [drain pipeline](https://github.com/dssg/drain/) to run run mode
 
 
 # Running the model
-Drake controls the workflow.  
+We run the workflow using drake. Specify the following environment variables in the `lead/default_profile` file:
+
+```
+# Postgresql databse connection information
+PGHOST=
+PGDATABASE=
+PGUSER=
+PGPASSWORD=
+
+ASSESSOR_FILE= # Cook County Tax Assessor MDB file
+CURRBLLSHORT_FILE= # Current blood lead levels CSV file
+M7_FILE= # Old blood lead levels CSV file
+INSPECTIONS_FILE= # Inspections CSV file
+CORNERSTONE_DIR= # Directory containing Cornerstone DBF files
+```
 
 ## Install software
-  - [Drake](https://github.com/Factual/drake)
+  - [drake](https://github.com/Factual/drake)
   - [mdbtools](https://github.com/brianb/mdbtools): a command-line tool that reads Microsoft Access files, which is useful for reading the property-assessment data 
