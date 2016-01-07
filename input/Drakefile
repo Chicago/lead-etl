@@ -1,0 +1,53 @@
+import_shapefile()
+	BASENAME=$(echo $INPUT | sed 's/.shp//') 
+	# get table name from output, e.g. change $BASE/psql/input/wards gives input.wards
+	TABLENAME=$(echo $OUTPUT | sed 's/.*psql\///;s/\//./') 
+	# ogr2ogr doesn't like an existing file
+	rm "$BASENAME"4326.*
+	ogr2ogr -t_srs EPSG:4326 "$BASENAME"4326.shp $INPUT
+	# -q suppresses query output which for large shapefiles seems to slow down the import
+	shp2pgsql -I -D -d -s 4326 "$BASENAME"4326.shp $TABLENAME | psql -q
+	touch $OUTPUT
+
+psql/input/wards <- data/wards/Wards.shp [method:import_shapefile]
+
+psql/input/census_tracts <- data/census_tracts/CensusTractsTIGER2010.shp [method:import_shapefile]
+	
+; from https://datacatalog.cookcountyil.gov/GIS-Maps/ccgisdata-Address-Point-Chicago/jev2-4wjs
+psql/input/addresses <- data/addresses/addressPointChi.shp [method:import_shapefile]
+
+; https://data.cityofchicago.org/Facilities-Geographic-Boundaries/Boundaries-Community-Areas-current-/cauq-8yn6
+psql/input/community_areas <- data/community_areas/CommAreas.shp [method:import_shapefile]
+
+;psql/input/tests <- input/tests.sh
+;	$[INPUT] && touch $[OUTPUT]
+	
+psql/input/currbllshort <- input/currbllshort.sh
+	# psql \copy doesn't like "" as null for non-text
+	# currbllshort has duplicates, use uniq
+	sed 's/""//g' /glusterfs/Results_Job25880_currbllshort | uniq | $[INPUT] && touch $[OUTPUT]
+	
+psql/input/inspections <- input/inspections.sh
+	$[INPUT] && touch $[OUTPUT]
+
+; documentation: http://www2.census.gov/topics/genealogy/2000surnames/surnames.pdf
+data/surnames/names.zip <- [-timecheck]
+	mkdir -p `dirname $OUTPUT`
+	wget -O $OUTPUT http://www2.census.gov/topics/genealogy/2000surnames/names.zip
+
+data/surnames/app_c.csv <- data/surnames/names.zip
+	unzip -o $INPUT -d `dirname $OUTPUT` && touch $OUTPUT # update timestamp
+
+; remove suprressed values
+data/surnames/surnames.csv <- input/surnames.sh, data/surnames/app_c.csv
+     cat $[INPUT1] | $[INPUT0] > $[OUTPUT]
+
+psql/input/surnames <- input/surnames.sql, data/surnames/surnames.csv [method:psql]
+
+acs_import()
+	input/acs/create_table.sh $[INPUT] | psql -v ON_ERROR_STOP=1 && input/acs/copy.sh $[INPUT] && touch $OUTPUT
+	
+psql/input/acs_13_5yr_dp02 <- data/acs/ACS_13_5YR_DP02_with_ann.csv, input/acs/create_table.sh, input/acs/copy.sh [method:acs_import]
+psql/input/acs_13_5yr_dp03 <- data/acs/ACS_13_5YR_DP03_with_ann.csv, input/acs/create_table.sh, input/acs/copy.sh [method:acs_import]
+psql/input/acs_13_5yr_dp04 <- data/acs/ACS_13_5YR_DP04_with_ann.csv, input/acs/create_table.sh, input/acs/copy.sh [method:acs_import]
+psql/input/acs_13_5yr_dp05 <- data/acs/ACS_13_5YR_DP05_with_ann.csv, input/acs/create_table.sh, input/acs/copy.sh [method:acs_import]

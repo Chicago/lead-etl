@@ -1,0 +1,12 @@
+psql/output/wards,psql/output/tracts <- output/aggregate.py, output/aggregate_spatial.py, output/columns.py, psql/aux/acs, psql/aux/addresses, psql/aux/assessor_summary, psql/aux/buildings_summary, psql/aux/ward_tracts
+	python $[INPUT] wards && touch $[OUTPUT] && touch $[OUTPUT1]
+
+psql/output/kids <- output/kids.sql, psql/aux/kids, psql/aux/kid_ethnicity, psql/aux/tests_geocoded, psql/aux/assessor_summary, psql/aux/buildings_summary, psql/aux/address_tests, psql/aux/address_inspections [method:psql]
+
+psql/output/tract_year <- output/tract_year.sql, psql/aux/tract_tests, psql/aux/tract_inspections [method:psql]
+
+psql/output/ward_year <- output/ward_year.sql, psql/aux/ward_tests, psql/aux/ward_inspections [method:psql]
+
+psql/output/kid_addresses <- output/kid_addresses.sql, psql/aux/tests_geocoded, psql/aux/addresses, psql/aux/kids [method:psql]
+
+psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/aux/assessor_summary [method:psql]

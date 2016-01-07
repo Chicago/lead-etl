@@ -1,0 +1,9 @@
+model/output
+.*
+!.gitignore
+*.pyc
+drake.log
+default_profile
+data
+psql
+*.ipynb

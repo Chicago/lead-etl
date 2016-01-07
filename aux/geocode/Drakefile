@@ -1,0 +1,8 @@
+psql/aux/tests <- aux/currbllshort/tests.sql, psql/input/currbllshort [method:psql]
+
+psql/aux/geocode <- aux/currbllshort/geocode.sh, psql/aux/tests
+	$[INPUT]
+
+psql/aux/addresses <- aux/currbllshort/addresses.sql, psql/input/addresses, psql/aux/geocode, psql/aux/tests [method:psql]
+
+psql/aux/test_addresses <- aux/currbllshort/test_addresses.sql, psql/aux/tests, psql/aux/geocode, psql/aux/addresses [method:psql]

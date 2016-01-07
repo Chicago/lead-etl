@@ -1,0 +1,18 @@
+PROFILE:=default_profile
+%include $[PROFILE]
+PYTHONPATH=..
+
+psql()
+	psql -v ON_ERROR_STOP=1 -f $[INPUT] && touch $[OUTPUT]
+	
+%include input/Drakefile
+
+%include aux/dedupe/Drakefile
+
+%include aux/Drakefile
+
+%include output/Drakefile
+
+; write data to pickled data frames
+data/output/ <- model/write_data.py, model/params/kid_hazard.yaml, psql/output/kids, psql/output/wards, psql/output/ward_year, psql/output/tracts, psql/output/tract_year
+	$INPUT $OUTPUT $INPUT1

@@ -1,0 +1,13 @@
+psql/aux/kids_initial <- aux/dedupe/kids_initial.sql, psql/aux/tests [method:psql]
+
+psql/aux/kid_edges <- aux/dedupe/kid_edges.sql, psql/aux/kids_initial [method:psql]
+
+data/kid_components.csv <- aux/dedupe/kid_components.py, psql/aux/kid_edges
+	for l in {A..Z}; do for m in {A..Z}; do echo $l$m ; done ; done | parallel python $[INPUT] > $[OUTPUT]
+	
+psql/aux/kid_components <- aux/dedupe/kid_components.sql, data/kid_components.csv [method:psql]
+
+psql/aux/kid_tests <- aux/dedupe/kid_tests.sql, psql/aux/kids_initial, psql/aux/tests, psql/aux/kid_components [method:psql]
+
+psql/aux/kids <- aux/dedupe/kids.sql, psql/aux/kid_components, psql/aux/kids_initial [method:psql]
+
