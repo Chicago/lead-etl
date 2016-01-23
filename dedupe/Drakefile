@@ -1,0 +1,14 @@
+data/dedupe/input.csv <- dedupe/input.sql, psql/aux/tests, psql/cornerstone/PartEnrl
+    # tail to skip first line so 'CREATE VIEW' doesn't end up in csv
+    psql -v ON_ERROR_STOP=1 -f $INPUT | tail -n +2 | iconv -c -f utf8 -t ascii > $OUTPUT
+
+; break dedupe into two steps
+; the training is interactive
+data/dedupe/training.json <- data/dedupe/input.csv, dedupe/config.json
+    csvdedupe $INPUT -v --config_file $INPUT1 --sample_size 100000 --training_file $OUTPUT 2>&1
+
+data/dedupe/output.csv <- data/dedupe/input.csv, dedupe/config.json, data/dedupe/training.json
+    csvdedupe $INPUT -v --config_file $INPUT1 --skip_training --training_file $INPUT2 2>&1
+
+psql/aux/dedupe <- dedupe/dedupe.sql, data/dedupe/output.csv
+    cat data/dedupe/output.csv | psql -v ON_ERROR_STOP=1 -f $INPUT && touch $OUTPUT

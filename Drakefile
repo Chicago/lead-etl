@@ -24,7 +24,7 @@ PYTHONPATH=/home/epotash/
 
 %include $[BASE]/buildings/Drakefile
 
-%include $[BASE]/aux/dedupe/Drakefile
+;%include $[BASE]/aux/dedupe/Drakefile
 
 %include $[BASE]/aux/Drakefile
 
