@@ -28,4 +28,6 @@ PYTHONPATH=/home/epotash/
 
 %include $[BASE]/aux/Drakefile
 
+%include $[BASE]/dedupe/Drakefile
+
 %include $[BASE]/output/Drakefile

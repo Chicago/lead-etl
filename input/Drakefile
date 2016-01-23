@@ -118,3 +118,12 @@ echo "psql/cornerstone/"$table" <- \$[CORNERSTONE_DIR]/"$table".dbf"
 echo "    ogr2ogr -f PostgreSQL PG:'host=\$[PGHOST] user=\$[PGUSER] password=\$[PGPASSWORD] dbname=\$[PGDATABASE]' \$INPUT -lco 'schema=cornerstone' -lco 'overwrite=yes' && touch \$OUTPUT"
 
 done)
+
+data/Partaddr.csv <- $[CORNERSTONE_DIR]/Partaddr.dbf, input/dbf2csv.py
+    python $INPUT1 $INPUT0 > $OUTPUT
+
+; ogr2ogr for Partaddr only creates table but does not load data!
+psql/cornerstone/Partaddr2 <- $[CORNERSTONE_DIR]/Partaddr.dbf, psql/cornerstone/Partaddr, input/dbf2csv.py
+    psql -v ON_ERROR_STOP=1 -c 'alter table cornerstone.partaddr drop column ogc_fid'
+    python $INPUT2 $INPUT0 | psql -v ON_ERROR_STOP=1 -c '\copy cornerstone.partaddr from STDIN with csv header'
+    psql -v ON_ERROR_STOP=1 -c 'alter table cornerstone.partaddr add column ogc_fid serial primary key'
