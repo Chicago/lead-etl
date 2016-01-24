@@ -2,7 +2,7 @@
   "field_names": ["first_name", "last_name", "date_of_birth", "address", "count"],
   "field_definitions" : [{"field" : "first_name", "type" : "String"},
                         {"field" : "last_name", "type" : "String"},
-                        {"field" : "count", "type" : "Price"},
+                        {"field" : "date_of_birth", "type" : "String"},
                         {"field" : "address", "type" : "String",
                          "Has Missing" : true},
                         {"field" : "count", "type" : "Price"}],
