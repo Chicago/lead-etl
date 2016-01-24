@@ -1,6 +1,5 @@
-CREATE TABLE aux.dedupe AS (
-    cluster_id int, 
-    first_name text, mi text, last_name text, date_of_birth date, count int
-);
+DROP TABLE IF EXISTS aux.dedupe;
 
-\COPY aux.dedupe FROM STDIN with CSV HEADER;
+CREATE TABLE aux.dedupe ( cluster_id int, test_ids int[], cornerstone_ids text[],
+    first_name text, last_name text, mi text, date_of_birth date, address text, count int
+);

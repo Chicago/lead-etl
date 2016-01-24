@@ -10,5 +10,6 @@ data/dedupe/training.json <- data/dedupe/input.csv, dedupe/config2.json
 data/dedupe/output.csv <- data/dedupe/input.csv, dedupe/config.json, data/dedupe/training.json
     csvdedupe $INPUT -v --config_file $INPUT1 --skip_training --training_file $INPUT2 --output_file $OUTPUT
 
-psql/aux/dedupe <- dedupe/dedupe.sql, data/dedupe/output.csv
-    cat data/dedupe/output.csv | psql -v ON_ERROR_STOP=1 -f $INPUT && touch $OUTPUT
+; make sure that exact (first, last, dob) matches are clustered. dedupe misses a few.
+psql/aux/kid_tests, psql/aux/kid_wics <- dedupe/post.py, data/dedupe/output.csv
+    python -m pdb $INPUT0 $INPUT1 && touch $OUTPUT0 $OUTPUT1
