@@ -2,8 +2,7 @@
 
 import pandas as pd
 import numpy as np
-from drain import util
-from lead.aux.dedupe import dedupe
+from drain import util, dedupe
 
 engine = util.create_engine()
 edges = pd.read_sql("""

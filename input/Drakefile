@@ -14,40 +14,50 @@ wget_unzip()
     wget --output-document="$OUTPUT0" "$URL"
     unzip -o "$OUTPUT0" -d $(dirname $OUTPUT1)
 
+; wards
 URL="https://data.cityofchicago.org/api/geospatial/sp34-6z76?method=export&format=Shapefile"
 data/shapefiles/wards.zip, data/shapefiles/wards/WARDS_2015.shp <- [-timecheck method:wget_unzip]
 psql/input/wards <- data/shapefiles/wards/WARDS_2015.shp [method:import_shapefile]
 
+; census tracts
 URL="https://data.cityofchicago.org/api/geospatial/5jrd-6zik?method=export&format=Shapefile"
 data/shapefiles/census_tracts.zip, data/shapefiles/census_tracts/CensusTractsTIGER2010.shp <- [-timecheck method:wget_unzip]
 psql/input/census_tracts <- data/shapefiles/census_tracts/CensusTractsTIGER2010.shp [method:import_shapefile]
 	
+; addresses
 URL="https://datacatalog.cookcountyil.gov/api/geospatial/jev2-4wjs?method=export&format=Shapefile"
 data/shapefiles/addresses.zip, data/shapefiles/addresses/addressPointChi.shp <- [-timecheck method:wget_unzip]
 psql/input/addresses <- data/shapefiles/addresses/addressPointChi.shp [method:import_shapefile]
 
+; community areas
 URL="https://data.cityofchicago.org/api/geospatial/cauq-8yn6?method=export&format=Shapefile"
 data/shapefiles/community_areas.zip, data/shapefiles/community_areas/CommAreas.shp <- [-timecheck method:wget_unzip]
 psql/input/community_areas <- data/shapefiles/community_areas/CommAreas.shp [method:import_shapefile]
 
+; census blocks
 URL="https://data.cityofchicago.org/api/geospatial/mfzt-js4n?method=export&format=Shapefile"
 data/shapefiles/census_blocks.zip, data/shapefiles/census_blocks/CensusBlockTIGER2010.shp <- [-timecheck method:wget_unzip]
 psql/input/census_blocks <- data/shapefiles/census_blocks/CensusBlockTIGER2010.shp [method:import_shapefile]
 
+; assessor 
 psql/input/assessor <- input/assessor.sh
     $INPUT $ASSESSOR_FILE && touch $OUTPUT
 
+; old blood tests
 psql/input/m7 <- input/m7.sh
 	$INPUT $M7_FILE && touch $OUTPUT
-	
+
+; current blood tests
 psql/input/currbllshort <- input/currbllshort.sh
 	# psql \copy doesn't like "" as null for non-text
 	# currbllshort has duplicates, use uniq
 	sed 's/""//g' $CURRBLLSHORT_FILE | uniq | $INPUT && touch $OUTPUT
-	
+
+; inspections
 psql/input/inspections <- input/inspections.sh
 	$INPUT $INSPECTIONS_FILE && touch $OUTPUT
 
+; census surname ethnicity
 ; documentation: http://www2.census.gov/topics/genealogy/2000surnames/surnames.pdf
 data/surnames/names.zip <- [-timecheck]
 	mkdir -p `dirname $OUTPUT`
@@ -72,16 +82,17 @@ data/shapefiles/buildings/data/Buildings.json <- data/shapefiles/buildings/data/
 psql/input/buildings <- input/buildings.sh, data/shapefiles/buildings/data/Buildings.json
     $INPUT $INPUT1 && touch $OUTPUT
 
-; download and import building-permit data
+; download and import building permit data
 data/building_permits.csv <- [-timecheck]
 	wget -O- "https://data.cityofchicago.org/api/views/ydr8-5enu/rows.csv?accessType=DOWNLOAD" | sed 's/\$//g' > $OUTPUT
 psql/input/building_permits <- input/building_permits.sql, data/building_permits.csv [method:psql]
 
-; download and import building-violations data
+; download and import building violations data
 data/building_violations.csv <- [-timecheck]
 	wget -O- "https://data.cityofchicago.org/api/views/22u3-xenr/rows.csv?accessType=DOWNLOAD" | sed 's/, ,/,,/g' > $OUTPUT
 psql/input/building_violations <- input/building_violations.sql, data/building_violations.csv [method:psql]
 
+; American Community Survey data
 %include $[ACS_PROFILE]
 
 data/census-postgres/ <- [-timecheck]
@@ -110,6 +121,7 @@ psql/input/acs <- input/acs/import.py, data/acs.csv
 psql/input/immunizations <- input/immunizations.sh
    $INPUT $IMMUNIZATIONS_FILE && touch $OUTPUT
 
+; Cornerstone WIC data
 psql/cornerstone/ <- [method:psql_schema -timecheck]
 
 $(for table in Partaddr PartPgm PartEnrl Prenatl; do

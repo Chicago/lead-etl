@@ -13,13 +13,14 @@ About 90% of Chicago's housing stock was built before 1978, the year that the Fe
 
 # The Solution
 
-The pipeline consists of three phases which are summarized below. The code for each phase is located in the corresponding subdirectory. The output of each phase is contained in a database schema of the same name.
+The pipeline consists of several phases which are summarized below. The code for each phase is located in the corresponding subdirectory and is executed using a drake. The output of each phase is contained in a database schema of the same name.
 
 ##input
 Here we preprocess and import our data into the database.
 CDPH provided us with two databases about lead:
  - Blood Lead Level Tests
  - Home Inspections
+ - WIC enrollment and program data
 
 We supplemented that data with the following public datasets:
  - [Chicago addresses](https://datacatalog.cookcountyil.gov/GIS-Maps/ccgisdata-Address-Point-Chicago/jev2-4wjs)
@@ -28,6 +29,12 @@ We supplemented that data with the following public datasets:
  - [Build Permits](https://data.cityofchicago.org/Buildings/Building-Permits/ydr8-5enu)
  - [Building Violations](https://data.cityofchicago.org/Buildings/Building-Violations/22u3-xenr)
  - [American Community Survey](http://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml)
+
+##dedupe
+Here we deduplicate the names of children from the blood tests and the WIC Cornerstone database.
+
+##buildings
+Here we analyze the Chicago buildings shapefile to extract all addresses and group them into buildings and complexes.
 
 ##aux
 Here we process the data to prepare for model building. That includes summarizing and spatially joining datasets.

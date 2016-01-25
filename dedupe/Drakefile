@@ -1,3 +1,4 @@
+; export wic infant names to csv for csvdedupe
 data/dedupe/input.csv <- dedupe/input.sql, psql/aux/tests, psql/cornerstone/PartEnrl
     # tail to skip first line so 'CREATE VIEW' doesn't end up in csv
     psql -v ON_ERROR_STOP=1 -f $INPUT | tail -n +2 | iconv -c -f utf8 -t ascii > $OUTPUT
@@ -7,9 +8,11 @@ data/dedupe/input.csv <- dedupe/input.sql, psql/aux/tests, psql/cornerstone/Part
 data/dedupe/training.json <- data/dedupe/input.csv, dedupe/config2.json
     csvdedupe $INPUT -v --config_file $INPUT1 --sample_size 100000 --training_file $OUTPUT 2>&1
 
+; non-interactive deduplication, takes about 4.5 hours!
 data/dedupe/output.csv <- data/dedupe/input.csv, dedupe/config.json, data/dedupe/training.json
     csvdedupe $INPUT -v --config_file $INPUT1 --skip_training --training_file $INPUT2 --output_file $OUTPUT
 
-; make sure that exact (first, last, dob) matches are clustered. dedupe misses a few.
+; make sure that exact (first, last, dob) matches are clustered. dedupe misses a few
+; push results to psql
 psql/aux/kid_tests, psql/aux/kid_wics <- dedupe/post.py, data/dedupe/output.csv
     python -m pdb $INPUT0 $INPUT1 && touch $OUTPUT0 $OUTPUT1

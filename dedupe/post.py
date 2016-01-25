@@ -1,9 +1,8 @@
 import sys
 import pandas as pd
 import numpy as np
-from lead.aux.dedupe import dedupe
 from sqlalchemy.types import Integer, Text
-from drain import util
+from drain import util, dedupe
 
 # given a dataframe with index and column which is a string rep of a psql array
 # unnest the array
