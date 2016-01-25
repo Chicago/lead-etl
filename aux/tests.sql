@@ -5,13 +5,14 @@ DROP TABLE IF EXISTS aux.tests CASCADE;
 -- use geometry instead of xcoord, ycoord
 -- clean sex
 -- remove apartment from address
+-- unique tests only (via UNION)
 
 CREATE TABLE aux.tests AS (
     WITH tests AS (
         select first_name, mi, last_name, date_of_birth, sex, bll, sample_type, sample_date, lab_id, address, 
         	clean_address, apt, city, true as currbllshort
         from input.currbllshort
-        UNION ALL
+        UNION
         select first_name, null as mi, last_name, date_of_birth, sex, bll, sample_type, sample_date, lab as lab_id, address, 
         	cleaned_address as clean_address, apt, city, false as currbllshort
         from input.tests
