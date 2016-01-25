@@ -15,7 +15,8 @@ About 90% of Chicago's housing stock was built before 1978, the year that the Fe
 
 The pipeline consists of several phases which are summarized below. The code for each phase is located in the corresponding subdirectory and is executed using a drake. The output of each phase is contained in a database schema of the same name.
 
-##input
+**input**
+
 Here we preprocess and import our data into the database.
 CDPH provided us with two databases about lead:
  - Blood Lead Level Tests
@@ -30,21 +31,25 @@ We supplemented that data with the following public datasets:
  - [Building Violations](https://data.cityofchicago.org/Buildings/Building-Violations/22u3-xenr)
  - [American Community Survey](http://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml)
 
-##dedupe
+**dedupe**
+
 Here we deduplicate the names of children from the blood tests and the WIC Cornerstone database.
 
-##buildings
+**buildings**
+
 Here we analyze the Chicago buildings shapefile to extract all addresses and group them into buildings and complexes.
 
-##aux
+**aux**
+
 Here we process the data to prepare for model building. That includes summarizing and spatially joining datasets.
 
-##output
+**output**
+
 Here we generate model features by aggregating the datasets at a variety of spatial and temporal resolutions.
 
-##model
-Here we use our [drain pipeline](https://github.com/dssg/drain/) to run run models in parallel and serialize the results.
+**model**
 
+Here we use our [drain pipeline](https://github.com/dssg/drain/) to run run models in parallel and serialize the results.
 
 # Running the model
 We run the workflow using drake. Specify the following environment variables in the `lead/default_profile` file:
