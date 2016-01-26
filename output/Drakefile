@@ -3,7 +3,12 @@ psql/output/ <- [-timecheck method:psql_schema]
 psql/output/acs <- output/acs.py, psql/input/acs
     $INPUT && touch $OUTPUT
 
+; join tests with kid_tests and test_addresses to get all the ids in one place
 psql/output/tests <- output/tests.sql, psql/aux/tests, psql/aux/kid_tests, psql/aux/test_addresses [method:psql]
+
+; move this to a python script with variable month and day later
+; this is the left table that everything else gets joined to for modeling
+psql/output/kid_addresses_0101 <- output/kid_addresses.sql, psql/aux/kid_test_addresses, psql/aux/kids [method:psql]
 
 psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/aux/complex_addresses, psql/output/tests [method:psql]
 

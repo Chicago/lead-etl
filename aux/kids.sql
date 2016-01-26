@@ -15,9 +15,11 @@ count(distinct test_id) as num_tests,
 min(t.sample_date) as min_sample_date,
 max(t.sample_date) as max_sample_date,
 
-max(t.bll) as max_bll
+max(t.bll) as max_bll,
+to_timestamp(sum(
+    CASE WHEN first_ebll THEN extract(epoch from t.sample_date) ELSE null END))::date as first_ebll_date
 
-from aux.kid_tests kt
+from aux.kid_tests_info kt
 join aux.tests t on kt.test_id = t.id
 group by kt.kid_id
 );
