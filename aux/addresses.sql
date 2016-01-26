@@ -5,14 +5,14 @@ CREATE TABLE aux.addresses(id serial primary key, address text unique not null, 
 -- load addresses from geocoded tests
 INSERT INTO aux.addresses (address, geom, census_tract_id, census_block_id, ward_id, community_area_id, source) (
 with all_addresses as (
-    select clean_address, geocode_xcoord, geocode_ycoord, geocode_census_block_2010, geocode_ward_2015, geocode_community_area
+    select geocode_full_addr, geocode_xcoord, geocode_ycoord, geocode_census_block_2010, geocode_ward_2015, geocode_community_area
     from input.currbllshort
     UNION ALL
     select cleaned_address as clean_address, xcoord::decimal, ycoord::decimal, null, null, null
     from input.m7 where xcoord != 'ERROR' and ycoord != 'ERROR'
 ),
 cleaned_addresses as (
-	select distinct on (clean_address) clean_address as address,
+	select distinct on (geocode_full_addr) geocode_full_addr as address,
 	st_transform(st_setsrid(st_point(geocode_xcoord,geocode_ycoord),3435), 4326) as geom,
 	nullif(geocode_census_block_2010, ' ') as census_block_id,
 	nullif(geocode_ward_2015, ' ')::int as ward_id,
@@ -44,12 +44,12 @@ INSERT INTO aux.addresses (address, geom, source) (
 );
 
 -- load addresses from wic
-INSERT INTO aux.addresses (address, geom, source) (
-    select distinct on (address) address,
-    st_transform(st_setsrid(st_point("XCOORD", "YCOORD"),3435), 4326) as geom, 'wic'
-    from input.wic_addresses a left join aux.addresses a2 using (address) where a2.address is null
-    order by address
-);
+--INSERT INTO aux.addresses (address, geom, source) (
+--    select distinct on (address) address,
+--    st_transform(st_setsrid(st_point("XCOORD", "YCOORD"),3435), 4326) as geom, 'wic'
+--    from input.wic_addresses a left join aux.addresses a2 using (address) where a2.address is null
+--    order by address
+--);
 
 -- set census tract and block ids
 with address_blocks as (

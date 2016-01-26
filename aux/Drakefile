@@ -25,6 +25,9 @@ psql/aux/addresses <- aux/addresses.sql, psql/input/addresses, psql/buildings/ad
 psql/aux/test_addresses <- aux/test_addresses.sql, psql/aux/tests, psql/aux/addresses [method:psql]
 psql/aux/tests_geocoded <- aux/tests_geocoded.sql, psql/aux/kid_tests, psql/aux/tests, psql/aux/test_addresses, psql/aux/addresses [method:psql]
 
+; test dates at addresses for kids
+psql/aux/kid_test_addresses <- aux/kid_test_addresses.sql, psql/aux/kids, psql/aux/kid_tests, psql/aux/tests, psql/aux/addresses [method:psql]
+
 ; calculate kid ethnicity based on last name and address
 psql/aux/kid_ethnicity <- aux/kid_ethnicity.sql, psql/input/surnames, psql/aux/tests_geocoded, psql/output/acs [method:psql]
 
