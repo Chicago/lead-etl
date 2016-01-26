@@ -68,7 +68,7 @@ data/surnames/app_c.csv <- data/surnames/names.zip
 
 ; remove suprressed values
 data/surnames/surnames.csv <- data/surnames/app_c.csv
-     cat $INPUT | sed 's/(S)//g' > $OUTPUT
+     cat $INPUT | sed 's/(S)/0/g' > $OUTPUT
 
 psql/input/surnames <- input/surnames.sql, data/surnames/surnames.csv [method:psql]
 
