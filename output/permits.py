@@ -8,7 +8,6 @@ import numpy as np
 from drain import util, aggregate, data
 from drain.aggregate import Aggregate, Count, aggregate_counts, SpacetimeAggregator, Spacedeltas
 
-day = np.timedelta64(1, 'D')
 PERMIT_TYPES = ['electric_wiring', 'elevator_equipment', 'signs', 'new_construction', 'renovation_alteration', 'easy_permit_process', 'porch_construction', 'wrecking_demolition', 'scaffolding', 'reinstate_revoked_pmt', 'for_extension_of_pmt']
 
 class PermitsAggregator(SpacetimeAggregator):
