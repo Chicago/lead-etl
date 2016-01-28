@@ -17,14 +17,15 @@ psql/output/buildings_aggregated <- output/buildings_aggregated.py, psql/output/
     $INPUT && touch $OUTPUT
 
 psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/inspections, psql/aux/inspection_addresses [method:psql]
-psql/output/inspections_aggregated <- output/inspections_aggregated.py, data/output/inspections.pkl, data/output/addresses.pkl
-    $INPUT $INPUT1 $INPUT2 && touch $OUTPUT
+;psql/output/inspections_aggregated <- output/inspections_aggregated.py, data/output/inspections.pkl, data/output/addresses.pkl
+;    $INPUT $INPUT1 $INPUT2 && touch $OUTPUT
 
 ;psql/output/permits_aggregated <- output/permits_aggregated.py, data/output/addresses.pkl, psql/aux/building_permits
 ;    $INPUT $INPUT1 && touch $OUTPUT
 
 $(aggregator_drake.py lead.output.permits.PermitsAggregator "data/output/aggregated/" "psql/")
 $(aggregator_drake.py lead.output.violations.ViolationsAggregator "data/output/aggregated/" "psql/")
+$(aggregator_drake.py lead.output.inspections.InspectionsAggregator "data/output/aggregated/" "psql/")
 
 psql/output/violations_aggregated <- output/violations_aggregated.py, data/output/addresses.pkl, psql/input/building_violations
     $INPUT $INPUT1 && touch $OUTPUT

@@ -19,7 +19,7 @@ psql/aux/mode <- aux/mode.sql [method:psql]
 psql/aux/kids <- aux/kids.sql, psql/aux/kid_tests, psql/aux/tests, psql/aux/mode [method:psql]
 
 ; initialize address table with Chicago addresses and geocoded addresses from currbllshort and buildings datasets
-psql/aux/addresses <- aux/addresses.sql, psql/input/addresses, psql/buildings/addresses, psql/input/census_tracts, psql/input/wards, psql/input/currbllshort, psql/input/m7, psql/input/wic_addresses [method:psql]
+psql/aux/addresses <- aux/addresses.sql, psql/input/addresses, psql/buildings/addresses, psql/input/census_tracts, psql/input/wards, psql/input/currbllshort, psql/input/m7, psql/cornerstone/addresses [method:psql]
 
 ; match tests to addresses
 psql/aux/test_addresses <- aux/test_addresses.sql, psql/aux/tests, psql/aux/addresses [method:psql]
@@ -27,6 +27,9 @@ psql/aux/tests_geocoded <- aux/tests_geocoded.sql, psql/aux/kid_tests, psql/aux/
 
 ; test dates at addresses for kids
 psql/aux/kid_test_addresses <- aux/kid_test_addresses.sql, psql/aux/kids, psql/aux/kid_tests, psql/aux/tests, psql/aux/addresses [method:psql]
+
+; join deduped wic kids to their geocoded addresses
+psql/aux/kid_wic_addresses <- aux/kid_wic_addresses.sql, psql/aux/kid_wics, psql/cornerstone/Partaddr2, psql/cornerstone/addresses, psql/aux/addresses [method:psql]
 
 ; calculate kid ethnicity based on last name and address
 psql/aux/kid_ethnicity <- aux/kid_ethnicity.sql, psql/input/surnames, psql/aux/tests_geocoded, psql/output/acs [method:psql]
@@ -45,7 +48,3 @@ psql/aux/building_permits <- aux/building_permits.py, psql/input/building_permit
 ; binarize and aggregate wic program data
 psql/aux/wic_kids <- aux/wic.py, psql/wic/wic_kids
     $INPUT && touch $OUTPUT
-
-; geocode wic addresses
-psql/aux/wic_addresses <- aux/wic_addresses.sql, psql/wic/wic_infant, psql/wic/wic_kids, psql/wic/wic_addresses, psql/aux/addresses [method:psql]
-

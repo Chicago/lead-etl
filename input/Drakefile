@@ -134,8 +134,16 @@ done)
 data/Partaddr.csv <- $[CORNERSTONE_DIR]/Partaddr.dbf, input/dbf2csv.py
     python $INPUT1 $INPUT0 > $OUTPUT
 
-; ogr2ogr for Partaddr only creates table but does not load data!
+; ogr2ogr for Partaddr only creates table but does not load data! so \copy data with dbf2csv
 psql/cornerstone/Partaddr2 <- $[CORNERSTONE_DIR]/Partaddr.dbf, psql/cornerstone/Partaddr, input/dbf2csv.py
     psql -v ON_ERROR_STOP=1 -c 'alter table cornerstone.partaddr drop column ogc_fid'
     python $INPUT2 $INPUT0 | psql -v ON_ERROR_STOP=1 -c '\copy cornerstone.partaddr from STDIN with csv header'
     psql -v ON_ERROR_STOP=1 -c 'alter table cornerstone.partaddr add column ogc_fid serial primary key'
+    touch $OUTPUT
+
+data/cornerstone/addresses_for_geocoding.csv <- input/cornerstone/addresses_for_geocoding.sql, psql/cornerstone/Partaddr2
+    psql -f $INPUT > $OUTPUT
+
+; unique cornerstone addresses geocoded using city geocoder
+psql/cornerstone/addresses <- input/cornerstone/addresses.sh, $[CORNERSTONE_ADDRESSES_FILE]
+    $INPUT0 $INPUT1 && touch $OUTPUT

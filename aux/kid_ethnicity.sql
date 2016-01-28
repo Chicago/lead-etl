@@ -7,6 +7,7 @@ drop table if exists aux.kid_ethnicity;
 -- then P(E|S,T) is proportional to P(E|S)P(E|T)*P(E)
 -- where P(E) is just the national ethnicity distribution which we've hardcoded
 
+-- TODO: use age-specific ethnicity stats from ACS
 create table aux.kid_ethnicity as (
 with ethnicity as (
 select distinct on (k.id)

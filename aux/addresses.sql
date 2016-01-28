@@ -26,6 +26,19 @@ cleaned_addresses as (
 	from cleaned_addresses a1 
 );
 
+-- addresses from cornerstone geocoded
+INSERT INTO aux.addresses (address, geom, source) (
+    WITH cornerstone_addresses AS (
+            address,
+            st_transform(st_setsrid(st_point(xcoord::decimal,ycoord::decimal),3435), 4326) as geom
+            FROM cornerstone.addresses where address is not null and status1='VALID' and status2 in ('ACTUAL', 'LOGICAL'))
+    SELECT DISTINCT ON (a.address) a.address, a.geom, 'cornerstone'
+        FROM cornerstone_addresses a
+        left join aux.addresses a2 on a.address = a2.address where a2.address is null order by a.address
+
+);
+
+
 -- load addresses from chicago address table
 INSERT INTO aux.addresses (address, geom, source) (
         SELECT DISTINCT ON (cmpaddabrv) a.cmpaddabrv, a.geom,
@@ -42,14 +55,6 @@ INSERT INTO aux.addresses (address, geom, source) (
         FROM buildings.addresses a
         left join aux.addresses a2 using(address) where a2.address is null
 );
-
--- load addresses from wic
---INSERT INTO aux.addresses (address, geom, source) (
---    select distinct on (address) address,
---    st_transform(st_setsrid(st_point("XCOORD", "YCOORD"),3435), 4326) as geom, 'wic'
---    from input.wic_addresses a left join aux.addresses a2 using (address) where a2.address is null
---    order by address
---);
 
 -- set census tract and block ids
 with address_blocks as (
