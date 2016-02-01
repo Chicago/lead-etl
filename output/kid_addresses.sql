@@ -1,6 +1,5 @@
 DROP TABLE IF EXISTS output.kid_addresses_0101;
 
-
 CREATE TABLE output.kid_addresses_0101 AS (
 
 WITH

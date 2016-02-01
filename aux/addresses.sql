@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS aux.addresses;
 
-CREATE TABLE aux.addresses(id serial primary key, address text unique not null, geom geometry, census_tract_id text, census_block_id text, ward_id int, community_area_id int, source text);
+CREATE TABLE aux.addresses(address_id serial primary key, address text unique not null, geom geometry, census_tract_id text, census_block_id text, ward_id int, community_area_id int, source text);
 
 -- load addresses from geocoded tests
 INSERT INTO aux.addresses (address, geom, census_tract_id, census_block_id, ward_id, community_area_id, source) (
@@ -58,7 +58,7 @@ INSERT INTO aux.addresses (address, geom, source) (
 
 -- set census tract and block ids
 with address_blocks as (
-    select a.id, (select c.geoid10 from input.census_blocks c where st_contains(c.geom, a.geom) limit 1)
+    select a.address_id, (select c.geoid10 from input.census_blocks c where st_contains(c.geom, a.geom) limit 1)
     from aux.addresses a
     where a.census_tract_id is null or a.census_block_id is null
 )
@@ -67,7 +67,7 @@ set
     census_tract_id = substring(geoid10 for 11),
     census_block_id = geoid10
 FROM address_blocks ab
-WHERE a.id = ab.id;
+WHERE a.address_id = ab.address_id;
 
 -- ward id
 UPDATE aux.addresses a

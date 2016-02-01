@@ -1,6 +1,6 @@
-drop table if exists aux.assessor_summary;
+drop table if exists aux.assessor;
 
-create table aux.assessor_summary as (
+create table aux.assessor as (
 
 select substring(house_num from 6)::int || ' ' || st_dir || ' ' || st_name || ' ' || st_suffix as address,
         count(*) count,
@@ -33,4 +33,4 @@ group by substring(house_num from 6)::int || ' ' || st_dir || ' ' || st_name || 
 
 );
 
-alter table aux.assessor_summary add unique (address);
+alter table aux.assessor add unique (address);

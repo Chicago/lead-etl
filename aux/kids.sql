@@ -13,25 +13,14 @@ wic_kids as (
     from aux.kid_wics join cornerstone.partenrl using (part_id_i)
 )
 
-select kid_id as id, mode(first_name) as first_name, mode(last_name) as last_name,
+select kid_id, mode(first_name) as first_name, mode(last_name) as last_name,
 
 -- take the average date of birth (postgresql doesn't have avg(date), so cast to epoch and back)
 -- if a birth date doesn't make sense, exclude it from the average
 to_timestamp(mode(extract(epoch from date_of_birth)))::date as date_of_birth
 
---count((sample_date is not null)::int) as num_tests,
-
---min(sample_date) as min_sample_date,
---max(sample_date) as max_sample_date,
-
---max(t.bll) as max_bll,
---to_timestamp(sum(
---    CASE WHEN first_ebll THEN extract(epoch from sample_date) ELSE null END))::date as first_ebll_date,
-
---bool_or(wic) as wic
-
 from (select * from test_kids UNION ALL select * from wic_kids) t
 group by kid_id
 );
 
-alter table aux.kids add primary key (id);
+alter table aux.kids add primary key (kid_id);

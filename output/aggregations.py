@@ -1,8 +1,5 @@
-indexes = ['address_id', 'building_id', 'complex_id', 'census_block_id', 'census_tract_id', 'ward_id', 'community_area_id']
-levels = ['address', 'building', 'complex', 'block', 'tract', 'ward', 'community']
+indexes = {'address':'address_id','building': 'building_id',
+          'complex':'complex_id', 'block':'census_block_id',
+          'tract':'census_tract_id', 'ward':'ward_id'}
 
-def level_index(level):
-    return indexes[levels.index(level)]
 
-def index_level(index):
-    return levels[indexes.index(index)]

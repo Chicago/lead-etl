@@ -1,13 +1,18 @@
 drop table if exists output.tests;
 
 create table output.tests as (
-    select test_id, kid_id, address_id, bll, sample_date test_date
+    select test_id, kid_id, 
+        CASE WHEN a.address in 
+            ('5001 S MICHIGAN AVE', '1634 W POLK ST', '810 W MONTROSE AVE') 
+        THEN null ELSE a.address_id END AS address_id,
+        bll, sample_date,
+        first, last, first_bll6, first_bll10, max
     
     from aux.tests t
-    join aux.kid_tests kt on t.id = kt.test_id
+    join aux.kid_tests_info kt using (test_id)
     left join aux.test_addresses ta using (test_id)
-    left join aux.kids k on k.id = kid_id
-    where sample_date >= k.date_of_birth
+    left join aux.addresses a using (address_id)
+    left join aux.kids k using (kid_id)
 );
 
 --create table output.tests as (

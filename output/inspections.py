@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 
 from drain import util, aggregate, data
+from drain.step import Step
 from drain.aggregate import Aggregate, Count, aggregate_counts
 from drain.aggregation import SpacetimeAggregation
 from drain.data import FromSQL
@@ -13,16 +14,15 @@ from drain.data import FromSQL
 day = np.timedelta64(1, 'D')
 CLOSURE_CODES = list(set(range(0,14)).difference({2,9}))
 
-class Inspections(FromSQL):
-    def __init__(self, date):
-        FromSQL.__init__(self, """
+class Inspections(Step):
+    def __init__(self, date, **kwargs):
+        Step.__init__(self, date=date, **kwargs)
+        self.inputs = [FromSQL(query="""
 select *, least(init_date, comply_date) as min_date
 from output.inspections join output.addresses using (address_id) 
-where least(init_date, comply_date) < '%s'""" % date)
+where least(init_date, comply_date) < '%s'""" % date)]
 
-    def run(self, engine):
-        df = FromSQL.run(self, engine)
-
+    def run(self, df):
         # TODO: verify and explain why fillna(True)
         df.hazard_ext.fillna(True, inplace=True)
         df.hazard_int.fillna(True, inplace=True)

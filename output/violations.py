@@ -10,10 +10,6 @@ from drain.aggregate import Aggregate, Count, aggregate_counts, SpacetimeAggrega
 
 day = np.timedelta64(1, 'D')
 VIOLATION_KEYWORDS = ['water', 'paint', 'window', 'wall', 'porch']
-deltas = ['all','1y','3y']
-spaces = {	'address':'address_id','building': 'building_id', 
-			'complex':'complex_id', 'block':'census_block_id',
-			'tract':'census_tract_id', 'ward':'ward_id'}
 
 class ViolationsAggregator(SpacetimeAggregator):
     def __init__(self, basedir, psql_dir=''):

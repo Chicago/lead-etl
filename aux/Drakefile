@@ -2,7 +2,7 @@
 psql/aux/ward_tracts <- aux/ward_tracts.sql [method:psql]
 
 ; summarize assessor and buildings data per address (sources have multiple entries per address over time)
-psql/aux/assessor_summary <- aux/assessor_summary.sql [method:psql]
+psql/aux/assessor <- aux/assessor.sql [method:psql]
 
 ; match inspections with addresses
 psql/aux/inspections <- aux/inspections.sql, psql/input/inspections [method:psql]
@@ -12,6 +12,7 @@ psql/aux/inspection_addresses <- aux/inspection_addresses.sql, psql/input/inspec
 psql/aux/tests <- aux/tests.sql, psql/input/currbllshort, psql/input/m7 [method:psql]
 
 ; auxillary information about tests: test number, first and last test, first ebll, maximum bll
+; also importantly drops tests with invalid dates (null kid date of birth or sample date < date of birth)
 psql/aux/kid_tests_info <- aux/kid_tests_info.sql, psql/aux/kid_tests [method:psql]
 
 ; generate canonical list of kids by taking mode of deduped kid clusters

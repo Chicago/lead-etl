@@ -3,8 +3,10 @@ psql/output/ <- [-timecheck method:psql_schema]
 psql/output/acs <- output/acs.py, psql/input/acs
     $INPUT && touch $OUTPUT
 
+psql/output/kids <- output/kids.sql, psql/aux/kids, psql/output/tests, psql/aux/kid_wics [method:psql]
+
 ; join tests with kid_tests and test_addresses to get all the ids in one place
-psql/output/tests <- output/tests.sql, psql/aux/tests, psql/aux/kid_tests, psql/aux/test_addresses [method:psql]
+psql/output/tests <- output/tests.sql, psql/aux/tests, psql/aux/kid_tests_info, psql/aux/test_addresses [method:psql]
 
 ; move this to a python script with variable month and day later
 ; this is the left table that everything else gets joined to for modeling
@@ -12,39 +14,4 @@ psql/output/kid_addresses_0101 <- output/kid_addresses.sql, psql/aux/kid_test_ad
 
 psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/aux/complex_addresses, psql/output/tests [method:psql]
 
-; aggregate building characteristics to complex level
-psql/output/buildings_aggregated <- output/buildings_aggregated.py, psql/output/addresses, psql/aux/buildings, psql/aux/complex_addresses, psql/aux/assessor_summary
-    $INPUT && touch $OUTPUT
-
 psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/inspections, psql/aux/inspection_addresses [method:psql]
-;psql/output/inspections_aggregated <- output/inspections_aggregated.py, data/output/inspections.pkl, data/output/addresses.pkl
-;    $INPUT $INPUT1 $INPUT2 && touch $OUTPUT
-
-;psql/output/permits_aggregated <- output/permits_aggregated.py, data/output/addresses.pkl, psql/aux/building_permits
-;    $INPUT $INPUT1 && touch $OUTPUT
-
-$(aggregator_drake.py lead.output.permits.PermitsAggregator "data/output/aggregated/" "psql/")
-$(aggregator_drake.py lead.output.violations.ViolationsAggregator "data/output/aggregated/" "psql/")
-$(aggregator_drake.py lead.output.inspections.InspectionsAggregator "data/output/aggregated/" "psql/")
-
-psql/output/violations_aggregated <- output/violations_aggregated.py, data/output/addresses.pkl, psql/input/building_violations
-    $INPUT $INPUT1 && touch $OUTPUT
-
-;psql/output/tests_aggregated_init <- output/tests_aggregated_init.sql, data/output/tests.pkl, data/output/addresses.pkl [method:psql]
-
-$(for y in {2007..2013}; do
-
-echo ";psql/output/tests_aggregated_"$y" <- output/tests_aggregated.py, data/output/tests.pkl, data/output/addresses.pkl, psql/output/tests_aggregated_init"
-echo ";    python \$INPUT \$INPUT1 \$INPUT2 "$y" && touch \$OUTPUT || rm \$INPUT3"
-echo "data/output/tests_aggregated_"$y".hdf <- output/tests_aggregated.py, data/output/tests.pkl, data/output/addresses.pkl"
-echo "    python \$INPUT \$INPUT1 \$INPUT2 "$y" \$OUTPUT"
-
-done)
-
-;psql/output/tests_aggregated <- output/tests_aggregated_compile.sql, psql/output/tests_aggregated_2007,psql/output/tests_aggregated_2008,psql/output/tests_aggregated_2009,psql/output/tests_aggregated_2010,psql/output/tests_aggregated_2011,psql/output/tests_aggregated_2012,psql/output/tests_aggregated_2013 [method:psql]
-
-$(for table in tests inspections addresses acs; do
-
-echo "data/output/"$table".pkl <- psql/output/"$table" [method:pickle_table]"
-
-done)
