@@ -9,29 +9,56 @@ DROP TABLE IF EXISTS aux.tests CASCADE;
 
 CREATE TABLE aux.tests AS (
     WITH tests AS (
-        select first_name, mi, last_name, date_of_birth, sex, bll, sample_type, sample_date, lab_id, address, 
-        	clean_address, apt, city, true as currbllshort
+        select first_name, mi, last_name, date_of_birth, sex, 
+            bll, sample_type, sample_date, lab_id, 
+            address, clean_address, apt, city,
+            geocode_house_low, geocode_pre, geocode_street_name, geocode_street_type,
+            true as currbllshort
         from input.currbllshort
         UNION
-        select first_name, null as mi, last_name, date_of_birth, sex, bll, sample_type, sample_date, lab as lab_id, address, 
-        	cleaned_address as clean_address, apt, city, false as currbllshort
-        from input.tests
-        where sample_date < '2004-01-01'
+        -- get rid of whitespace and set to null before casting
+        select first_name, null as mi, last_name,
+            nullif(regexp_replace(date_of_birth, '\s', '', 'g'), '')::date, 
+            sex, nullif(regexp_replace(bll, '\s', '', 'g'), '')::int, sample_type, 
+            nullif(regexp_replace(sample_date, '\s', '', 'g'), '')::date, lab as lab_id, 
+            address, cleaned_address, apt, city,
+            geocode_house_low, geocode_pre, geocode_street_name, geocode_street_type,
+            false
+        from input.m7
+        WHERE nullif(regexp_replace(sample_date, '\s', '', 'g'), '')::date < '2004-01-01'
     )
 
-	SELECT regexp_replace(first_name, '\W', '', 'g') first_name, mi, regexp_replace(last_name, '\W', '', 'g') last_name, 
-		date_of_birth,
-		CASE WHEN sex IN ('M','F') THEN sex ELSE null END as sex,
-		bll, sample_type,sample_date,
-		lab_id, 
-		CASE WHEN address NOT IN ('NA','N/A', 'SEE NOTE') THEN address ELSE null END as address, 
-		clean_address, apt, city,
-		regexp_replace(
-			regexp_replace(coalesce(clean_address,address), '[^\w \*]','','g'),
-			'(([^ ]* ){3,}(AVE|BLVD|CT|DR|HWY|PKWY|PL|RD|ROW|SQ|ST|TER|WAY))( .*)$', '\1') as clean_address2,
-		currbllshort
-	FROM tests
-	WHERE bll is not null and sample_date is not null and date_of_birth is not null and first_name is not null and last_name is not null
+    SELECT  -- clean non-alpha characters characters
+        regexp_replace(upper(first_name), '[^A-Z]', '', 'g') first_name, mi,
+        regexp_replace(upper(last_name), '[^A-Z]', '', 'g') last_name, 
+        date_of_birth,
+        -- null invalid sex
+        CASE WHEN sex IN ('M','F') THEN sex ELSE null END as sex,
+        bll, sample_type,sample_date,
+        lab_id,
+        -- form geocode addresses from components
+        CASE WHEN city ilike 'CH%' THEN
+        geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || geocode_street_type 
+        ELSE null END as geocode_address,
+
+        CASE WHEN city ilike 'CH%' THEN
+            CASE WHEN address NOT IN ('NA','N/A', 'SEE NOTE') THEN address ELSE null END 
+        ELSE null END as address, 
+        CASE WHEN city ilike 'CH%' THEN
+            CASE WHEN coalesce(clean_address, address) NOT IN ('NA','N/A', 'SEE NOTE')
+                 THEN coalesce(clean_address, address) ELSE null END 
+        ELSE null END as clean_address, 
+        apt, city,
+        -- attempt to clean addresses
+--		regexp_replace(
+--			regexp_replace(coalesce(clean_address,address), '[^\w \*]','','g'),
+--			'(([^ ]* ){3,}(AVE|BLVD|CT|DR|HWY|PKWY|PL|RD|ROW|SQ|ST|TER|WAY))( .*)$', '\1') as clean_address2,
+        currbllshort
+    FROM tests
+    -- only take tests with non-null first, last, dob, sample_date, bll
+    WHERE bll is not null and 
+        coalesce(sample_date, date_of_birth) is not null and 
+        coalesce(first_name, last_name) is not null is not null 
 );
 
 ALTER TABLE aux.tests ADD COLUMN test_id serial PRIMARY KEY;

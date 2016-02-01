@@ -1,6 +1,10 @@
 #!/bin/bash
 
-file=$1
+# psql \copy doesn't like "" as null for non-text
+# currbllshort has duplicates, use uniq
+temp=$(mktemp)
+echo $temp
+sed 's/""//g' $INPUT1 | uniq > $temp
 
 psql -c "
     DROP TABLE IF EXISTS input.currbllshort; 
@@ -71,9 +75,8 @@ psql -c "
         geocode_status2 text
         );"
 
-PGCLIENTENCODING="latin1" \
-    psql -c \
+head -n 1000000 $temp | PGCLIENTENCODING="latin1" psql -c \
     "\COPY input.currbllshort FROM STDIN WITH CSV HEADER;"
 
-# the original id in currbllshort is sometimes null so create a new one
-
+tail -n +1000001 $temp | PGCLIENTENCODING="latin1" psql -c \
+    "\COPY input.currbllshort FROM STDIN WITH CSV HEADER;"

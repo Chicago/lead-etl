@@ -4,15 +4,14 @@ psql -c "
 DROP TABLE IF EXISTS cornerstone.addresses;
 
 CREATE TABLE cornerstone.addresses (
-    ogc_fids int[], addr_ln1_t text, addr_zip_n text, addr_cty_t text, full_addr text, house_low text, house_high text, pre text, street_name text, street_type text, sufdir text, xcoord text, ycoord text, status1 text, status2 text
+    ogc_fids int[], address text, zip text, city text, geocode_full_addr text, geocode_house_low text, geocode_house_high text, geocode_pre text, geocode_street_name text, geocode_street_type text, geocode_sufdir text, geocode_xcoord text, geocode_ycoord text, geocode_status1 text, geocode_status2 text
 
 );"
 
 psql -c "\COPY cornerstone.addresses FROM $1 WITH CSV HEADER"
 
-psql -c "
-ALTER TABLE cornerstone.addresses ADD COLUMN address text;
+psql -c "ALTER TABLE cornerstone.addresses ADD COLUMN geocode_address text;
 
-update cornerstone.addresses
-    set address =  house_low || ' ' || pre || ' ' || street_name || ' ' || street_type;
-"
+    update cornerstone.addresses
+    set geocode_address =  geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || geocode_street_type
+    where city ilike 'CH%';"

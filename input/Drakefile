@@ -43,15 +43,13 @@ psql/input/census_blocks <- data/shapefiles/census_blocks/CensusBlockTIGER2010.s
 psql/input/assessor <- input/assessor.sh
     $INPUT $ASSESSOR_FILE && touch $OUTPUT
 
-; old blood tests
+; old blood tests, $[M7_FILE]
 psql/input/m7 <- input/m7.sh
-	$INPUT $M7_FILE && touch $OUTPUT
+	$INPUT $INPUT1 && touch $OUTPUT
 
 ; current blood tests
-psql/input/currbllshort <- input/currbllshort.sh
-	# psql \copy doesn't like "" as null for non-text
-	# currbllshort has duplicates, use uniq
-	sed 's/""//g' $CURRBLLSHORT_FILE | uniq | $INPUT && touch $OUTPUT
+psql/input/currbllshort <- input/currbllshort.sh, $[CURRBLLSHORT_FILE]
+    $INPUT $INPUT1 && touch $OUTPUT
 
 ; inspections
 psql/input/inspections <- input/inspections.sh
