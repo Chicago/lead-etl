@@ -14,7 +14,7 @@ psql/aux/kid_tests_info <- aux/kid_tests_info.sql, psql/aux/kid_tests [method:ps
 
 ; generate canonical list of kids by taking mode of deduped kid clusters
 psql/aux/mode <- aux/mode.sql [method:psql]
-psql/aux/kids <- aux/kids.sql, psql/aux/kid_tests, psql/aux/tests, psql/aux/mode [method:psql]
+psql/aux/kids <- aux/kids.sql, psql/dedupe/infants, psql/dedupe/entity_map, psql/aux/mode [method:psql]
 
 ; initialize address table with Chicago addresses and geocoded addresses from currbllshort and buildings datasets
 psql/aux/addresses <- aux/addresses.sql, psql/input/addresses, psql/buildings/addresses, psql/input/census_tracts, psql/input/wards, psql/input/currbllshort, psql/input/m7, psql/cornerstone/addresses [method:psql]

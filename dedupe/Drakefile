@@ -1,15 +1,19 @@
 psql/dedupe/ <- [method:psql_schema]
 
+; merge kid info from tests and cornerstone
 psql/dedupe/infants <- dedupe/infants.sql, psql/aux/tests, psql/cornerstone/PartEnrl, psql/cornerstone/Partaddr2, psql/cornerstone/PartPgm [method:psql]
 
+; use dedupe library to generate preliminary entity map
 psql/entity_map <- dedupe/pgdedupe.py, psql/dedupe/infants
     python $INPUT && touch $OUTPUT
 
+; find exact matches on first_name, last_name, date_of_birth that dedupe missed
 psql/dedupe/exact_matches <- dedupe/exact_matches.py, psql/entity_map, psql/dedupe/infants
     python $INPUT && touch $OUTPUT
 
+; resolve entity_map with exact_matches for a final entity map
 psql/dedupe/entity_map <- dedupe/entity_map.sql, psql/dedupe/exact_matches, psql/entity_map, psql/dedupe/infants [method:psql]
 
+; create test and wic reference tables
 psql/aux/kid_tests <- dedupe/kid_tests.sql, psql/dedupe/entity_map [method:psql]
-
 psql/aux/kid_wics <- dedupe/kid_wics.sql, psql/dedupe/entity_map [method:psql]
