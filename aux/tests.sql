@@ -49,10 +49,6 @@ CREATE TABLE aux.tests AS (
                  THEN coalesce(clean_address, address) ELSE null END 
         ELSE null END as clean_address, 
         apt, city,
-        -- attempt to clean addresses
---		regexp_replace(
---			regexp_replace(coalesce(clean_address,address), '[^\w \*]','','g'),
---			'(([^ ]* ){3,}(AVE|BLVD|CT|DR|HWY|PKWY|PL|RD|ROW|SQ|ST|TER|WAY))( .*)$', '\1') as clean_address2,
         currbllshort
     FROM tests
     -- only take tests with non-null first, last, dob, sample_date, bll

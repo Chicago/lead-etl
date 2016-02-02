@@ -14,7 +14,7 @@ WITH inspection_addresses AS (
 	GROUP BY addr_id, address
 )
 INSERT INTO aux.inspection_addresses (
-        SELECT t.addr_id, a.id, 'equal'
+        SELECT t.addr_id, a.address_id, 'equal'
         FROM inspection_addresses t join aux.addresses a
         ON t.address = a.address
 );

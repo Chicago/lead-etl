@@ -115,9 +115,6 @@ data/acs.csv <- input/acs/download.py, psql/acs2009_5yr, psql/acs2010_5yr, psql/
 psql/input/acs <- input/acs/import.py, data/acs.csv
     $INPUT $INPUT1 && touch $OUTPUT
 
-psql/input/immunizations <- input/immunizations.sh
-   $INPUT $IMMUNIZATIONS_FILE && touch $OUTPUT
-
 ; Cornerstone WIC data
 psql/cornerstone/ <- [method:psql_schema -timecheck]
 

@@ -1,6 +1,3 @@
-; calculate ward-tract mapping (tracts can span multiple wards)
-psql/aux/ward_tracts <- aux/ward_tracts.sql [method:psql]
-
 ; summarize assessor and buildings data per address (sources have multiple entries per address over time)
 psql/aux/assessor <- aux/assessor.sql [method:psql]
 
@@ -29,9 +26,6 @@ psql/aux/tests_geocoded <- aux/tests_geocoded.sql, psql/aux/kid_tests, psql/aux/
 ; test dates at addresses for kids
 psql/aux/kid_test_addresses <- aux/kid_test_addresses.sql, psql/aux/kids, psql/aux/kid_tests, psql/aux/tests, psql/aux/addresses [method:psql]
 
-; join deduped wic kids to their geocoded addresses
-psql/aux/kid_wic_addresses <- aux/kid_wic_addresses.sql, psql/aux/kid_wics, psql/cornerstone/Partaddr2, psql/cornerstone/addresses, psql/aux/addresses [method:psql]
-
 ; calculate kid ethnicity based on last name and address
 psql/aux/kid_ethnicity <- aux/kid_ethnicity.sql, psql/input/surnames, psql/aux/tests_geocoded, psql/output/acs [method:psql]
 
@@ -40,7 +34,7 @@ psql/aux/complex_addresses <- aux/complex_addresses.sql, psql/buildings/complex_
 
 ; building level aggregation of footprint data
 psql/aux/buildings <- aux/buildings.py, psql/input/buildings, psql/buildings/building_components
-    $INPUT && touch $OUTPUT
+    python $INPUT && touch $OUTPUT
 
 ; binarize building permit type
 psql/aux/building_permits <- aux/building_permits.py, psql/input/building_permits

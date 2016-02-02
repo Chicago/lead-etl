@@ -1,11 +1,10 @@
 #! /usr/bin/python
 import pandas as pd
 import numpy as np
-from lead.model import util
-from drain.aggregate import aggregate
+from drain import util
 import sys
 
-def read_acs(table, columns, engine=None, offsets={0:{}}, years=[2009,2010,2011,2012,2013]):
+def read_acs(table, columns, engine=None, offsets={0:{}}, years=range(2009, 2015)):
     select = 'select geoid, {fields} from acs{year}_5yr.{table} where geoid ~ \'14000US1703\''
     column_names = ['geoid']
     column_names.extend(columns.keys())
@@ -26,9 +25,9 @@ def read_acs(table, columns, engine=None, offsets={0:{}}, years=[2009,2010,2011,
 
     return df
         
-# simple sum-aggregation of columns starting with prefix
-def get_aggregate_columns(df, prefix):
-    return { c: {'numerator':c} for c in df.columns if c.startswith(prefix)}
+# simple sum-aggregation of columns starting with prefix over index
+def aggregate(df, prefix, index):
+    return df.groupby(index).agg({c: 'sum' for c in df.columns if c.startswith(prefix)})
 
 engine = util.create_engine()
 index = ['geoid','year']
@@ -77,10 +76,11 @@ edu_offsets = {
 }
 
 edu = read_acs(edu_table, edu_columns, engine, edu_offsets)
-edu_agg = aggregate(edu, get_aggregate_columns(edu, 'edu'), index=index)
+edu_agg = aggregate(edu, prefix='edu', index=index)
+print edu_agg
 
 # HEALTH INSURANCE
-years=[2012,2013]
+years=[2012,2013,2014]
 
 health_table='B27001'
 health_columns={
@@ -109,7 +109,7 @@ health_offsets = {
     55: {'sex':'female', 'age': '74+'},
 }
 health = read_acs(health_table, health_columns, engine, health_offsets, years)
-health_agg = aggregate(health, get_aggregate_columns(health, 'health'), index=index)
+health_agg = aggregate(health, prefix='health', index=index)
 
 insurance_offsets = {
     3: {'sex':'male', 'age':'<18'},
@@ -130,7 +130,8 @@ for i in range(len(insurances)):
 
     df = read_acs(health_insurance_table, health_insurance_columns, engine, insurance_offsets, years)
     insurance = insurance.merge(df, on=['geoid', 'year', 'sex', 'age'], how='outer')
-insurance_agg = aggregate(insurance, get_aggregate_columns(insurance, 'health'), index=index)
+
+insurance_agg = aggregate(insurance, prefix='health', index=index)
 
 # TENURE
 tenure_table='B11012'
@@ -146,7 +147,7 @@ tenure_offsets = {
 }
 
 tenure = read_acs(tenure_table, tenure_columns, engine, tenure_offsets)
-tenure_agg = aggregate(tenure, get_aggregate_columns(tenure, 'tenure'), index=index)
+tenure_agg = aggregate(tenure, prefix='tenure', index=index)
 
 acs = tenure_agg.join((insurance_agg, health_agg, edu_agg, race_agg, hispanic_agg))
 acs.reset_index(inplace=True)

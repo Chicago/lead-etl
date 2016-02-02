@@ -20,8 +20,6 @@ PYTHONPATH=/home/epotash/
 
 %include $[BASE]/input/Drakefile
 
-%include $[BASE]/wic/Drakefile
-
 %include $[BASE]/buildings/Drakefile
 
 ;%include $[BASE]/aux/dedupe/Drakefile

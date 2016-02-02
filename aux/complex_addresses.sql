@@ -7,7 +7,7 @@ create temp sequence building_id;
 SELECT setval('building_id', (select max(orig_bldg_)+1 from buildings.original_buildings));
 
 create table aux.complex_addresses as ( 
-    select a.id address_id,
+    select a.address_id,
         coalesce(b.building_id, nextval('building_id')) as building_id,
         coalesce(c.complex_id, nextval('complex_id')) as complex_id
         from aux.addresses a left join buildings.addresses a2 using (address)
