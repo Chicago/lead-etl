@@ -25,7 +25,7 @@ SELECT k.*, address_count, test_count,
     wic.kid_id is not null AS wic
 
 FROM aux.kids k
-JOIN counts using (kid_id)
+JOIN counts using (kid_id) -- this join ensures we only get kids with valid tests
 LEFT JOIN wic using (kid_id)
 LEFT JOIN first_bll6 USING (kid_id)
 LEFT JOIN first_bll10 USING (kid_id)

@@ -1,33 +1,15 @@
-DROP TABLE IF EXISTS output.kid_addresses_0101;
+drop table if exists output.kid_addresses;
 
-CREATE TABLE output.kid_addresses_0101 AS (
-
-WITH
-
-year_test_addresses AS (
-SELECT kid_id, address_id, date_floor(min_date, 1, 1) date, min_date
-FROM 
-aux.kid_test_addresses
-WHERE
-extract(year from min_date) between 2000 and 2001 and
-address_id is not null
+create table output.kid_addresses as (
+with wic_addresses as (
+select kid_id, address_id, min(date) as min_date from aux.kid_wic_addresses group by 1,2
 ),
 
-
-year_first_test_date AS (
-SELECT kid_id, date, min(min_date) as min_date
-FROM year_test_addresses
-group by 1,2
+test_addresses as (
+select kid_id, address_id, min(sample_date) as min_date from output.tests group by 1,2
 )
 
-SELECT kid_id, date, address_id, 
--- is this the address for the next addressed test for this kid? (could be multiple if tests have same date)
-t.min_date = t2.min_date as address_current_test, 
-first_ebll_date, kid_ethnicity, date_of_birth
-
-FROM year_test_addresses t
-LEFT JOIN year_first_test_date t2 USING (kid_id, date)
-JOIN aux.kids k on k.id = kid_id
-JOIN aux.kid_ethnicity USING (kid_id)
+select kid_id, address_id, w.min_date as wic_min_date, t.min_date as test_min_date
+from wic_addresses w FULL OUTER JOIN test_addresses t using (kid_id, address_id)
 
 );

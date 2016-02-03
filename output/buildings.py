@@ -17,13 +17,13 @@ class BuildingsAggregation(SimpleAggregation):
                 ], function_names = ['median', 'min', 'max']),
             Aggregate('address_count', 'sum'),
             # average proportion of sound building condition
-            Proportion('condition_sound_prop', parent='condition_not_null'),
-            Proportion('condition_major_prop', parent='condition_not_null'),
-            Proportion('condition_minor_prop', parent='condition_not_null'),
-            Proportion('condition_uninhabitable_prop', parent='condition_not_null'),
+            #Proportion('condition_sound_prop', parent='condition_not_null'),
+            #Proportion('condition_major_prop', parent='condition_not_null'),
+            #Proportion('condition_minor_prop', parent='condition_not_null'),
+            #Proportion('condition_uninhabitable_prop', parent='condition_not_null'),
             Aggregate('stories', 'mean'),
             Aggregate('units', 'sum'),
-            Proportion('pre_1978', parent=lambda i: i.pre_1978.notnull()),
+            Proportion('pre1978_any', parent=lambda i: i.pre1978_any.notnull()),
         ]
 
 class AssessorAggregation(SimpleAggregation):

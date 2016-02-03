@@ -1,4 +1,4 @@
-psql/dedupe/ <- [method:psql_schema]
+psql/dedupe/ <- [method:psql_schema -timecheck]
 
 ; merge kid info from tests and cornerstone
 psql/dedupe/infants <- dedupe/infants.sql, psql/aux/tests, psql/cornerstone/PartEnrl, psql/cornerstone/Partaddr2, psql/cornerstone/PartPgm [method:psql]

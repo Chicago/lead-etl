@@ -2,11 +2,11 @@ DROP TABLE IF EXISTS aux.kid_wic_addresses;
 
 CREATE TABLE aux.kid_wic_addresses AS (
     -- keys to link cornerstone addresses to aux.addresses
-    WITH wic_addresses AS (select address, unnest(ogc_fids) as ogc_fid FROM cornerstone.addresses),
+    WITH wic_addresses AS (select geocode_address as address, unnest(ogc_fids) as ogc_fid FROM cornerstone.addresses),
 
     -- collect linked addresses 
     addresses AS (
-        SELECT part_id_i, a.id AS address_id, pa.last_upd_d, register_d
+        SELECT part_id_i, address_id, pa.last_upd_d, register_d
         FROM cornerstone.partaddr pa
         JOIN wic_addresses USING (ogc_fid)
         JOIN aux.addresses a USING (address)
@@ -22,14 +22,15 @@ CREATE TABLE aux.kid_wic_addresses AS (
 
     -- replace last_upd_d with register_d for first address
     addresses2 AS (
-        SELECT part_id_i, address_id,
-            CASE WHEN d.part_id_i is null THEN a.last_upd_d ELSE a.register_d END AS min_date,
-        a.last_upd_d as max_date
-        FROM addresses a LEFT JOIN first_address d using (part_id_i, last_upd_d)
+        SELECT part_id_i, address_id, a.register_d
+        FROM addresses a JOIN first_address d using (part_id_i, last_upd_d)
     )
 
-    SELECT kid_id, address_id, min(min_date) as min_date, max(max_date) as max_date, count(*) as num_records
-    FROM addresses2
+    SELECT kid_id, a.* FROM 
+    (SELECT part_id_i, address_id, last_upd_d as date
+    FROM addresses
+    UNION
+    SELECT part_id_i, address_id, register_d as date
+    FROM addresses2) a
     JOIN aux.kid_wics USING (part_id_i)
-    GROUP BY kid_id, address_id
 );

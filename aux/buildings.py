@@ -10,7 +10,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from  sqlalchemy.types import Float
 
 aggregates = [
-    Aggregate('area', 'mean'),
+    Aggregate('area', 'mean', function_names=False),
     Aggregate('year_built', lambda l: list(l), name='years_built', function_names=False),
     Aggregate(lambda b: (b.t_add1 - b.f_add1)/2+1, 'max', name='address_count', function_names=False),
     Aggregate('bldg_condi_not_null', 'any'),
@@ -18,10 +18,9 @@ aggregates = [
 #    Proportion(lambda b: b.bldg_condi == 'NEEDS MAJOR REPAIR', 'any', name='condition_sound'),
 #    Proportion(lambda b: b.bldg_condi == 'NEEDS MINOR REPAIR', 'any', name='condition_sound'),
 #    Proportion(lambda b: b.bldg_condi == 'UNINHABITABLE', 'any', name='condition_sound'),
-    Aggregate('stories', 'mean'),
-    Aggregate('units', 'mean'),
-    Aggregate(lambda b: b.year_built < 1978, 'mean'),
-    Aggregate(lambda b: b.year_built < 1978, 'any')
+    Aggregate('stories', 'mean', function_names=False),
+    Aggregate('units', 'mean', function_names=False),
+    Aggregate(lambda b: b.year_built < 1978, ['mean', 'any'], 'pre1978'),
 ]
 
 engine = util.create_engine()
