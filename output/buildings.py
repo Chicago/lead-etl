@@ -5,6 +5,9 @@ from drain.data import FromSQL
 import numpy as np
 
 class BuildingsAggregation(SimpleAggregation):
+    def __init__(self, indexes, **kwargs):
+        SimpleAggregation.__init__(self, indexes=indexes, prefix='buildings', **kwargs)
+
     @property
     def aggregates(self):
         return [
