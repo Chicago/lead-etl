@@ -15,21 +15,27 @@ class BuildingsAggregation(SimpleAggregation):
             Aggregate('area', 'sum'),
             Aggregate('years_built', [
                     lambda y: np.nanmedian(np.concatenate(y.values)),
+                    lambda y: np.nanmean(np.concatenate(y.values)),
                     lambda y: np.nanmin(np.concatenate(y.values)),
                     lambda y: np.nanmax(np.concatenate(y.values)),
-                ], function_names = ['median', 'min', 'max']),
+                ], fname = ['median', 'mean', 'min', 'max']),
             Aggregate('address_count', 'sum'),
             # average proportion of sound building condition
-            #Proportion('condition_sound_prop', parent='condition_not_null'),
-            #Proportion('condition_major_prop', parent='condition_not_null'),
-            #Proportion('condition_minor_prop', parent='condition_not_null'),
-            #Proportion('condition_uninhabitable_prop', parent='condition_not_null'),
+            Proportion(['condition_sound_prop', 
+                   'condition_major_prop', 
+                   'condition_minor_prop', 
+                   'condition_uninhabitable_prop'],
+                        parent='condition_not_null'),
             Aggregate('stories', 'mean'),
             Aggregate('units', 'sum'),
-            Proportion('pre1978_any', parent=lambda i: i.pre1978_any.notnull()),
+            Proportion('pre1978_prop', 
+                    parent=lambda i: i.pre1978_prop.notnull()),
         ]
 
 class AssessorAggregation(SimpleAggregation):
+    def __init__(self, indexes, **kwargs):
+        SimpleAggregation.__init__(self, indexes=indexes, prefix='assessor', **kwargs)
+
     @property
     def aggregates(self):
         return [

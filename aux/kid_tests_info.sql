@@ -13,14 +13,16 @@ WITH tests AS (
 -- minmax is the first test to produce the maximum bll state (bll > 5 or bll <= 5)
 first_bll6 AS (
     select distinct on(kid_id) kid_id,test_id
-    from tests 
-    order by kid_id, bll > 5 desc, sample_date asc, test_id asc
+    from tests
+    where bll > 5
+    order by kid_id, sample_date asc, test_id asc
 ),
 
 first_bll10 AS (
     select distinct on(kid_id) kid_id,test_id
-    from tests 
-    order by kid_id, bll > 9 desc, sample_date asc, test_id asc
+    from tests
+    where bll > 9
+    order by kid_id, sample_date asc, test_id asc
 ),
 
 max AS (

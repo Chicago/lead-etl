@@ -53,8 +53,8 @@ elif opts.verbose >= 2:
 logging.getLogger().setLevel(log_level)
 
 # ## Setup
-settings_file = 'adsf'#'config.json'
-training_file = '../data/dedupe/training3.json' #'../data/dedupe/training.json'
+settings_file = 'asdf123445'
+training_file = '/home/epotash/lead/data/dedupe/training_new.json'
 
 start_time = time.time()
 
@@ -83,31 +83,34 @@ c = con.cursor()
 # We did a fair amount of preprocessing of the fields in
 # `pgsql_big_dedupe_example_init_db.py`
 
-DONOR_SELECT = "SELECT id, first_name, last_name, date_of_birth, address, count::int " \
-               "from dedupe.infants"
+DONOR_SELECT = "SELECT id, first_name, last_name, sex, day, date_of_birth, address, count " \
+               "from %s" %  source_table
 
 # ## Training
 
-if os.path.exists(settings_file):
-    print 'reading from ', settings_file
-    with open(settings_file) as sf:
-        deduper = dedupe.StaticDedupe(sf, num_cores=12)
-else:
-
+#if os.path.exists(settings_file):
+#    print 'reading from ', settings_file
+#    with open(settings_file) as sf:
+#        deduper = dedupe.StaticDedupe(sf, num_cores=12)
+#else:
+if True:
     # Define the fields dedupe will pay attention to
     #
     # The address, city, and zip fields are often missing, so we'll
     # tell dedupe that, and we'll learn a model that take that into
     # account
-    fields = [{"field" : "first_name", "type" : "String"},
-                        {"field" : "last_name", "type" : "String"},
-                        {"field" : "date_of_birth", "type" : "String"},
-                        {"field" : "address", "type" : "String",
-                         "Has Missing" : True},
-                        {"field" : "count", "type" : "Price"}]
+    fields = [
+            {"field" : "first_name", "type" : "String"},
+            {"field" : "last_name", "type" : "String"},
+            {"field" : "date_of_birth", "type" : "String"},
+#            {"field" : "sex", "type" : "Exact"},
+#            {"field" : "day", "type" : "Price"},
+            {"field" : "address", "type" : "String","Has Missing" : True},
+            {"field" : "count", "type" : "Price"}
+    ]
 
     # Create a new deduper object and pass our data model to it.
-    deduper = dedupe.Dedupe(fields, num_cores=4)
+    deduper = dedupe.Dedupe(fields, num_cores=12)
 
     # Named cursor runs server side with psycopg2
     cur = con.cursor('donor_select')
@@ -115,7 +118,7 @@ else:
     cur.execute(DONOR_SELECT)
     temp_d = dict((i, row) for i, row in enumerate(cur))
 
-    deduper.sample(temp_d, 100) # TODO: change this
+    deduper.sample(temp_d, 100000)
     del temp_d
 
     # If we have training data saved from a previous run of dedupe,
@@ -123,6 +126,7 @@ else:
     #
     # __Note:__ if you want to train from
     # scratch, delete the training_file
+    print training_file
     if os.path.exists(training_file):
         print 'reading labeled examples from ', training_file
         with open(training_file) as tf:
@@ -155,7 +159,7 @@ else:
     # However, requiring that we cover every single true dupe pair may
     # mean that we have to use blocks that put together many, many
     # distinct pairs that we'll have to expensively, compare as well.
-    deduper.train(ppc=0.001, uncovered_dupes=5)
+    deduper.train(ppc=0.1, uncovered_dupes=5) # was .01
 
     # When finished, save our labeled, training pairs to disk
     with open(training_file, 'w') as tf:
@@ -327,7 +331,7 @@ def candidates_gen(result_set):
         yield records
 
 c4 = con.cursor('c4')
-c4.execute("SELECT %s, first_name, last_name, date_of_birth, address, count, "
+c4.execute("SELECT %s, first_name, last_name, sex, day, date_of_birth, address, count, "
            "block_id, smaller_ids "
            "FROM smaller_coverage "
            "INNER JOIN %s "

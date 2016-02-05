@@ -20,7 +20,7 @@ class Inspections(Step):
         self.inputs = [FromSQL(query="""
 select *, least(init_date, comply_date) as min_date
 from output.inspections join output.addresses using (address_id) 
-where least(init_date, comply_date) < '%s'""" % date)]
+where least(init_date, comply_date) < '%s'""" % date, target=False)]
 
     def run(self, df):
         # TODO: verify and explain why fillna(True)
@@ -58,8 +58,8 @@ class InspectionsAggregation(SpacetimeAggregation):
         
         aggregates = [
             Count(), 
-            Aggregate('inspected', 'max', function_names=False),
-            Aggregate('complied', 'max', function_names=False),
+            Aggregate('inspected', 'max', fname=False),
+            Aggregate('complied', 'max', fname=False),
 
             Count('hazard_int', prop=True), Count('hazard_ext', prop=True),
             Count('hazard', prop=True), Count('hazard_both', prop=True),

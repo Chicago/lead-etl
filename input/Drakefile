@@ -118,7 +118,7 @@ psql/input/acs <- input/acs/import.py, data/acs.csv
 ; Cornerstone WIC data
 psql/cornerstone/ <- [method:psql_schema -timecheck]
 
-$(for table in Partaddr PartPgm PartEnrl Prenatl; do
+$(for table in Partaddr PartPgm PartEnrl Prenatl Birth; do
 
 echo "psql/cornerstone/"$table" <- \$[CORNERSTONE_DIR]/"$table".dbf"
 echo "    ogr2ogr -f PostgreSQL PG:'host=\$[PGHOST] user=\$[PGUSER] password=\$[PGPASSWORD] dbname=\$[PGDATABASE]' \$INPUT -lco 'schema=cornerstone' -lco 'overwrite=yes' && touch \$OUTPUT"

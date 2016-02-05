@@ -5,7 +5,7 @@ psql/dedupe/infants <- dedupe/infants.sql, psql/aux/tests, psql/cornerstone/Part
 
 ; use dedupe library to generate preliminary entity map
 psql/entity_map <- dedupe/pgdedupe.py, psql/dedupe/infants
-    python $INPUT && touch $OUTPUT
+    python $INPUT -v && touch $OUTPUT
 
 ; find exact matches on first_name, last_name, date_of_birth that dedupe missed
 psql/dedupe/exact_matches <- dedupe/exact_matches.py, psql/entity_map, psql/dedupe/infants

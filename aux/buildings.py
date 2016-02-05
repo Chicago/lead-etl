@@ -3,24 +3,32 @@ import pandas as pd
 import numpy as np
 
 from drain import util, data
-from drain.aggregate import Count, Aggregate, Proportion, Aggregator
+from drain.aggregate import Count, Aggregate, Aggregator, Fraction
 from drain.util import PgSQLDatabase
 
 from sqlalchemy.dialects.postgresql import ARRAY
 from  sqlalchemy.types import Float
 
+conditions = ('SOUND', 'NEEDS MAJOR REPAIR', 'NEEDS MINOR REPAIR', 'UNINHABITABLE')
+cond = Aggregate([(lambda b,c=c: b.bldg_condi == c) for c in conditions], 
+        'sum', name=['condition_sound', 'condition_major', 
+                     'condition_minor', 'condition_uninhabitable'], fname=False)
+
 aggregates = [
-    Aggregate('area', 'mean', function_names=False),
-    Aggregate('year_built', lambda l: list(l), name='years_built', function_names=False),
-    Aggregate(lambda b: (b.t_add1 - b.f_add1)/2+1, 'max', name='address_count', function_names=False),
-    Aggregate('bldg_condi_not_null', 'any'),
-#    Proportion(lambda b: b.bldg_condi == 'SOUND', 'any', name='condition_sound'),
-#    Proportion(lambda b: b.bldg_condi == 'NEEDS MAJOR REPAIR', 'any', name='condition_sound'),
-#    Proportion(lambda b: b.bldg_condi == 'NEEDS MINOR REPAIR', 'any', name='condition_sound'),
-#    Proportion(lambda b: b.bldg_condi == 'UNINHABITABLE', 'any', name='condition_sound'),
-    Aggregate('stories', 'mean', function_names=False),
-    Aggregate('units', 'mean', function_names=False),
-    Aggregate(lambda b: b.year_built < 1978, ['mean', 'any'], 'pre1978'),
+    Aggregate('area', 'mean', fname=False),
+    Aggregate('year_built', lambda l: list(l), 
+            name='years_built', fname=False),
+    Aggregate(lambda b: (b.t_add1 - b.f_add1)/2+1, 'max',
+            name='address_count', fname=False),
+    Aggregate('bldg_condi_not_null', 'any', 
+            name='condition_not_null', fname=False),
+    Aggregate('stories', 'mean', fname=False),
+    Aggregate('units', 'mean', fname=False),
+    Fraction(Count(lambda b: b.year_built < 1978),
+             Count(lambda b: b.year_built.notnull()),
+             name='pre1978_prop'),
+    Fraction(cond, Count(lambda  b: b.bldg_condi.notnull()),
+            name='{numerator}_prop')
 ]
 
 engine = util.create_engine()
