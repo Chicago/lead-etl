@@ -1,42 +1,49 @@
-import os
-import logging
-from datetime import date
+from drain.data import FromSQL
+from drain.aggregate import Count
+from drain.aggregation import SpacetimeAggregation
+from itertools import product
 
-import pandas as pd
-import numpy as np
+KEYWORDS = ['water', 'paint', 'window', 'wall', 'porch', 'chip', 'flak', 'peel']
+STATUS = (['OPEN', 'COMPLIED', 'NO ENTRY'],
+          ['open', 'complied', 'no_entry'])
 
-from drain import util, aggregate, data
-from drain.aggregate import Aggregate, Count, aggregate_counts, SpacetimeAggregator, Spacedeltas
+KEYWORD_COLUMNS = str.join(', ', 
+        ("violation_description ~* '{0}' "
+         "or violation_inspector_comments ~* '{0}' AS {0}".format(k) 
+            for k in KEYWORDS))
 
-day = np.timedelta64(1, 'D')
-VIOLATION_KEYWORDS = ['water', 'paint', 'window', 'wall', 'porch']
+STATUS_COLUMNS = str.join(', ',
+        ("violation_status = '{0}' AS {1}".format(*s) 
+            for s in zip(*STATUS)))
 
-class ViolationsAggregator(SpacetimeAggregator):
-    def __init__(self, basedir, psql_dir=''):
-        SpacetimeAggregator.__init__(self, 
-                spacedeltas = { space:	Spacedeltas(index,deltas) for space,index in spaces.iteritems() },
-                dates = [date(y,1,1) for y in xrange(2007,2015+1)],
-                prefix = 'violations',
-                basedir = basedir,
-                date_col = 'violation_date')
+violations = FromSQL("""
+select a.*, violation_date, violation_status, 
+    violation_status_date, %s, %s
+from input.building_violations 
+join output.addresses a using (address)
+""" % (KEYWORD_COLUMNS, STATUS_COLUMNS), 
+    parse_dates=['violation_date', 'violation_status_date'], 
+    target=True)
 
-        self.DEPENDENCIES = [os.path.join(psql_dir, 'input/building_violations')]
-        self.dtypes = np.float32
+class ViolationsAggregation(SpacetimeAggregation):
+    def __init__(self, spacedeltas, dates, **kwargs):
+        SpacetimeAggregation.__init__(self, 
+                spacedeltas=spacedeltas, dates=dates, 
+                prefix = 'violations', date_column = 'violation_date',
+                censor_columns = {'violation_status_date': ['violation_status']}, **kwargs)
 
-    def get_data(self, date):
-        engine = util.create_engine()
-        logging.info('Reading violations %s' % date)
-        df = pd.read_sql("select a.*, violation_date, lower(violation_description) as violation_description from input.building_violations join output.addresses a using (address) where violation_date < '%s'" % date, engine, parse_dates=['violation_date'])
-
-        for keyword in VIOLATION_KEYWORDS:
-            df['keyword_' + keyword] = (df.violation_description.str.find(keyword) > -1)
-  
-        return df
+        if not self.parallel:
+            self.inputs = [violations]
 
     def get_aggregates(self, date, data):
-         # TODO: add violation status (no entry, complied, open) features
-         # censor on violation status date!
-         aggregates = [Count('keyword_%s' % k, prop=True) for k in VIOLATION_KEYWORDS]
-         aggregates.append(Count())
-         
-         return aggregates
+        aggregates = [
+            Count(),
+            Count(KEYWORDS, prop=True),
+            Count(STATUS[1], prop=True),
+            Count([lambda v,k=k,s=s: v[k] & v[s]
+                    for k,s in product(KEYWORDS, STATUS[1])], prop=True,
+                    name=['%s_%s' % p for p in product(KEYWORDS, STATUS[1])]
+                 )
+        ]
+        
+        return aggregates

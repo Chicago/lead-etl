@@ -1,12 +1,16 @@
 from lead.output.buildings import BuildingsAggregation, AssessorAggregation
 from lead.output.tests import TestsAggregation
+from lead.output.permits import PermitsAggregation
+from lead.output.violations import ViolationsAggregation
 from lead.output.inspections import InspectionsAggregation
+
 from drain.data import FromSQL
+from drain import util
 from datetime import date
 
 indexes = {'address':'address_id','building': 'building_id',
           'complex':'complex_id', 'block':'census_block_id',
-          'tract':'census_tract_id', 'ward':'ward_id'}
+          'tract':'census_tract_id'}
 
 deltas = {'address': ['1y', '2y', '5y', 'all'],
           'block': ['1y','2y','5y'],
@@ -30,3 +34,13 @@ def tests():
 
 def inspections():
     return [InspectionsAggregation(spacedeltas=spacedeltas, dates=dates, target=True, parallel=True)]
+
+def permits():
+    return [PermitsAggregation(spacedeltas=spacedeltas, dates=dates, target=True, parallel=True)]
+
+def violations():
+    return [ViolationsAggregation(spacedeltas=util.dict_subset(spacedeltas, ('address', 'block')), 
+            dates=dates, target=True, parallel=True)]
+
+def all():
+    return buildings() + tests() + inspections() + assessor() + permits() + violations()
