@@ -1,5 +1,6 @@
 from lead.output.buildings import BuildingsAggregation, AssessorAggregation
 from lead.output.tests import TestsAggregation
+from lead.output.kids import KidsAggregation
 from lead.output.permits import PermitsAggregation
 from lead.output.violations import ViolationsAggregation
 from lead.output.inspections import InspectionsAggregation
@@ -32,6 +33,9 @@ def assessor():
 def tests():
     return [TestsAggregation(spacedeltas=spacedeltas, dates=dates, target=True, parallel=True)]
 
+def kids():
+    return [KidsAggregation(spacedeltas=spacedeltas, dates=dates, target=True, parallel=True)]
+
 def inspections():
     return [InspectionsAggregation(spacedeltas=spacedeltas, dates=dates, target=True, parallel=True)]
 
@@ -43,4 +47,4 @@ def violations():
             dates=dates, target=True, parallel=True)]
 
 def all():
-    return buildings() + tests() + inspections() + assessor() + permits() + violations()
+    return buildings() + tests() + inspections() + assessor() + permits() + violations() + kids()
