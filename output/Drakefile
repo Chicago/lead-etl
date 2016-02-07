@@ -10,10 +10,8 @@ psql/output/tests <- output/tests.sql, psql/aux/tests, psql/aux/kid_tests_info, 
 
 psql/output/kid_addresses <- output/kid_addresses.sql, psql/aux/kid_wic_addresses, psql/output/tests [method:psql]
 
-; move this to a python script with variable month and day later
-; this is the left table that everything else gets joined to for modeling
-psql/output/kid_addresses_0101 <- output/kid_addresses.sql, psql/aux/kid_test_addresses, psql/aux/kids [method:psql]
-
-psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/aux/complex_addresses, psql/output/tests [method:psql]
+; residential flag calculated by combination of data
+; including tests, wic, assessor, inspections
+psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/output/inspections, psql/aux/complex_addresses, psql/aux/assessor, psql/output/kid_addresses [method:psql]
 
 psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/inspections, psql/aux/inspection_addresses [method:psql]
