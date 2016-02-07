@@ -13,7 +13,7 @@ indexes = {'address':'address_id','building': 'building_id',
           'complex':'complex_id', 'block':'census_block_id',
           'tract':'census_tract_id'}
 
-deltas = {'address': ['1y', '2y', '5y', 'all'],
+deltas = {'address': ['1y', '2y', '5y', '10y', 'all'],
           'block': ['1y','2y','5y'],
           'tract': ['1y','2y','3y']}
 spacedeltas = {index: (indexes[index], deltas[index]) for index in deltas}
