@@ -8,13 +8,13 @@ import pandas as pd
 import logging
 
 # TODO: make this more efficient by not including unnecessary address columns
-tests = FromSQL(
-            query="""select *, sample_date - date_of_birth as age
-                     from output.tests t join output.kids k using (kid_id) join output.addresses using (address_id)""",
-            parse_dates=['sample_date', 'date_of_birth', 
-                'first_bll6_sample_date', 'first_bll10_sample_date', 
-                'first_sample_date', 'last_sample_date'],
-            to_str=['first_name', 'last_name'], target=True)
+tests = FromSQL(table='output.tests', parse_dates=['sample_date'], 
+        target=True)
+kids = FromSQL(table='output.kids', parse_dates=['date_of_birth', 
+        'first_bll6_sample_date', 'first_bll10_sample_date', 
+        'first_sample_date', 'last_sample_date'],
+        to_str=['first_name', 'last_name'], target=True)
+addresses = FromSQL(table='output.addresses', target=True)
 
 def censor(tests, date, delta):
     logging.info('Censoring tests %s %s' % (date, delta))
@@ -23,31 +23,40 @@ def censor(tests, date, delta):
             {'first_bll6_sample_date':[], 'first_bll10_sample_date':[]}, date)
     return tests
 
-def revise(tests, date):
+def revise(tests, kids, date):
     """
     Efficiently revise tests by only recalculating those aggregates that could have changed
     Does not modify the dataframe tests
     """
     logging.info('Revising tests %s' % date)
     tests = data.date_select(tests, 'sample_date', date, 'all')
-    to_revise = tests.last_sample_date >= date
-    df = tests[to_revise]
+    kids = data.date_select(kids, 'first_sample_date', date, 'all')
+
+    to_revise = kids.last_sample_date >= date
     # drop the columns that need to be revised
-    df = df.drop(['max_bll', 'last_sample_date', 'address_count', 'test_count'], axis=1)
+    kids_to_revise = kids[to_revise].drop(
+            ['max_bll', 'mean_bll', 'last_sample_date', 
+            'address_count', 'test_count'], axis=1)
      
+    tests_to_revise = tests[tests.kid_id.isin(kids_to_revise.kid_id)]
+
     # find last sample
-    last_idx = df.groupby('kid_id')['age'].idxmax()
-    last_tests = df.ix[last_idx]
+    last_idx = tests_to_revise.groupby('kid_id')['age'].idxmax()
+    last_tests = tests_to_revise.ix[last_idx]
     last_tests = last_tests[['kid_id', 'sample_date']].rename(
             columns={'sample_date':'last_sample_date'})
-    df = df.merge(last_tests, on='kid_id')
+    kids_to_revise = kids_to_revise.merge(last_tests, on='kid_id')
 
     # count addresses and tests
-    counts = df.groupby('kid_id').aggregate({'bll': 'max', 'address_id':'nunique', 'test_id':'count'})
-    counts.rename(columns={'bll':'max_bll', 'address_id':'address_count', 'test_id':'test_count'}, inplace=True) 
+    counts = tests_to_revise.groupby('kid_id').aggregate(
+            {'bll': ['max', 'mean'], 'address_id':'nunique', 
+             'test_id':'count'})
+    counts.rename(columns={('bll', 'max'):'max_bll', 
+            ('bll','mean'):'mean', 'address_id':'address_count', 
+            'test_id':'test_count'}, inplace=True) 
     df = df.merge(counts, left_on='kid_id', right_index=True)
 
-    return pd.concat((tests[~to_revise], df))
+    return pd.concat((kids[~to_revise], kids_to_revise))
 
 
 class TestsAggregation(SpacetimeAggregation):
@@ -79,9 +88,15 @@ class TestsAggregation(SpacetimeAggregation):
         bll6_kid_id = lambda t: t.kid_id.where(t.first_bll6_sample_date.notnull())
         bll10_kid_id = lambda t: t.kid_id.where(t.first_bll10_sample_date.notnull())
 
-        bll_kid_count = Aggregate([bll6_kid_id, bll10_kid_id], 'nunique', name=['kid_bll6_ever_count', 'kid_bll10_ever_count'], fname=False)
+        bll_ever_count = Aggregate(
+                [bll6_kid_id, bll10_kid_id], 'nunique', 
+                name=['kid_bll6_ever_count', 'kid_bll10_ever_count'], 
+                fname=False)
+
         kid_count = Aggregate('kid_id', 'nunique', name='kid_count')
-        family_count = Aggregate('last_name', 'nunique', name='family_count')
+        family_count = Aggregate('last_name', 'nunique', 
+                name='family_count')
+
         aggregates = [
             Count(),
             Aggregate('bll', ['mean', 'median', 'max', 'min', 'std']),
@@ -89,8 +104,8 @@ class TestsAggregation(SpacetimeAggregation):
 #            Aggregate('kid_mean_bll', ['mean', 'median', 'max', 'min', 'std']),
             Aggregate('max_bll', ['mean', 'median', 'max', 'min', 'std']),
             Count([bll6, bll10], name=['bll6', 'bll10'], prop=True),
-            bll_kid_count,
-            bll_kid_count / kid_count,
+            bll_ever_count,
+            bll_ever_count / kid_count,
             kid_count
 
 #            Aggregate('kid_first_ebll_age', ['mean', 'median']),

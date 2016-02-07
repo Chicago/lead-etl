@@ -53,7 +53,6 @@ class InspectionsAggregation(SpacetimeAggregation):
 
         self.dtypes = np.float32
 
-
     def get_aggregates(self, date, delta):
         
         aggregates = [
@@ -64,6 +63,7 @@ class InspectionsAggregation(SpacetimeAggregation):
             Count('hazard_int', prop=True), Count('hazard_ext', prop=True),
             Count('hazard', prop=True), Count('hazard_both', prop=True),
 
+            Count('inspected'),
             Count('complied', prop=True),
 
             Aggregate('inspection_to_compliance', ['mean', 'min', 'max']),

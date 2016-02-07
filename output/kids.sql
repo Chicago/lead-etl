@@ -12,20 +12,22 @@ last AS ( select * FROM output.tests where last),
 
 wic AS ( select distinct kid_id from aux.kid_wics ),
 
-counts AS ( select kid_id,
-    count(distinct address_id) address_count, count(*) test_count 
+summary AS ( select kid_id,
+    count(distinct address_id) address_count, count(*) test_count,
+    avg(bll) as mean_bll
     from output.tests group by kid_id)
 
 SELECT k.*, address_count, test_count,
     first_bll6.sample_date first_bll6_sample_date,
     first_bll10.sample_date first_bll10_sample_date,
     max.bll max_bll,
+    mean_bll,
     first.sample_date as first_sample_date,
     last.sample_date as last_sample_date,
     wic.kid_id is not null AS wic
 
 FROM aux.kids k
-LEFT JOIN counts using (kid_id)
+LEFT JOIN summary using (kid_id)
 LEFT JOIN wic using (kid_id)
 LEFT JOIN first_bll6 USING (kid_id)
 LEFT JOIN first_bll10 USING (kid_id)
