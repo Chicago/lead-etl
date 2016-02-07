@@ -22,6 +22,8 @@ psql/aux/addresses <- aux/addresses.sql, psql/input/addresses, psql/buildings/ad
 ; match tests to addresses
 psql/aux/test_addresses <- aux/test_addresses.sql, psql/aux/tests, psql/aux/addresses [method:psql]
 
+psql/aux/kid_mothers <- aux/kid_mothers.sql, psql/aux/kid_wics [method:psql]
+
 psql/aux/kid_wic_addresses <- aux/kid_wic_addresses.sql, psql/aux/kid_wics [method:psql]
 
 ; calculate kid ethnicity based on last name and address

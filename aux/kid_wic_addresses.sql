@@ -24,13 +24,28 @@ CREATE TABLE aux.kid_wic_addresses AS (
     addresses2 AS (
         SELECT part_id_i, address_id, a.register_d
         FROM addresses a JOIN first_address d using (part_id_i, last_upd_d)
+    ),
+
+    -- take unique rows from addresses and addresses2
+    all_addresses AS (
+        SELECT part_id_i, address_id, last_upd_d as date
+        FROM addresses
+        UNION
+        SELECT part_id_i, address_id, register_d as date
+        FROM addresses2
+    ),
+
+    -- get addresses through mother
+    mother_addresses AS (
+        SELECT k.part_id_i, a.address_id,
+                greatest(a.date, min_visit_date) as date, k.mothr_id_i
+        FROM aux.kid_mothers k
+        JOIN all_addresses a
+        ON mothr_id_i = a.part_id_i
     )
 
-    SELECT kid_id, a.* FROM 
-    (SELECT part_id_i, address_id, last_upd_d as date
-    FROM addresses
-    UNION
-    SELECT part_id_i, address_id, register_d as date
-    FROM addresses2) a
+    SELECT kid_id, a.*
+    FROM (SELECT *, null as mothr_id_i FROM all_addresses i
+        UNION SELECT * FROM mother_addresses) a
     JOIN aux.kid_wics USING (part_id_i)
 );
