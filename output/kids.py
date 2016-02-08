@@ -23,7 +23,7 @@ a = FromSQL(table='output.addresses', target=True)
 KID_ADDRESSES = Merge(inputs=[ka, a])
 
 # need wic_addresses (and tests) to revise kid_addresses
-KID_WIC_ADDRESSES = FromSQL(table='aux.kid_wic_addresses', parse_dates=['date'])
+KID_WIC_ADDRESSES = FromSQL(table='aux.kid_wic_addresses', parse_dates=['date'], target=True)
 
 def revise_kids(date):
     """
@@ -123,11 +123,21 @@ class KidsAggregation(SpacetimeAggregation):
 
     def get_aggregates(self, index, date, delta):
         aggregates = [
-                Count(), 
+                Count(),
+                Aggregate(['max_bll', 'mean_bll'], ['mean', 'median']),
                 Count([lambda k: k.first_bll6_sample_date.notnull(), 
                         lambda k: k.first_bll10_sample_date.notnull()],
-                        ['bll6', 'bll10'], prop=True),
-                # TODO: family count, bll6,10 future_count+prop
+                        ['bll6_ever', 'bll10_ever'], prop=True),
+                Count([lambda k: k.first_bll6_sample_date > k.max_date,
+                        lambda k: k.first_bll10_sample_date > k.max_date],
+                        ['bll6_future', 'bll10_future'], prop=True),
+                Count([lambda k: k.first_bll6_sample_date < k.min_date,
+                        lambda k: k.first_bll10_sample_date < k.min_date],
+                        ['bll6_past', 'bll10_past'], prop=True),
+                Count([lambda k: k.first_bll6_sample_date.between(k.min_date, k.max_date),
+                        lambda k: k.first_bll10_sample_date.between(k.min_date, k.max_date)],
+                        ['bll6_present', 'bll10_present'], prop=True),
+                # TODO: family count
                 # TODO: min_last_sample_age cutoffs
         ]
         return aggregates

@@ -2,7 +2,7 @@ from drain import data
 from drain.data import FromSQL, Merge
 from drain.step import Step
 from drain.aggregation import SpacetimeAggregation
-from drain.aggregate import Count, Aggregate
+from drain.aggregate import Count, Fraction, Aggregate
 
 import pandas as pd
 import logging
@@ -40,7 +40,8 @@ class TestsAggregation(SpacetimeAggregation):
             Count(),
             Aggregate('bll', ['mean', 'median', 'max', 'min', 'std']),
             kid_count,
-            Count(['first_bll6', 'first_bll10', 'max']) / kid_count
+            Fraction(Count(['first_bll6', 'first_bll10']),
+                    kid_count, include_numerator=True)
         ]
 
         return aggregates

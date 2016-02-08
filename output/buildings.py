@@ -1,6 +1,5 @@
 from drain.aggregation import SimpleAggregation
 from drain.aggregate import Count, Aggregate, Proportion
-from drain.data import FromSQL
 
 import numpy as np
 

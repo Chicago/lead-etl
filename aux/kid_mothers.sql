@@ -10,7 +10,8 @@ CREATE TABLE aux.kid_mothers AS (
     JOIN cornerstone.partenrl e ON e.part_id_i = b.part_id_i 
     -- join kids
     JOIN aux.kid_wics k on b.part_id_i = k.part_id_i
+    JOIN aux.kids using (kid_id)
     -- exclude bad prenatal records
-    WHERE birth_d - visit_d < 365
+    WHERE date_of_birth - visit_d < 365
     GROUP BY 1,2,3
 );
