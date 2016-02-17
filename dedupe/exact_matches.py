@@ -1,6 +1,8 @@
 import pandas as pd
 from drain import util, dedupe
 
+engine = util.create_engine()
+
 edges = pd.read_sql("""
 with kid_ids as (
     SELECT id, first_name, last_name, date_of_birth, coalesce(canon_id, id) kid_id 
@@ -17,6 +19,6 @@ where k1.kid_id < k2.kid_id
 
 components = dedupe.components_dict_to_df(dedupe.get_components(edges))
 
-db = util.create_db
+db = util.PgSQLDatabase(engine)
 
 db.to_sql(frame=components, if_exists='replace', name='exact_matches', schema='dedupe', index=False)

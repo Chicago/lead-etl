@@ -3,7 +3,7 @@ psql/output/ <- [-timecheck method:psql_schema]
 psql/output/acs <- output/acs.py, psql/input/acs
     $INPUT && touch $OUTPUT
 
-psql/output/kids <- output/kids.sql, psql/aux/kids, psql/output/tests, psql/aux/kid_wics [method:psql]
+psql/output/kids <- output/kids.sql, psql/aux/kids, psql/output/tests, psql/aux/kid_wics, psql/aux/kid_wic_addresses [method:psql]
 
 ; join tests with kid_tests and test_addresses to get all the ids in one place
 psql/output/tests <- output/tests.sql, psql/aux/tests, psql/aux/kid_tests_info, psql/aux/test_addresses [method:psql]

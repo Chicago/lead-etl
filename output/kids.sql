@@ -11,7 +11,7 @@ first AS ( select * FROM output.tests where first),
 last AS ( select * FROM output.tests where last),
 
 wic AS ( select kid_id, min(date) min_date 
-from aux.kid_wic_addresses group by 1),
+from aux.kid_wic_addresses group by 1 ),
 
 summary AS ( select kid_id,
     count(distinct address_id) address_count, count(*) test_count,
@@ -25,6 +25,8 @@ SELECT k.*, address_count, test_count,
     mean_bll,
     first.sample_date as first_sample_date,
     last.sample_date as last_sample_date,
+    first.address_id as first_sample_address_id,
+    first_bll6.address_id as first_bll6_address_id,
     wic.min_date AS wic_date
 
 FROM aux.kids k

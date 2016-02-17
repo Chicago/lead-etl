@@ -12,6 +12,6 @@ CREATE TABLE aux.kid_mothers AS (
     JOIN aux.kid_wics k on b.part_id_i = k.part_id_i
     JOIN aux.kids using (kid_id)
     -- exclude bad prenatal records
-    WHERE date_of_birth - visit_d < 365
+    WHERE date_of_birth - visit_d between -365 and 365
     GROUP BY 1,2,3
 );

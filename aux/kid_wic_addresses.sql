@@ -48,4 +48,6 @@ CREATE TABLE aux.kid_wic_addresses AS (
     FROM (SELECT *, null as mothr_id_i FROM all_addresses i
         UNION SELECT * FROM mother_addresses) a
     JOIN aux.kid_wics USING (part_id_i)
+    JOIN aux.kids using (kid_id)
+    WHERE date_of_birth - date < 365
 );

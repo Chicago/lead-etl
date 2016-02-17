@@ -17,8 +17,8 @@ TESTS = FromSQL(table='output.tests', parse_dates=['sample_date'],
         target=True)
 
 ka = FromSQL(query="""
-select kid_id, address_id, min_date, max_date from output.kid_addresses
-""", parse_dates=['min_date', 'max_date'], target=True)
+select kid_id, address_id, address_min_date, address_max_date from output.kid_addresses
+""", parse_dates=['address_min_date', 'address_max_date'], target=True)
 a = FromSQL(table='output.addresses', target=True)
 KID_ADDRESSES = Merge(inputs=[ka, a])
 
@@ -67,10 +67,10 @@ def revise_kid_addresses(date):
     Efficiently revise kid_addresses max_date
     """
     logging.info('Revising kid addresses %s' % date)
-    kid_addresses = data.date_select(KID_ADDRESSES.get_result(), 'min_date', date, 'all')
+    kid_addresses = data.date_select(KID_ADDRESSES.get_result(), 'address_min_date', date, 'all')
 
-    to_revise = kid_addresses.max_date >= date
-    kid_addresses_to_revise = kid_addresses[to_revise].drop(['max_date'], axis=1)
+    to_revise = kid_addresses.address_max_date >= date
+    kid_addresses_to_revise = kid_addresses[to_revise].drop(['address_max_date'], axis=1)
     dates = pd.concat((TESTS.get_result()[['kid_id', 'address_id', 'sample_date']],
             KID_WIC_ADDRESSES.get_result().rename(columns={'date':'sample_date'})))
 
@@ -81,7 +81,7 @@ def revise_kid_addresses(date):
     max_date = dates_to_revise.groupby(['kid_id', 'address_id']).aggregate(
             {'sample_date':'max'})
     # TODO: get the mean bll at this address for this kid here! add that to output.kid_addresses, too.
-    max_date.rename(columns={'sample_date':'max_date'}, inplace=True)
+    max_date.rename(columns={'sample_date':'address_max_date'}, inplace=True)
     kid_addresses_revised = kid_addresses_to_revise.merge(max_date, left_on=['kid_id', 'address_id'], right_index=True)
 
     return pd.concat((kid_addresses[~to_revise], kid_addresses_revised))
@@ -91,7 +91,7 @@ class KidsAggregation(SpacetimeAggregation):
     def __init__(self, spacedeltas, dates, **kwargs):
         SpacetimeAggregation.__init__(self, aggregator_args=['index','date','delta'],
             spacedeltas=spacedeltas, dates=dates, prefix='kids',
-            date_column='min_date', **kwargs)
+            date_column='address_min_date', **kwargs)
 
         if not self.parallel:
             self.inputs = [TESTS, KID_ADDRESSES, KID_WIC_ADDRESSES, KIDS]
@@ -110,10 +110,11 @@ class KidsAggregation(SpacetimeAggregation):
         if index != 'address':
             kid_addresses = kid_addresses.groupby(
                 ['kid_id', self.spacedeltas[index][0]]
-            ).aggregate({'min_date':'min', 'max_date':'max'}).reset_index()
+            ).aggregate({'address_min_date':'min', 
+                    'address_max_date':'max'}).reset_index()
 
         r = kid_addresses.merge(kids, on='kid_id')
-        r = data.date_select(r, 'max_date', date=date, delta=delta)
+        r = data.date_select(r, 'address_max_date', date=date, delta=delta)
         return r
 
     def get_aggregator(self, index, date, delta):
@@ -128,16 +129,19 @@ class KidsAggregation(SpacetimeAggregation):
                 Count([lambda k: k.first_bll6_sample_date.notnull(), 
                         lambda k: k.first_bll10_sample_date.notnull()],
                         ['bll6_ever', 'bll10_ever'], prop=True),
-                Count([lambda k: k.first_bll6_sample_date > k.max_date,
-                        lambda k: k.first_bll10_sample_date > k.max_date],
+                Count([lambda k: k.first_bll6_sample_date > k.address_max_date,
+                        lambda k: k.first_bll10_sample_date > k.address_max_date],
                         ['bll6_future', 'bll10_future'], prop=True),
-                Count([lambda k: k.first_bll6_sample_date < k.min_date,
-                        lambda k: k.first_bll10_sample_date < k.min_date],
+                Count([lambda k: k.first_bll6_sample_date < k.address_min_date,
+                        lambda k: k.first_bll10_sample_date < k.address_min_date],
                         ['bll6_past', 'bll10_past'], prop=True),
-                Count([lambda k: k.first_bll6_sample_date.between(k.min_date, k.max_date),
-                        lambda k: k.first_bll10_sample_date.between(k.min_date, k.max_date)],
+                Count([lambda k: k.first_bll6_sample_date.between(
+                                k.address_min_date, k.address_max_date),
+                        lambda k: k.first_bll10_sample_date.between(
+                                k.address_min_date, k.address_max_date)],
                         ['bll6_present', 'bll10_present'], prop=True),
                 # TODO: family count
                 # TODO: min_last_sample_age cutoffs
+                # TODO: days since last kid. days since last poisoning.
         ]
         return aggregates

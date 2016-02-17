@@ -21,14 +21,19 @@ spacedeltas = {index: (indexes[index], deltas[index]) for index in deltas}
 dates = [date(y,1,1) for y in range(2007,2017)]
 
 def buildings():
-    buildings = FromSQL(query="select * from aux.buildings join output.addresses using (building_id)", tables=['aux.buildings', 'aux.addresses'],
-target=True)
+    buildings = FromSQL(query="select * from aux.buildings "
+            "join output.addresses using (building_id)", 
+            tables=['aux.buildings', 'output.addresses'], target=True)
+
     return [BuildingsAggregation(
         {k:v for k,v in indexes.iteritems() if k != 'address'}, 
         inputs=[buildings], parallel=True, target=True)]
 
 def assessor():
-    assessor = FromSQL(query="select * from aux.assessor join output.addresses using (address)", tables=['aux.assessor', 'output.addresses'], target=True)
+    assessor = FromSQL(query="select * from aux.assessor "
+            "join output.addresses using (address)",
+            tables=['aux.assessor', 'output.addresses'], target=True)
+
     return [AssessorAggregation(indexes, inputs=[assessor], parallel=True, target=True)]
 
 def tests():

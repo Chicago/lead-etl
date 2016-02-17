@@ -1,8 +1,9 @@
 from drain import data
+from drain.util import day
 from drain.data import FromSQL, Merge
 from drain.step import Step
 from drain.aggregation import SpacetimeAggregation
-from drain.aggregate import Count, Fraction, Aggregate
+from drain.aggregate import Count, Fraction, Aggregate, days
 
 import pandas as pd
 import logging
@@ -31,17 +32,23 @@ class TestsAggregation(SpacetimeAggregation):
         self.revised_data = {}
             
     def get_aggregates(self, date, delta):
-        bll6 = lambda t: t.bll > 5
-        bll10 = lambda t: t.bll > 9
         kid_count = Aggregate('kid_id', 'nunique', 
                 name='kid_count', fname=False)
 
         aggregates = [
             Count(),
             Aggregate('bll', ['mean', 'median', 'max', 'min', 'std']),
-            kid_count,
-            Fraction(Count(['first_bll6', 'first_bll10']),
-                    kid_count, include_numerator=True)
+            Count(lambda t: t.bll <= 2, 'bll2', prop=True),
+            Fraction(Count(['first_bll6', 'first_bll10']), kid_count, 
+                    include_numerator=True, include_denominator=True),
         ]
-
+        if delta == 'all':
+            aggregates.extend([
+                Aggregate(days('sample_date',date), ['min','max'], 
+                        'days_since_test'),
+                Aggregate([
+                    lambda t: (date - t.sample_date.where(t.bll >= 6))/day,
+                    lambda t: (date - t.sample_date.where(t.bll >= 10))/day],
+                    ['min','max'], ['days_since_bll6', 'days_since_bll10'])
+            ])
         return aggregates
