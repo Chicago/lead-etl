@@ -3,6 +3,9 @@ from drain.aggregate import Count, Aggregate, Proportion
 
 import numpy as np
 
+CONDITIONS = ['condition_major', 'condition_minor', 
+        'condition_uninhabitable', 'condition_sound']
+
 class BuildingsAggregation(SimpleAggregation):
     def __init__(self, indexes, **kwargs):
         SimpleAggregation.__init__(self, indexes=indexes, prefix='buildings', **kwargs)
@@ -20,11 +23,13 @@ class BuildingsAggregation(SimpleAggregation):
                 ], fname = ['median', 'mean', 'min', 'max']),
             Aggregate('address_count', 'sum'),
             # average proportion of sound building condition
-            Proportion(['condition_sound_prop', 
-                   'condition_major_prop', 
-                   'condition_minor_prop', 
-                   'condition_uninhabitable_prop'],
-                        parent='condition_not_null'),
+            Proportion(['%s_prop' % c for c in CONDITIONS],
+                    parent ='condition_not_null',
+                    name = CONDITIONS),
+            Aggregate([lambda p: p['%s_prop' % c] > 0
+                        for c in CONDITIONS],
+                    'any',
+                    name = CONDITIONS),
             Aggregate('stories', 'mean'),
             Aggregate('units', 'sum'),
             Proportion('pre1978_prop', 
