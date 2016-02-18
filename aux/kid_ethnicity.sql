@@ -10,23 +10,25 @@ drop table if exists aux.kid_ethnicity;
 -- TODO: use age-specific ethnicity stats from ACS
 create table aux.kid_ethnicity as (
 with ethnicity as (
-select distinct on (k.id)
-	k.id kid_id,
-	k.last_name,
+select distinct on (kid_id)
+	kid_id,
+	last_name,
 	s.surname is null surname_null,
 	s.ethnicity surname_ethnicity,
-	coalesce(acs.race_pct_white*s.pct_white/100, acs.race_pct_white, s.pct_white/100)/.774 p_white,
-    coalesce(acs.race_pct_black*s.pct_black/100, acs.race_pct_black, s.pct_black/100)/.132  p_black,
-    coalesce(acs.race_pct_asian*s.pct_api/100, acs.race_pct_asian, s.pct_api/100)/.054 p_asian,
-    coalesce(acs.race_pct_hispanic*s.pct_hispanic/100, acs.race_pct_hispanic, s.pct_hispanic/100)/.174 p_hispanic
+	coalesce(acs.race_prop_white*s.pct_white/100, acs.race_prop_white, s.pct_white/100)/.774 p_white,
+    coalesce(acs.race_prop_black*s.pct_black/100, acs.race_prop_black, s.pct_black/100)/.132  p_black,
+    coalesce(acs.race_prop_asian*s.pct_api/100, acs.race_prop_asian, s.pct_api/100)/.054 p_asian,
+    coalesce(acs.race_prop_hispanic*s.pct_hispanic/100, acs.race_prop_hispanic, s.pct_hispanic/100)/.174 p_hispanic
 from aux.kids k
 left join input.surnames s on k.last_name = s.surname
-left join aux.kid_test_addresses t on k.id = t.kid_id
-left join aux.addresses a on a.id = address_id
+left join aux.kid_test_addresses t using (kid_id)
+left join aux.addresses a using (address_id)
 left join output.acs on 
-    acs.census_tract_id = cast(a.census_tract_id as double precision) and
-    acs.year = least ( 2013, greatest( date_part('year', k.date_of_birth), 2009 ))
-order by k.id, min_date asc
+    acs.census_tract_id = a.census_tract_id::decimal and
+    -- get appropriate year between 2009 and 2014
+    acs.year = least (2014, 
+        greatest(extract(year from k.date_of_birth), 2009))
+order by kid_id, min_date asc
 )
 select e.*,
 CASE 

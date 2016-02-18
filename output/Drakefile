@@ -1,5 +1,6 @@
 psql/output/ <- [-timecheck method:psql_schema]
 
+; calculate proportions from the input acs counts
 psql/output/acs <- output/acs.py, psql/input/acs
     $INPUT && touch $OUTPUT
 

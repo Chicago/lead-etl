@@ -4,8 +4,11 @@ import numpy as np
 from drain import util
 import sys
 
-def read_acs(table, columns, engine=None, offsets={0:{}}, years=range(2009, 2015)):
-    select = 'select geoid, {fields} from acs{year}_5yr.{table} where geoid ~ \'14000US1703\''
+def read_acs(table, columns, engine, offsets={0:{}}, years=range(2009, 2015)):
+    select = """
+        select geoid, {fields} from acs{year}_5yr.{table}
+        where geoid ~ 'US1703'
+    """
     column_names = ['geoid']
     column_names.extend(columns.keys())
 
@@ -42,10 +45,9 @@ race_columns = {
 race_agg = read_acs(race_table, race_columns, engine)
 race_agg.set_index(index, inplace=True)
 
-hispanic_table = 'B03001'
+hispanic_table = 'B03003'
 hispanic_columns = {
-    'hispanic_count_total': 1,
-    'hispanic_count_hispanic': 3
+    'race_count_hispanic': 3
 }
 hispanic_agg = read_acs(hispanic_table, hispanic_columns, engine)
 hispanic_agg.set_index(index, inplace=True)
@@ -77,7 +79,6 @@ edu_offsets = {
 
 edu = read_acs(edu_table, edu_columns, engine, edu_offsets)
 edu_agg = aggregate(edu, prefix='edu', index=index)
-print edu_agg
 
 # HEALTH INSURANCE
 years=[2012,2013,2014]
@@ -124,7 +125,6 @@ insurance = pd.DataFrame(columns=['geoid', 'year', 'sex', 'age'])
 for i in range(len(insurances)):
     health_insurance_table = 'C2700' + str(4+i)
     health_insurance_columns={
-        'health_count_insured_' + insurances[i] +'_total': 0,
         'health_count_insured_' + insurances[i]: 1,
     }
 
@@ -149,7 +149,7 @@ tenure_offsets = {
 tenure = read_acs(tenure_table, tenure_columns, engine, tenure_offsets)
 tenure_agg = aggregate(tenure, prefix='tenure', index=index)
 
-acs = tenure_agg.join((insurance_agg, health_agg, edu_agg, race_agg, hispanic_agg))
+acs = tenure_agg.join((insurance_agg, health_agg, edu_agg, race_agg, hispanic_agg), how='outer')
 acs.reset_index(inplace=True)
 acs['census_tract_id']=acs['geoid'].apply(lambda g: float(g[7:]))
 acs.drop('geoid', axis=1, inplace=True)

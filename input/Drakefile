@@ -90,7 +90,7 @@ data/building_violations.csv <- [-timecheck]
 	wget -O- "https://data.cityofchicago.org/api/views/22u3-xenr/rows.csv?accessType=DOWNLOAD" | sed 's/, ,/,,/g' > $OUTPUT
 psql/input/building_violations <- input/building_violations.sql, data/building_violations.csv [method:psql]
 
-; American Community Survey data
+; American Community Survey data gets imported into its own db
 %include $[ACS_PROFILE]
 
 data/census-postgres/ <- [-timecheck]
@@ -108,6 +108,7 @@ echo "psql/acs"$y"_5yr <- input/acs/generated/acs"$y"_5yr/import.sql, data/acs/a
 
 done)
 
+; selected acs variables copied to lead db via csv
 data/acs.csv <- input/acs/download.py, psql/acs2009_5yr, psql/acs2010_5yr, psql/acs2011_5yr, psql/acs2012_5yr, psql/acs2013_5yr
     $INPUT $OUTPUT
 
