@@ -4,7 +4,7 @@ drop table if exists aux.kid_ethnicity;
 -- know P(E|S) from census surname data, know P(E|T) from american commnuity survey
 -- assuming surname and tract and independent conditioned on ethnicity
 -- i.e. P(E,S,T) = P(S|E)P(T|E)*P(E)
--- then P(E|S,T) is proportional to P(E|S)P(E|T)*P(E)
+-- then P(E|S,T) is proportional to P(E|S)P(E|T)/P(E)
 -- where P(E) is just the national ethnicity distribution which we've hardcoded
 
 -- TODO: use age-specific ethnicity stats from ACS

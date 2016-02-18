@@ -3,7 +3,8 @@ from drain import util
 import pandas as pd
 
 engine = util.create_engine()
-acs = pd.read_sql('select * from input.acs', engine, 
+acs = pd.read_sql("select * from input.acs "
+        "where length(census_tract_id::text) = 11", engine, 
         index_col=['census_tract_id', 'year'])
 
 props = pd.DataFrame()
@@ -13,8 +14,6 @@ categories = ['tenure', 'health', 'edu', 'race']
 columns = {cat: [c for c in acs.columns 
         if c.startswith(cat) and not c.endswith('total')] 
             for cat in categories}
-import pdb; pdb.set_trace()
-print columns
 
 for category in categories:
     for c in columns[category]:
