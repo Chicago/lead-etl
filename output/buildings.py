@@ -36,6 +36,8 @@ class BuildingsAggregation(SimpleAggregation):
                     parent=lambda i: i.pre1978_prop.notnull()),
         ]
 
+CLASSES = ['residential', 'incentive', 'multifamily', 'industrial', 'commercial', 'brownfield', 'nonprofit']
+
 class AssessorAggregation(SimpleAggregation):
     def __init__(self, indexes, **kwargs):
         SimpleAggregation.__init__(self, indexes=indexes, prefix='assessor', **kwargs)
@@ -54,11 +56,7 @@ class AssessorAggregation(SimpleAggregation):
             Aggregate('building_area', 'sum'),
             Aggregate('land_area', 'sum'),
 
-            Proportion('residential', parent='count'),
-            Proportion('incentive', parent='count'),
-            Proportion('multifamily', parent='count'),
-            Proportion('industrial', parent='count'),
-            Proportion('commercial', parent='count'),
-            Proportion('brownfield', parent='count'),
-            Proportion('nonprofit', parent='count'),
+            Proportion(lambda a: a.owner_occupied > 0, 'owner_occupied'),
+            Proportion([lambda a, c=c: a[c] > 0 for c in CLASSES],
+                    name=CLASSES)
         ]
