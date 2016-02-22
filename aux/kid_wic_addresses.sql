@@ -51,3 +51,5 @@ CREATE TABLE aux.kid_wic_addresses AS (
     JOIN aux.kids using (kid_id)
     WHERE date_of_birth - date < 365
 );
+
+create index on aux.kid_wic_addresses (kid_id, address_id);

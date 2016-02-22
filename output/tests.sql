@@ -14,3 +14,5 @@ create table output.tests as (
     left join aux.addresses a using (address_id)
     left join aux.kids k using (kid_id)
 );
+
+create index on output.tests (kid_id, address_id);
