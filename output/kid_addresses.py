@@ -1,5 +1,5 @@
 from drain import data
-from drain.data import FromSQL, Merge
+from drain.data import FromSQL, Merge, Revise
 from drain.step import Step
 from drain.aggregation import SpacetimeAggregation
 from drain.aggregate import Count, Aggregate, Aggregator
@@ -9,25 +9,15 @@ import pandas as pd
 import logging
 
 def kid_addresses_step(date):
-    # read the original query
-    with open(os.path.join(os.path.dirname(__file__), 'kid_addresses.sql')) as f:
-        query = f.read()
-
-    # extract the body of the create table statement
-    query = data.extract_sql(query)
-    # revise it
-    query = data.revise_sql(query=query, id_column='kid_id', output_table='output.kid_addresses',
-            max_date_column = 'address_max_date', min_date_column='address_min_date', date=date)
-    return FromSQL(query, parse_dates=[])
+    sql_filename = os.path.join(os.path.dirname(__file__), 'kid_addresses.sql')
+    return Revise(sql_filename=sql_filename, id_column='kid_id', max_date_column = 'address_max_date', 
+            min_date_column='address_min_date', date=date)
 
 def kids_step(date):
-    with open(os.path.join(os.path.dirname(__file__), 'kids.sql')) as f:
-        query = f.read()
+    sql_filename = os.path.join(os.path.dirname(__file__), 'kids.sql')
 
-    query = data.extract_sql(query)
-    query = data.revise_sql(query=query, id_column='kid_id', output_table='output.kids',
-            max_date_column = 'last_sample_date', min_date_column='first_sample_date', date=date)
-    return FromSQL(query, parse_dates=[])
+    return Revise(sql_filename=sql_filename, id_column='kid_id', max_date_column = 'last_sample_date', 
+            min_date_column='first_sample_date', date=date)
 
 class KidsAggregation(SpacetimeAggregation):
     def __init__(self, spacedeltas, dates, **kwargs):
