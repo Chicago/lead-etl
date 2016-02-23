@@ -23,31 +23,15 @@ first_bll10 AS (
     from tests
     where bll > 9
     order by kid_id, sample_date asc, test_id asc
-),
-
-max AS (
-    select distinct on(kid_id) kid_id, test_id
-    from tests
-    order by kid_id, bll desc, sample_date asc, test_id asc
-),
-
-last AS (
-    select distinct on(kid_id) kid_id,test_id
-    from tests 
-    order by kid_id, test_number desc 
 )
 
 select tests.kid_id, test_id, 
     first_bll6.test_id is not null as first_bll6,
     first_bll10.test_id is not null as first_bll10,
-    max.test_id is not null as max,
-    test_number = 1 as first,
-    last.test_id is not null as last
+    test_number = 1 as first
 from tests 
 left join first_bll6 using (test_id)
 left join first_bll10 using (test_id)
-left join max using (test_id)
-left join last using (test_id)
 );
 
 

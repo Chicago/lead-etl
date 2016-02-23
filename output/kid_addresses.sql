@@ -4,13 +4,17 @@ create table output.kid_addresses as (
 with wic_addresses as (
 select kid_id, address_id, 
     min(date) as min_date, max(date) as max_date
-from aux.kid_wic_addresses group by 1,2
+from aux.kid_wic_addresses 
+where 1=1
+group by 1,2
 ),
 
 test_addresses as (
 select kid_id, address_id, 
     min(sample_date) as min_date, max(sample_date) as max_date
-from output.tests group by 1,2
+from output.tests 
+where 1=1
+group by 1,2
 )
 
 select kid_id, address_id, 

@@ -1,128 +1,48 @@
 from drain import data
-from drain.data import FromSQL, Merge
+from drain.data import FromSQL, Merge, Revise
 from drain.step import Step
 from drain.aggregation import SpacetimeAggregation
 from drain.aggregate import Count, Aggregate, Aggregator
 
+import os
 import pandas as pd
 import logging
 
-KIDS = FromSQL(table='output.kids', parse_dates=['date_of_birth', 
+KIDS_PARSE_DATES = ['date_of_birth', 
         'first_bll6_sample_date', 'first_bll10_sample_date', 
-        'first_sample_date', 'last_sample_date'],
-        to_str=['first_name', 'last_name'], target=True)
+        'first_sample_date', 'last_sample_date']
 
-# need tests to revise kids
-TESTS = FromSQL(table='output.tests', parse_dates=['sample_date'], 
-        target=True)
+KID_ADDRESSES_PARSE_DATES = ['address_min_date', 'address_max_date', 
+        'address_wic_min_date', 'address_wic_max_date', 
+        'address_test_min_date', 'address_test_max_date']
 
-ka = FromSQL(query="""
-select kid_id, address_id, address_min_date, address_max_date from output.kid_addresses
-""", parse_dates=['address_min_date', 'address_max_date'], target=True)
-a = FromSQL(table='output.addresses', target=True)
-KID_ADDRESSES = Merge(inputs=[ka, a])
 
-# need wic_addresses (and tests) to revise kid_addresses
-KID_WIC_ADDRESSES = FromSQL(table='aux.kid_wic_addresses', parse_dates=['date'], target=True)
-
-def revise_kids(date):
-    """
-    Efficiently revise tests by only recalculating those aggregates that could have changed
-    """
-    logging.info('Revising kids %s' % date)
-    tests = data.date_select(TESTS.get_result(), 'sample_date', date, 'all')
-    kids = data.date_select(KIDS.get_result(), 'first_sample_date', date, 'all')
-
-    to_revise = kids.last_sample_date >= date
-    # drop the columns that need to be revised
-    kids_to_revise = kids[to_revise].drop(
-            ['max_bll', 'mean_bll', 'last_sample_date', 
-            'address_count', 'test_count'], axis=1)
-     
-    tests_to_revise = tests[tests.kid_id.isin(kids_to_revise.kid_id)]
-
-    # find last sample
-    last_idx = tests_to_revise.groupby('kid_id')['age'].idxmax()
-    last_tests = tests_to_revise.ix[last_idx]
-    last_tests = last_tests[['kid_id', 'sample_date']].rename(
-            columns={'sample_date':'last_sample_date'})
-    kids_to_revise = kids_to_revise.merge(last_tests, on='kid_id')
-
-    # count addresses and tests
-    counts = tests_to_revise.groupby('kid_id').aggregate(
-            {'bll': ['max', 'mean'], 'address_id':'nunique', 
-             'test_id':'count'})
-    counts.rename(columns={('bll', 'max'):'max_bll', 
-            ('bll','mean'):'mean', 'address_id':'address_count', 
-            'test_id':'test_count'}, inplace=True) 
-    kids_revised = kids_to_revise.merge(counts, left_on='kid_id', right_index=True)
-
-    data.date_censor(kids_revised, {'first_bll6_sample_date':[], 
-            'first_bll10_sample_date':[]}, date)
-
-    return pd.concat((kids[~to_revise], kids_revised))
-
-def revise_kid_addresses(date):
-    """
-    Efficiently revise kid_addresses max_date
-    """
-    logging.info('Revising kid addresses %s' % date)
-    kid_addresses = data.date_select(KID_ADDRESSES.get_result(), 'address_min_date', date, 'all')
-
-    to_revise = kid_addresses.address_max_date >= date
-    kid_addresses_to_revise = kid_addresses[to_revise].drop(['address_max_date'], axis=1)
-    dates = pd.concat((TESTS.get_result()[['kid_id', 'address_id', 'sample_date']],
-            KID_WIC_ADDRESSES.get_result().rename(columns={'date':'sample_date'})))
-
-    dates_to_revise = dates[dates.kid_id.isin(kid_addresses[to_revise].kid_id) & 
-          dates.address_id.isin(kid_addresses[to_revise].address_id) &
-          (dates.sample_date < date)]
-
-    max_date = dates_to_revise.groupby(['kid_id', 'address_id']).aggregate(
-            {'sample_date':'max'})
-    # TODO: get the mean bll at this address for this kid here! add that to output.kid_addresses, too.
-    max_date.rename(columns={'sample_date':'address_max_date'}, inplace=True)
-    kid_addresses_revised = kid_addresses_to_revise.merge(max_date, left_on=['kid_id', 'address_id'], right_index=True)
-
-    return pd.concat((kid_addresses[~to_revise], kid_addresses_revised))
-
-    # drop the columns that need to be revised
 class KidsAggregation(SpacetimeAggregation):
     def __init__(self, spacedeltas, dates, **kwargs):
-        SpacetimeAggregation.__init__(self, aggregator_args=['index','date','delta'],
-            spacedeltas=spacedeltas, dates=dates, prefix='kids',
+        SpacetimeAggregation.__init__(self, spacedeltas=spacedeltas, 
+            dates=dates, prefix='kids',
             date_column='address_min_date', **kwargs)
 
         if not self.parallel:
-            self.inputs = [TESTS, KID_ADDRESSES, KID_WIC_ADDRESSES, KIDS]
+            kid_addresses_filename = os.path.join(os.path.dirname(__file__), 'kid_addresses.sql')
+            kid_addresses = Revise(sql_filename=kid_addresses_filename, id_column='kid_id', 
+                    max_date_column='address_max_date', min_date_column='address_min_date', 
+                    date=self.dates[0], from_sql_args={'parse_dates':KID_ADDRESSES_PARSE_DATES,
+                                                       'target':True})
 
-        self.data_revised = {}
+            kids_filename = os.path.join(os.path.dirname(__file__), 'kids.sql')
+            kids = Revise(sql_filename=kids_filename, id_column='kid_id', 
+                    max_date_column = 'last_sample_date', min_date_column='first_sample_date', 
+                    date=dates[0], from_sql_args={'parse_dates':KIDS_PARSE_DATES, 
+                                                  'to_str':['first_name','last_name'],
+                                                  'target':True})
             
-    def get_data(self, index, date, delta):
-        # cache revision based on date because it doesn't depend on index, delta
-        if date in self.data_revised:
-            kids, kid_addresses = self.data_revised[date]
-        else:
-            kids = revise_kids(date)
-            kid_addresses = revise_kid_addresses(date)
-            self.data_revised[date] = (kids, kid_addresses)
+            kids_merged = Merge(inputs=[kids, kid_addresses], on='kid_id')
+            addresses = FromSQL(table='output.addresses', target=True)
 
-        if index != 'address':
-            kid_addresses = kid_addresses.groupby(
-                ['kid_id', self.spacedeltas[index][0]]
-            ).aggregate({'address_min_date':'min', 
-                    'address_max_date':'max'}).reset_index()
+            self.inputs = [Merge(inputs=[kids_merged, addresses], on='address_id')]
 
-        r = kid_addresses.merge(kids, on='kid_id')
-        r = data.date_select(r, 'address_max_date', date=date, delta=delta)
-        return r
-
-    def get_aggregator(self, index, date, delta):
-        df = self.get_data(index, date, delta)
-        aggregator = Aggregator(df, self.get_aggregates(index, date, delta))
-        return aggregator
-
-    def get_aggregates(self, index, date, delta):
+    def get_aggregates(self, date, delta):
         aggregates = [
                 Count(),
                 Aggregate(['max_bll', 'mean_bll'], ['mean', 'median']),

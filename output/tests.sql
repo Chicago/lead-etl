@@ -6,7 +6,7 @@ create table output.tests as (
             ('5001 S MICHIGAN AVE', '1634 W POLK ST', '810 W MONTROSE AVE') 
         THEN null ELSE a.address_id END AS address_id,
         bll, sample_date, sample_type, sample_date - k.date_of_birth AS age,
-        first, last, first_bll6, first_bll10, max
+        first, first_bll6, first_bll10
     
     from aux.tests t
     join aux.kid_tests_info kt using (test_id)
