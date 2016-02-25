@@ -13,6 +13,6 @@ psql/output/kid_addresses <- output/kid_addresses.sql, psql/aux/kid_wic_addresse
 
 ; residential flag calculated by combination of data
 ; including tests, wic, assessor, inspections
-psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/output/inspections, psql/aux/complex_addresses, psql/aux/assessor, psql/output/kid_addresses [method:psql]
+psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/output/inspections, psql/aux/complex_addresses, psql/aux/assessor, psql/aux/test_addresses, psql/aux/kid_wic_addresses [method:psql]
 
 psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/inspections, psql/aux/inspection_addresses [method:psql]

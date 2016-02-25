@@ -11,7 +11,9 @@ group by 1,2
 
 test_addresses as (
 select kid_id, address_id, 
-    min(sample_date) as min_date, max(sample_date) as max_date
+    min(date) as min_date, max(date) as max_date,
+    max(bll) as max_bll,
+    avg(bll) as mean_bll
 from output.tests 
 where 1=1
 group by 1,2
@@ -22,6 +24,8 @@ select kid_id, address_id,
     w.max_date as address_wic_max_date,
     t.min_date as address_test_min_date, 
     t.max_date as address_test_max_date,
+    t.max_bll as address_max_bll,
+    t.mean_bll as address_mean_bll,
     least(w.min_date, t.min_date) as address_min_date,
     greatest(w.min_date, t.min_date) as address_max_date
 
