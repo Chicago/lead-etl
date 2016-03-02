@@ -8,6 +8,7 @@ from lead.output.inspections import InspectionsAggregation
 from drain.data import FromSQL
 from drain import util
 from datetime import date
+from repoze.lru import lru_cache
 
 indexes = {'address':'address_id','building': 'building_id',
           'complex':'complex_id', 'block':'census_block_id',
@@ -52,5 +53,10 @@ def violations():
     return [ViolationsAggregation(spacedeltas=util.dict_subset(spacedeltas, ('address', 'block')), 
             dates=dates, target=True, parallel=True)]
 
+def wic_enroll():
+    return [ViolationsAggregation(spacedeltas=util.dict_subset(spacedeltas, ('address', 'block')), 
+            dates=dates, target=True, parallel=True)]
+
+@lru_cache(maxsize=1)
 def all():
     return buildings() + tests() + inspections() + assessor() + permits() + violations() + kids()

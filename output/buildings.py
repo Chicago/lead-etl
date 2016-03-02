@@ -1,5 +1,5 @@
 from drain.aggregation import SimpleAggregation
-from drain.aggregate import Count, Aggregate, Proportion
+from drain.aggregate import Count, Aggregate, Proportion, Fraction
 
 import numpy as np
 
@@ -47,9 +47,9 @@ class AssessorAggregation(SimpleAggregation):
         return [
             Aggregate('count', 'mean'),
             Aggregate('land_value', 'sum'),
-            Aggregate('total_value', 'sum'),
             Aggregate('age', ['min', 'mean', 'max']),
-            Aggregate('apartments', 'sum'),
+            Fraction(Aggregate('total_value', 'sum'), Aggregate('apartments', 'sum'), 
+                    include_numerator=True, include_denominator=True),
             Aggregate('rooms', 'sum'),
             Aggregate('beds', 'sum'),
             Aggregate('baths', 'sum'),

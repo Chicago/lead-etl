@@ -51,8 +51,6 @@ class InspectionsAggregation(SpacetimeAggregation):
         if not self.parallel:
             self.inputs = [Inspections(max(dates))]
 
-        self.dtypes = np.float32
-
     def get_aggregates(self, date, delta):
         
         aggregates = [
