@@ -52,6 +52,14 @@ hispanic_columns = {
 hispanic_agg = read_acs(hispanic_table, hispanic_columns, engine)
 hispanic_agg.set_index(index, inplace=True)
 
+poverty_table = 'B17010'
+poverty_columns = {
+    'family_count_total': 1,
+    'family_count_poverty': 2
+}
+poverty_agg = read_acs(poverty_table, poverty_columns, engine)
+poverty_agg.set_index(index, inplace=True)
+
 edu_table = 'B15001'
 edu_columns = {
     'edu_count_total':3,
@@ -149,7 +157,7 @@ tenure_offsets = {
 tenure = read_acs(tenure_table, tenure_columns, engine, tenure_offsets)
 tenure_agg = aggregate(tenure, prefix='tenure', index=index)
 
-acs = tenure_agg.join((insurance_agg, health_agg, edu_agg, race_agg, hispanic_agg), how='outer')
+acs = tenure_agg.join((insurance_agg, health_agg, edu_agg, poverty_agg, race_agg, hispanic_agg), how='outer')
 acs.reset_index(inplace=True)
 acs['census_tract_id']=acs['geoid'].apply(lambda g: float(g[7:]))
 acs.drop('geoid', axis=1, inplace=True)

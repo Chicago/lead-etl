@@ -4,6 +4,7 @@ from lead.output.kids import KidsAggregation
 from lead.output.permits import PermitsAggregation
 from lead.output.violations import ViolationsAggregation
 from lead.output.inspections import InspectionsAggregation
+from lead.output.wic import EnrollAggregation, BirthAggregation, PrenatalAggregation
 
 from drain.data import FromSQL
 from drain import util
@@ -19,7 +20,7 @@ deltas = {'address': ['1y', '2y', '5y', '10y', 'all'],
           'tract': ['1y','2y','3y']}
 spacedeltas = {index: (indexes[index], deltas[index]) for index in deltas}
 
-dates = [date(y,1,1) for y in range(2007,2017)]
+dates = [date(y,1,1) for y in range(2005,2016+1)]
 
 def buildings():
     buildings = FromSQL(query="select * from aux.buildings "
@@ -54,9 +55,18 @@ def violations():
             dates=dates, target=True, parallel=True)]
 
 def wic_enroll():
-    return [ViolationsAggregation(spacedeltas=util.dict_subset(spacedeltas, ('address', 'block')), 
+    return [EnrollAggregation(spacedeltas={'kid':('kid_id', ['all'])}, 
+            dates=dates, target=True, parallel=True)]
+
+def wic_birth():
+    return [BirthAggregation(spacedeltas={'kid':('kid_id', ['all'])}, 
+            dates=dates, target=True, parallel=True)]
+
+def wic_prenatal():
+    return [PrenatalAggregation(spacedeltas={'kid':('kid_id', ['all'])}, 
             dates=dates, target=True, parallel=True)]
 
 @lru_cache(maxsize=1)
 def all():
-    return buildings() + tests() + inspections() + assessor() + permits() + violations() + kids()
+    return (buildings() + tests() + inspections() + assessor() + permits() + 
+            violations() + kids() + wic_enroll() + wic_prenatal() + wic_birth())

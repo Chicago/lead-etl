@@ -8,7 +8,7 @@ acs = pd.read_sql("select * from input.acs "
         index_col=['census_tract_id', 'year'])
 
 props = pd.DataFrame()
-categories = ['tenure', 'health', 'edu', 'race']
+categories = set(c.split('_')[0] for c in acs.columns)
 
 # get all columns
 columns = {cat: [c for c in acs.columns 
@@ -19,6 +19,8 @@ for category in categories:
     for c in columns[category]:
         props[c.replace('_count_', '_prop_')] = \
             acs[c] / acs[category + '_count_total']
+
+    props[category + '_count'] = acs[category + '_count_total']
 
 props.to_sql(name='acs', schema='output', con=engine, 
         if_exists='replace', index=True)
