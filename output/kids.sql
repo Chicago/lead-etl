@@ -9,7 +9,7 @@ first_bll10 AS ( select * FROM output.tests where first_bll10 and 1=1),
 first AS ( select * FROM output.tests where first and 1=1),
 
 wic AS ( 
-    select kid_id, min(date) wic_date 
+    select kid_id, min(date) wic_date, max(date) as last_wic_date
     from aux.kid_wic_addresses
     where 1=1 
     group by 1

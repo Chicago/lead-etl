@@ -20,8 +20,6 @@ deltas = {'address': ['1y', '2y', '5y', '10y', 'all'],
           'tract': ['1y','2y','3y']}
 spacedeltas = {index: (indexes[index], deltas[index]) for index in deltas}
 
-dates = [date(y,1,1) for y in range(2005,2016+1)]
-
 def buildings():
     buildings = FromSQL(query="select * from aux.buildings "
             "join output.addresses using (building_id)", 
@@ -38,35 +36,37 @@ def assessor():
 
     return [AssessorAggregation(indexes, inputs=[assessor], parallel=True, target=True)]
 
-def tests():
+def tests(dates):
     return [TestsAggregation(spacedeltas=spacedeltas, dates=dates, target=True, parallel=True)]
 
-def kids():
+def kids(dates):
     return [KidsAggregation(spacedeltas=spacedeltas, dates=dates, target=True, parallel=True)]
 
-def inspections():
+def inspections(dates):
     return [InspectionsAggregation(spacedeltas=spacedeltas, dates=dates, target=True, parallel=True)]
 
-def permits():
+def permits(dates):
     return [PermitsAggregation(spacedeltas=spacedeltas, dates=dates, target=True, parallel=True)]
 
-def violations():
+def violations(dates):
     return [ViolationsAggregation(spacedeltas=util.dict_subset(spacedeltas, ('address', 'block')), 
             dates=dates, target=True, parallel=True)]
 
-def wic_enroll():
+def wic_enroll(dates):
     return [EnrollAggregation(spacedeltas={'kid':('kid_id', ['all'])}, 
             dates=dates, target=True, parallel=True)]
 
-def wic_birth():
+def wic_birth(dates):
     return [BirthAggregation(spacedeltas={'kid':('kid_id', ['all'])}, 
             dates=dates, target=True, parallel=True)]
 
-def wic_prenatal():
+def wic_prenatal(dates):
     return [PrenatalAggregation(spacedeltas={'kid':('kid_id', ['all'])}, 
             dates=dates, target=True, parallel=True)]
 
 @lru_cache(maxsize=1)
-def all():
-    return (buildings() + tests() + inspections() + assessor() + permits() + 
-            violations() + kids() + wic_enroll() + wic_prenatal() + wic_birth())
+def all(dates):
+    dates = list(dates)
+    return (buildings() + tests(dates) + inspections(dates) + assessor() + permits(dates) + 
+            violations(dates) + kids(dates) + 
+            wic_enroll(dates) + wic_prenatal(dates) + wic_birth(dates))

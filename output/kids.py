@@ -1,11 +1,13 @@
 from drain import data
 from drain.data import FromSQL, Merge, Revise
+from drain.util import day
 from drain.step import Step
 from drain.aggregation import SpacetimeAggregation
-from drain.aggregate import Count, Aggregate, Aggregator, days
+from drain.aggregate import Fraction, Count, Aggregate, Aggregator, days
 
 import os
 import pandas as pd
+import numpy as np
 import logging
 
 KIDS_PARSE_DATES = ['date_of_birth', 'wic_date',
@@ -56,8 +58,11 @@ class KidsAggregation(SpacetimeAggregation):
                     on='address_id')]
 
     def get_aggregates(self, date, delta):
+        sample_2y = lambda k: ((k.last_sample_date - k.date_of_birth)/day > 365*2) | (k.max_bll >= 6)
+        counts = Count([np.float32(1), sample_2y], ['kid', 'kid_sample_2y'])
+
         aggregates = [
-            Count(),
+            counts,
             Aggregate(['address_count', 'test_count'], 
                     ['median', 'mean', 'min', 'max']),
 
@@ -77,21 +82,26 @@ class KidsAggregation(SpacetimeAggregation):
 
             Aggregate(['max_bll', 'mean_bll', 'address_max_bll', 'address_mean_bll'], 
                     ['mean', 'median', 'min', 'max']),
-            Count([lambda k: k.first_bll6_sample_date.notnull(), 
-                    lambda k: k.first_bll10_sample_date.notnull()],
-                    ['bll6_ever', 'bll10_ever'], prop=True),
-            Count([lambda k: k.first_bll6_sample_date > k.address_max_date,
-                    lambda k: k.first_bll10_sample_date > k.address_max_date],
-                    ['bll6_future', 'bll10_future'], prop=True),
-            Count([lambda k: k.first_bll6_sample_date < k.address_min_date,
+
+            Fraction(Count([lambda k: k.first_bll6_sample_date.notnull(), 
+                            lambda k: k.first_bll10_sample_date.notnull()],
+                           ['bll6_ever', 'bll10_ever']),
+                     counts, include_numerator=True),
+            Fraction(Count([lambda k: k.first_bll6_sample_date > k.address_max_date,
+                            lambda k: k.first_bll10_sample_date > k.address_max_date],
+                           ['bll6_future', 'bll10_future']),
+                     counts, include_numerator=True),
+            Fraction(Count([lambda k: k.first_bll6_sample_date < k.address_min_date,
                     lambda k: k.first_bll10_sample_date < k.address_min_date],
-                    ['bll6_past', 'bll10_past'], prop=True),
-            Count([lambda k: k.first_bll6_sample_date.between(
+                    ['bll6_past', 'bll10_past']), 
+                    counts, include_numerator=True),
+            Fraction(Count([lambda k: k.first_bll6_sample_date.between(
                             k.address_min_date, k.address_max_date),
                     lambda k: k.first_bll10_sample_date.between(
                             k.address_min_date, k.address_max_date)],
-                    ['bll6_present', 'bll10_present'], prop=True),
-            # TODO: family count
+                    ['bll6_present', 'bll10_present']), 
+                    counts, include_numerator=True),
+            Aggregate('last_name', 'nunique', fname='count', astype=str)
             # TODO: min_last_sample_age cutoffs
         ]
         if delta == 'all':
