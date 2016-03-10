@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 import logging
 
-KIDS_PARSE_DATES = ['date_of_birth', 'wic_date',
+KIDS_PARSE_DATES = ['date_of_birth', 'wic_date', 'last_wic_date',
         'first_bll6_sample_date', 'first_bll10_sample_date', 
         'first_sample_date', 'last_sample_date']
 

@@ -1,5 +1,6 @@
 from drain.aggregation import SimpleAggregation
 from drain.aggregate import Count, Aggregate, Proportion, Fraction
+from drain.data import FromSQL
 
 import numpy as np
 
@@ -9,6 +10,12 @@ CONDITIONS = ['condition_major', 'condition_minor',
 class BuildingsAggregation(SimpleAggregation):
     def __init__(self, indexes, **kwargs):
         SimpleAggregation.__init__(self, indexes=indexes, prefix='buildings', **kwargs)
+        if not self.parallel:
+            self.inputs = [FromSQL(query="select * from aux.buildings "
+                "join (select distinct on (building_id) * "
+                       "from output.addresses order by building_id, address_id) a "
+                "using (building_id)",
+                tables=['aux.buildings', 'output.addresses'], target=True)]
 
     @property
     def aggregates(self):
@@ -41,6 +48,10 @@ CLASSES = ['residential', 'incentive', 'multifamily', 'industrial', 'commercial'
 class AssessorAggregation(SimpleAggregation):
     def __init__(self, indexes, **kwargs):
         SimpleAggregation.__init__(self, indexes=indexes, prefix='assessor', **kwargs)
+        if not self.parallel:
+            self.inputs = [FromSQL(query="select * from aux.assessor "
+                "join output.addresses using (address)",
+                tables=['aux.assessor', 'output.addresses'], target=True)]
 
     @property
     def aggregates(self):
