@@ -6,7 +6,6 @@ from lead.output.violations import ViolationsAggregation
 from lead.output.inspections import InspectionsAggregation
 from lead.output.wic import EnrollAggregation, BirthAggregation, PrenatalAggregation
 
-from drain.data import FromSQL
 from drain import util
 from datetime import date
 import sys
@@ -42,7 +41,7 @@ args = dict(
     wic_prenatal = wic,
 )
 
-@lru_cache(maxsize=1)
+@lru_cache(maxsize=10)
 def all_dict(dates=None):
     dates = list(dates if dates is not None else DATES)
     aggs = {}
