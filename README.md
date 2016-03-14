@@ -54,6 +54,7 @@ CURRBLLSHORT_FILE= # Current blood lead levels CSV file
 M7_FILE= # Old blood lead levels CSV file
 INSPECTIONS_FILE= # Inspections CSV file
 CORNERSTONE_DIR= # Directory containing Cornerstone DBF files
+CORNERSTONE_ADDRESSES_FILE= # Geocoded Cornerstone addresses CSV file
 ```
 
 ## Software we use
