@@ -34,7 +34,7 @@ args = dict(
     tests = deltas,
     inspections = deltas,
     permits = deltas,
-    kids = deltas,
+    kids = dict(kid=['all'], **deltas),
     violations = util.dict_subset(deltas, ('address', 'block')),
     wic_enroll = wic,
     wic_birth = wic,

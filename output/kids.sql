@@ -9,7 +9,7 @@ first_bll10 AS ( select * FROM output.tests where first_bll10 and 1=1),
 first AS ( select * FROM output.tests where first and 1=1),
 
 wic AS ( 
-    select kid_id, min(date) wic_date, max(date) as last_wic_date
+    select kid_id, min(date) first_wic_date, max(date) as last_wic_date
     from aux.kid_wic_addresses
     where 1=1 
     group by 1
@@ -35,7 +35,10 @@ SELECT k.*,
     first_bll10.date first_bll10_sample_date,
     first.date as first_sample_date,
     first.address_id as first_sample_address_id,
-    first_bll6.address_id as first_bll6_address_id
+    first_bll6.address_id as first_bll6_address_id,
+
+    least(first_wic_date, first.date) as min_date,
+    greatest(last_wic_date, last_sample_date) as max_date
 
 FROM kids k
 LEFT JOIN first_bll6 USING (kid_id)
