@@ -58,9 +58,9 @@ CORNERSTONE_ADDRESSES_FILE= # Geocoded Cornerstone addresses CSV file
 ```
 
 ## Software we use
-  - [drake](https://github.com/Factual/drake): workflow management tool
-  - [scikit-learn](http://scikit-learn.org/): machine learning models
-  - [pandas](http://pandas.pydata.org/): python dataframe library
-  - [pytables](http://www.pytables.org/): python HDF library
-  - [mdbtools](https://github.com/brianb/mdbtools): Microsoft Access data reader (for tax assessor data)
-  - [dedupe](https://github.com/datamade/dedupe): DataMade's python dedupe library
+  - [drake](https://github.com/Factual/drake): workflow management
+  - [scikit-learn](http://scikit-learn.org/): machine learning
+  - [pandas](http://pandas.pydata.org/): dataframes
+  - [pytables](http://www.pytables.org/): HDF files
+  - [mdbtools](https://github.com/brianb/mdbtools): Microsoft Access files (tax assessor data)
+  - [dedupe](https://github.com/datamade/dedupe): entity deduplication
