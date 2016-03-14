@@ -11,7 +11,7 @@ The code for each phase is located in the corresponding subdirectory and is exec
 
 ###input
 
-Preprocess and import our data into the database. CDPH provided us with two databases about lead:
+Preprocess and import our data into the database. CDPH provided us with three private databases:
  - Blood Lead Level Tests
  - Home Inspections
  - WIC enrollment and program data
