@@ -59,5 +59,8 @@ CORNERSTONE_ADDRESSES_FILE= # Geocoded Cornerstone addresses CSV file
 
 ## Software we use
   - [drake](https://github.com/Factual/drake)
+  - [scikit-learn](http://scikit-learn.org/)
+  - [pandas](http://pandas.pydata.org/)
+  - [pytables](http://www.pytables.org/)
   - [mdbtools](https://github.com/brianb/mdbtools): a command-line tool that reads Microsoft Access files, which is useful for reading the property-assessment data 
-  - [csvdedupe](https://github.com/datamade/csvdedupe): DataMade's python dedupe library.
+  - [dedupe](https://github.com/datamade/dedupe): DataMade's python dedupe library.
