@@ -22,9 +22,12 @@ indexes = {
     'tract':'census_tract_id'
 }
 
-deltas = {'address': ['1y', '2y', '5y', '10y', 'all'],
-          'block': ['1y','2y','5y'],
-          'tract': ['1y','2y','3y']}
+deltas = {
+    'address': ['1y', '2y', '5y', '10y', 'all'],
+    'complex': ['1y', '2y', '5y'],
+    'block': ['1y','2y','5y'],
+    'tract': ['1y','2y','3y']
+}
 
 wic = {'kid': ['all']}
 

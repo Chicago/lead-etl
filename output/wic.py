@@ -15,7 +15,7 @@ class EnrollAggregation(SpacetimeAggregation):
         SpacetimeAggregation.__init__(self,
                 spacedeltas = spacedeltas,
                 dates = dates,
-                prefix = 'wic_enroll',
+                prefix = 'wicenroll',
                 date_column = 'register_d', **kwargs)
 
         if not self.parallel:
@@ -59,12 +59,13 @@ class BirthAggregation(SpacetimeAggregation):
         SpacetimeAggregation.__init__(self,
                 spacedeltas = spacedeltas,
                 dates = dates,
-                prefix = 'wic_birth',
+                prefix = 'wicbirth',
                 date_column = 'date_of_birth', **kwargs)
 
         if not self.parallel:
             self.inputs = [FromSQL(target=True, query="""
-SELECT *,
+SELECT *, 
+apgar_n::int as apgar,
 nullif(lgt_inch_n, 0) as length,
 nullif(wgt_grm_n, 0) as weight,
 nullif(headcirc_n, 0) as head_circumference,
@@ -83,7 +84,7 @@ JOIN cornerstone.birth USING (part_id_i, mothr_id_i)
             Aggregate('length', 'max', fname=False),
             Aggregate('weight', 'max', fname=False),
             Aggregate('head_circumference', 'max', fname=False),
-            Aggregate('apgar_n', 'max', 'apgar_score', fname=False),
+            Aggregate('apgar', 'max', 'apgar_score', fname=False),
             Aggregate('brth_typ_c', lambda b: set(b), 'place_type', fname=False),
             Aggregate('inf_disp_c',lambda i: set(i), 'disposition', fname=False),
             Aggregate('complication', lambda cs: union(set(c) for c in cs), fname=False),
@@ -99,7 +100,7 @@ class PrenatalAggregation(SpacetimeAggregation):
         SpacetimeAggregation.__init__(self,
                 spacedeltas = spacedeltas,
                 dates = dates,
-                prefix = 'wic_prenatal',
+                prefix = 'wicprenatal',
                 date_column = 'visit_d', **kwargs)
 
         if not self.parallel:

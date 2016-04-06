@@ -69,6 +69,6 @@ class InspectionsAggregation(SpacetimeAggregation):
                     name='from_compliance'),
         ]
 
-        aggregates.extend([Count(lambda i: i['closure'] == c, name='closure_%s' % c, prop=True) for c in CLOSURE_CODES])
+        aggregates.extend([Count(lambda i,c=c: i['closure'] == c, name='closure_%s' % c, prop=True) for c in CLOSURE_CODES])
        
         return aggregates
