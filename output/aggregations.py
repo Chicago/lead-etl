@@ -1,4 +1,5 @@
-from lead.output.buildings import BuildingsAggregation, AssessorAggregation
+from lead.output.buildings import BuildingsAggregation
+from lead.output.assessor import AssessorAggregation
 from lead.output.tests import TestsAggregation
 from lead.output.kids import KidsAggregation
 from lead.output.permits import PermitsAggregation

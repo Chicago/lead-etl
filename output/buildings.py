@@ -22,6 +22,7 @@ class BuildingsAggregation(SimpleAggregation):
         return [
             Count(),
             Aggregate('area', 'sum'),
+            Aggregate(lambda b: b.area * b.stories, 'mean', 'volume'),
             Aggregate('years_built', [
                     lambda y: np.nanmedian(np.concatenate(y.values)),
                     lambda y: np.nanmean(np.concatenate(y.values)),
@@ -39,36 +40,5 @@ class BuildingsAggregation(SimpleAggregation):
                     name = CONDITIONS),
             Aggregate('stories', 'mean'),
             Aggregate('units', 'sum'),
-            Proportion('pre1978_prop', 
-                    parent=lambda i: i.pre1978_prop.notnull()),
-        ]
-
-CLASSES = ['residential', 'incentive', 'multifamily', 'industrial', 'commercial', 'brownfield', 'nonprofit']
-
-class AssessorAggregation(SimpleAggregation):
-    def __init__(self, indexes, **kwargs):
-        SimpleAggregation.__init__(self, indexes=indexes, prefix='assessor', **kwargs)
-        if not self.parallel:
-            self.inputs = [FromSQL(query="select * from aux.assessor "
-                "join output.addresses using (address)",
-                tables=['aux.assessor', 'output.addresses'], target=True)]
-
-    @property
-    def aggregates(self):
-        return [
-            Aggregate('count', 'mean'),
-            Aggregate('land_value', 'sum'),
-            Aggregate('age', ['min', 'mean', 'max']),
-            Fraction(Aggregate('total_value', 'sum', fname=False), 
-                    Aggregate(lambda a: a.apartments.replace(0,1), 'sum', name='units', fname=False), 
-                    include_numerator=True, include_denominator=True),
-            Aggregate('rooms', 'sum'),
-            Aggregate('beds', 'sum'),
-            Aggregate('baths', 'sum'),
-            Aggregate('building_area', 'sum'),
-            Aggregate('land_area', 'sum'),
-
-            Proportion(lambda a: a.owner_occupied > 0, 'owner_occupied'),
-            Proportion([lambda a, c=c: a[c] > 0 for c in CLASSES],
-                    name=CLASSES)
+            Proportion('pre1978_prop', parent=lambda i: i.pre1978_prop.notnull()),
         ]
