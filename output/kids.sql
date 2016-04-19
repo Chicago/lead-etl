@@ -36,6 +36,7 @@ SELECT k.*,
     first.date as first_sample_date,
     first.address_id as first_sample_address_id,
     first_bll6.address_id as first_bll6_address_id,
+    first_bll10.address_id as first_bll10_address_id,
 
     least(first_wic_date, first.date) as min_date,
     greatest(last_wic_date, last_sample_date) as max_date
