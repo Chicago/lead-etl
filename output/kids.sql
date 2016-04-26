@@ -15,13 +15,22 @@ wic AS (
     group by 1
 ),
 
-summary AS ( select kid_id,
+max_bll AS (
+    select distinct on(kid_id) *
+    from output.tests
+    where 1=1
+    order by kid_id, bll desc, date asc, test_id asc
+),
+
+summary AS (
+    select kid_id,
     count(distinct address_id) address_count, count(*) test_count,
-    avg(bll) as mean_bll, max(bll) as max_bll,
+    avg(bll) as mean_bll,
     max(date) as last_sample_date
     from output.tests
     where 1=1
-    group by kid_id),
+    group by kid_id
+),
 
 -- do this query so that the table is compatibe with revise
 kids as (
@@ -31,12 +40,17 @@ kids as (
 )
 
 SELECT k.*,
+    max_bll.bll as max_bll,
+
     first_bll6.date first_bll6_sample_date,
     first_bll10.date first_bll10_sample_date,
     first.date as first_sample_date,
+    max_bll.date as max_bll_sample_date,
+
     first.address_id as first_sample_address_id,
     first_bll6.address_id as first_bll6_address_id,
     first_bll10.address_id as first_bll10_address_id,
+    max_bll.address_id as max_bll_address_id,
 
     least(first_wic_date, first.date) as min_date,
     greatest(last_wic_date, last_sample_date) as max_date
@@ -45,5 +59,6 @@ FROM kids k
 LEFT JOIN first_bll6 USING (kid_id)
 LEFT JOIN first_bll10 USING (kid_id)
 LEFT JOIN first USING (kid_id)
+LEFT JOIN max_bll USING (kid_id)
 where date_of_birth is not null
 );

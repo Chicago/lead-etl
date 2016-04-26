@@ -5,6 +5,7 @@ create table output.tests as (
         CASE WHEN a.address in 
             ('5001 S MICHIGAN AVE', '1634 W POLK ST', '810 W MONTROSE AVE') 
         THEN null ELSE a.address_id END AS address_id,
+        apt, lab_id,
         bll, sample_date as date, sample_type, sample_date - k.date_of_birth AS age,
         first, first_bll6, first_bll10
     

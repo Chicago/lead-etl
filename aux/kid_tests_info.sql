@@ -10,7 +10,6 @@ WITH tests AS (
     WHERE kids.date_of_birth is not null AND sample_date >= kids.date_of_birth
 ),
 
--- minmax is the first test to produce the maximum bll state (bll > 5 or bll <= 5)
 first_bll6 AS (
     select distinct on(kid_id) kid_id,test_id
     from tests

@@ -9,6 +9,8 @@ psql/output/kids <- output/kids.sql, psql/aux/kids, psql/output/tests, psql/aux/
 ; join tests with kid_tests and test_addresses to get all the ids in one place
 psql/output/tests <- output/tests.sql, psql/aux/tests, psql/aux/kid_tests_info, psql/aux/test_addresses [method:psql]
 
+psql/output/labs <- output/labs.sql, psql/aux/tests [method:psql]
+
 psql/output/kid_addresses <- output/kid_addresses.sql, psql/aux/kid_wic_addresses, psql/output/tests [method:psql]
 
 ; residential flag calculated by combination of data

@@ -32,7 +32,7 @@ class BuildingsAggregation(SimpleAggregation):
             Aggregate('address_count', 'sum'),
             # average proportion of sound building condition
             Proportion(['%s_prop' % c for c in CONDITIONS],
-                    parent ='condition_not_null',
+                    'condition_not_null',
                     name = CONDITIONS),
             Aggregate([lambda p: p['%s_prop' % c] > 0
                         for c in CONDITIONS],
@@ -40,5 +40,6 @@ class BuildingsAggregation(SimpleAggregation):
                     name = CONDITIONS),
             Aggregate('stories', 'mean'),
             Aggregate('units', 'sum'),
-            Proportion('pre1978_prop', parent=lambda i: i.pre1978_prop.notnull()),
+            Proportion('pre1978_prop', lambda i: i.pre1978_prop.notnull(), 
+                    denom_name='pre1978_not_null'),
         ]

@@ -12,7 +12,7 @@ from datetime import date
 import sys
 from repoze.lru import lru_cache
 
-DATES = (date(y,2,25) for y in range (2005, 2016))
+DATES = (date(y,1,25) for y in range (2003, 2016))
 
 indexes = {
     'kid':'kid_id', 
