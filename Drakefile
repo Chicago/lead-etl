@@ -29,3 +29,5 @@ PYTHONPATH=/home/epotash/
 %include $[BASE]/dedupe/Drakefile
 
 %include $[BASE]/output/Drakefile
+
+%include $[BASE]/discontinuity/Drakefile
