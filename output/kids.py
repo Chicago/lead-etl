@@ -72,6 +72,9 @@ class KidsAggregation(SpacetimeAggregation):
                 Aggregate(['address_count', 'test_count'],
                         'max', fname=False),
                 Aggregate(['max_bll'], 'max', fname=False),
+                """
+                # Comment out this and all other wic aggregates because they can't be lagged
+                # and they're not useful for predicting poisoning
                 Aggregate(lambda k: k.last_wic_date == k.address_wic_max_date, 
                         'any', 'last_wic_address', fname=False),
                 Aggregate(['address_wic_mother', 'address_wic_infant'], 'any', fname=False),
@@ -81,6 +84,7 @@ class KidsAggregation(SpacetimeAggregation):
                         days('first_wic_date', date)],
                         ['max'], ['address_wic_min_date', 'address_wic_max_date', 
                                   'last_wic_date', 'first_wic_date'], fname=False)
+                """
             ]
 
         sample_2y = lambda k: ((k.last_sample_date - k.date_of_birth)/day > 365*2) | (k.max_bll >= 6)
@@ -92,19 +96,23 @@ class KidsAggregation(SpacetimeAggregation):
                     ['median', 'mean', 'min', 'max']),
 
             Count([lambda k: k.address_test_min_date.notnull(), 
-                   lambda k: k.first_sample_date.notnull(),
-                   lambda k: k.first_wic_date.notnull()], prop=True, 
-                  name=['tested_here', 'tested_ever', 'wic']),
+                   lambda k: k.first_sample_date.notnull()], prop=True, 
+                  name=['tested_here', 'tested_ever']),
+
+            """
+            Count(lambda k: k.first_wic_date.notnull(), prop=True, name='wic'),
 
             Count([lambda k: k.address_wic_min_date.notnull() & k.address_test_min_date.notnull(),
                    lambda k: k.address_wic_min_date.notnull() & k.first_sample_date.notnull()],
                    name=['wic_tested_here', 'wic_tested_ever'], 
                    prop=lambda k: k.first_wic_date.notnull(), prop_name='wic'),
+            """
 
             Aggregate([days('address_min_date', 'address_max_date'), 
-                       days('address_wic_min_date', 'address_wic_max_date'), 
+                       #days('address_wic_min_date', 'address_wic_max_date'), 
                        days('address_test_min_date', 'address_test_max_date')],
-                       ['mean'], ['address_total_time', 'address_wic_time', 'address_test_time']),
+                       ['mean'], ['address_total_time', #'address_wic_time', 
+                        'address_test_time']),
 
             Aggregate(['max_bll', 'mean_bll', 'address_max_bll', 'address_mean_bll'], 
                     ['mean', 'median', 'min', 'max']),
@@ -132,7 +140,7 @@ class KidsAggregation(SpacetimeAggregation):
         ]
         if delta == 'all':
             aggregates.extend([
-                Aggregate(days('address_wic_min_date', date), ['min', 'max'], 'days_since_wic'),
+                #Aggregate(days('address_wic_min_date', date), ['min', 'max'], 'days_since_wic'),
                 Aggregate(days('date_of_birth', date), ['min', 'max', 'mean'], 'date_of_birth'),
             ])
 
