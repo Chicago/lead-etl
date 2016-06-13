@@ -26,5 +26,4 @@ select a.address_id address_id, a.address, ca.building_id, ca.complex_id,
 from aux.addresses a join aux.complex_addresses ca using (address_id)
 left join residential_complexes rc using (complex_id)
 left join residential_addresses ta using(address_id)
-
 );

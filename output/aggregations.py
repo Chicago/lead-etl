@@ -7,10 +7,10 @@ from lead.output.violations import ViolationsAggregation
 from lead.output.inspections import InspectionsAggregation
 from lead.output.wic import EnrollAggregation, BirthAggregation, PrenatalAggregation
 
-from drain import util
+from drain import util, data
 from datetime import date
 import sys
-from repoze.lru import lru_cache
+from drain.util import lru_cache
 
 DATES = (date(y,1,25) for y in range (2003, 2016))
 
@@ -20,7 +20,7 @@ indexes = {
     'building': 'building_id', 
     'complex':'complex_id', 
     'block':'census_block_id',
-    'tract':'census_tract_id'
+    'tract':'census_tract_id',
 }
 
 deltas = {
@@ -46,8 +46,10 @@ args = dict(
 )
 
 @lru_cache(maxsize=10)
-def all_dict(dates=None):
+def all_dict(dates=None, lag=None):
     dates = list(dates if dates is not None else DATES)
+    delta = data.parse_delta(lag) if lag is not None else None
+
     aggs = {}
 
     for name, a in args.iteritems():
@@ -57,7 +59,8 @@ def all_dict(dates=None):
         else:
             spacedeltas = {n: (indexes[n], d) 
                     for n, d in a.iteritems()}
-            aggs[name] = cls(spacedeltas=spacedeltas, dates=dates, target=True, parallel=True)
+            dates_lagged = [d - delta for d in dates] if delta is not None and name.startswith('wic') else dates
+            aggs[name] = cls(spacedeltas=spacedeltas, dates=dates_lagged, target=True, parallel=True)
 
     return aggs
 
