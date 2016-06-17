@@ -99,15 +99,13 @@ class KidsAggregation(SpacetimeAggregation):
                    lambda k: k.first_sample_date.notnull()], prop=True, 
                   name=['tested_here', 'tested_ever']),
 
-            """
-            Count(lambda k: k.first_wic_date.notnull(), prop=True, name='wic'),
+            
+            #Count(lambda k: k.first_wic_date.notnull(), prop=True, name='wic'),
 
-            Count([lambda k: k.address_wic_min_date.notnull() & k.address_test_min_date.notnull(),
-                   lambda k: k.address_wic_min_date.notnull() & k.first_sample_date.notnull()],
-                   name=['wic_tested_here', 'wic_tested_ever'], 
-                   prop=lambda k: k.first_wic_date.notnull(), prop_name='wic'),
-            """
-
+            #Count([lambda k: k.address_wic_min_date.notnull() & k.address_test_min_date.notnull(),
+            #       lambda k: k.address_wic_min_date.notnull() & k.first_sample_date.notnull()],
+            #       name=['wic_tested_here', 'wic_tested_ever'], 
+            #       prop=lambda k: k.first_wic_date.notnull(), prop_name='wic'),
             Aggregate([days('address_min_date', 'address_max_date'), 
                        #days('address_wic_min_date', 'address_wic_max_date'), 
                        days('address_test_min_date', 'address_test_max_date')],
