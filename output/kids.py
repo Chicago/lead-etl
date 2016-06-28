@@ -72,19 +72,17 @@ class KidsAggregation(SpacetimeAggregation):
                 Aggregate(['address_count', 'test_count'],
                         'max', fname=False),
                 Aggregate(['max_bll'], 'max', fname=False),
-                """
                 # Comment out this and all other wic aggregates because they can't be lagged
                 # and they're not useful for predicting poisoning
-                Aggregate(lambda k: k.last_wic_date == k.address_wic_max_date, 
-                        'any', 'last_wic_address', fname=False),
-                Aggregate(['address_wic_mother', 'address_wic_infant'], 'any', fname=False),
-                Aggregate([days('address_wic_max_date', date),
-                        days('address_wic_min_date', date),
-                        days('last_wic_date', date),
-                        days('first_wic_date', date)],
-                        ['max'], ['address_wic_min_date', 'address_wic_max_date', 
-                                  'last_wic_date', 'first_wic_date'], fname=False)
-                """
+                #Aggregate(lambda k: k.last_wic_date == k.address_wic_max_date, 
+                #        'any', 'last_wic_address', fname=False),
+                #Aggregate(['address_wic_mother', 'address_wic_infant'], 'any', fname=False),
+                #Aggregate([days('address_wic_max_date', date),
+                #        days('address_wic_min_date', date),
+                #        days('last_wic_date', date),
+                #        days('first_wic_date', date)],
+                #        ['max'], ['address_wic_min_date', 'address_wic_max_date', 
+                #                  'last_wic_date', 'first_wic_date'], fname=False)
             ]
 
         sample_2y = lambda k: ((k.last_sample_date - k.date_of_birth)/day > 365*2) | (k.max_bll >= 6)
