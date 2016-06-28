@@ -24,7 +24,7 @@ psql/aux/test_addresses <- aux/test_addresses.sql, psql/aux/tests, psql/aux/addr
 
 psql/aux/kid_mothers <- aux/kid_mothers.sql, psql/aux/kid_wics [method:psql]
 
-psql/aux/kid_wic_addresses <- aux/kid_wic_addresses.sql, psql/aux/kid_wics, psql/aux/kid_mothers [method:psql]
+psql/aux/kid_wic_addresses <- aux/kid_wic_addresses.sql, psql/aux/kid_wics, psql/aux/kid_mothers, psql/cornerstone/addresses [method:psql]
 
 ; calculate kid ethnicity based on last name and address
 psql/aux/kid_ethnicity <- aux/kid_ethnicity.sql, psql/aux/kids, psql/input/surnames, psql/aux/kid_test_addresses, psql/aux/addresses, psql/output/acs [method:psql]

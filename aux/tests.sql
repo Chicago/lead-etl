@@ -12,7 +12,8 @@ CREATE TABLE aux.tests AS (
         select first_name, mi, last_name, date_of_birth, sex, 
             bll, sample_type, sample_date, lab_id, 
             address, clean_address, apt, city,
-            geocode_house_low, geocode_pre, geocode_street_name, geocode_street_type,
+            geocode_house_low, geocode_pre, geocode_street_name, 
+            clean_street_type as geocode_street_type,
             true as currbllshort
         from input.currbllshort
         UNION

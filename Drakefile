@@ -1,5 +1,3 @@
-BASE:=.
-
 psql()
     psql -v ON_ERROR_STOP=1 -f $INPUT && touch $OUTPUT
 
@@ -8,26 +6,20 @@ psql_schema()
     schema=$(basename $OUTPUT)
     psql -v ON_ERROR_STOP=1 -c "CREATE SCHEMA IF NOT EXISTS $schema" && mkdir -p $OUTPUT && touch $OUTPUT/schema
 
-pickle_table()
-	TABLENAME=$(echo $INPUT | sed 's/.*psql\///;s/\//./')
-        $[BASE]/output/pickle_table.py $TABLENAME $OUTPUT
+%include default_profile
 
-PROFILE:=$[BASE]/default_profile
-ACS_PROFILE:=$[BASE]/acs_profile
-
-%include $[PROFILE]
 PYTHONPATH=/home/epotash/
 
-%include $[BASE]/input/Drakefile
+%include input/Drakefile
 
-%include $[BASE]/buildings/Drakefile
+%include buildings/Drakefile
 
-;%include $[BASE]/aux/dedupe/Drakefile
+;%include aux/dedupe/Drakefile
 
-%include $[BASE]/aux/Drakefile
+%include aux/Drakefile
 
-%include $[BASE]/dedupe/Drakefile
+%include dedupe/Drakefile
 
-%include $[BASE]/output/Drakefile
+%include output/Drakefile
 
-%include $[BASE]/discontinuity/Drakefile
+;%include discontinuity/Drakefile

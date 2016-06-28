@@ -10,12 +10,12 @@ INSERT INTO aux.addresses (address, geom, census_tract_id, census_block_id, ward
 -- only take addresses where city starts with 'CH'-- Chicago geocoder doesn't work outside of Chicago:w
 with all_addresses as (
     select 
-        geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || geocode_street_type
+        geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || clean_street_type
             as address, 
         geocode_xcoord, geocode_ycoord, nullif(geocode_census_block_2010, ' ') as census_block_id,
-        nullif(geocode_ward_2015, ' ')::int as ward_id, 
-        (CASE WHEN geocode_community_area in ('XX', '.') THEN null 
-            ELSE geocode_community_area END)::int as community_area_id, 'currbllshort' as source
+        CASE WHEN geocode_ward ~ E'^\\d+$' THEN geocode_ward::int END ward_id,
+        CASE WHEN geocode_community_area ~ E'^\\d+$' THEN geocode_community_area::int END community_area_id,
+        'currbllshort' as source
     from input.currbllshort
     WHERE city ilike 'CH%'
     UNION ALL
@@ -38,7 +38,8 @@ addresses as (
 	st_transform(st_setsrid(st_point(geocode_xcoord,geocode_ycoord),3435), 4326) as geom,
         census_block_id, ward_id, community_area_id, source
 	from all_addresses
-	where geocode_xcoord != -1 and geocode_ycoord != -1
+	where address is not null
+        and geocode_xcoord != -1 and geocode_ycoord != -1
         order by address, (census_block_id is null) asc
 )
 	select address, geom, 

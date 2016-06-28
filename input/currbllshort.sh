@@ -4,13 +4,13 @@
 # currbllshort has duplicates, use uniq
 temp=$(mktemp)
 echo $temp
-sed 's/""//g' $INPUT1 | uniq > $temp
+sed 's/""//g' "$INPUT1" | uniq > $temp
 
 psql -c "
     DROP TABLE IF EXISTS input.currbllshort; 
     
     CREATE TABLE input.currbllshort (
-	currbllshort_id int,
+	id int,
 	sequential_id_sent_to_stellar int, 
         bll int, 
 	apt text,
@@ -58,25 +58,26 @@ psql -c "
         clean_fname text,
         clean_lname text,
         clean_namedob text,
-        geocode_bldg_grid text,
+        ezid int,
         geocode_census_block_2010 text,
-        geocode_census_block_2000 text,
-        geocode_ward_2015 text,
+        geocode_census_tract_2010 text,
+        geocode_census_tract_2000 text,
         geocode_full_addr text,
         geocode_house_low text,
         geocode_house_high text,
         geocode_pre text,
         geocode_street_name text,
-        geocode_street_type text,
         geocode_sufdir text,
         geocode_xcoord decimal,
         geocode_ycoord decimal,
         geocode_status1 text,
-        geocode_status2 text
+        geocode_status2 text,
+        ezidnum int,
+        aclean_address text
         );"
 
-head -n 1000000 $temp | PGCLIENTENCODING="latin1" psql -c \
+head -n 1000000 "$temp" | PGCLIENTENCODING="latin1" psql -c \
     "\COPY input.currbllshort FROM STDIN WITH CSV HEADER;"
 
-tail -n +1000001 $temp | PGCLIENTENCODING="latin1" psql -c \
-    "\COPY input.currbllshort FROM STDIN WITH CSV HEADER;"
+tail -n +1000001 "$temp" | PGCLIENTENCODING="latin1" psql -c \
+    "\COPY input.currbllshort FROM STDIN WITH CSV;"
