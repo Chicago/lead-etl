@@ -5,7 +5,9 @@ with wic_addresses as (
 select kid_id, address_id, 
     min(date) as min_date, max(date) as max_date,
     bool_or(mothr_id_i is null) as infant,
-    bool_or(mothr_id_i is not null) as mother
+    bool_or(mothr_id_i is not null) as mother,
+    array_remove(array_agg(distinct CASE WHEN mothr_id_i is null THEN ogc_fid END), null) infant_ogc_fids,
+    array_remove(array_agg(distinct CASE WHEN mothr_id_i is not null THEN ogc_fid END), null) mother_ogc_fids
 from aux.kid_wic_addresses 
 where 1=1
 group by 1,2
@@ -26,6 +28,8 @@ select kid_id, address_id,
     w.max_date as address_wic_max_date,
     w.mother as address_wic_mother,
     w.infant as address_wic_infant,
+    w.mother_ogc_fids as wic_mother_ogc_fids,
+    w.infant_ogc_fids as wic_infant_ogc_fids,
 
     t.min_date as address_test_min_date, 
     t.max_date as address_test_max_date,

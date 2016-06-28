@@ -6,7 +6,7 @@ CREATE TABLE aux.kid_wic_addresses AS (
 
     -- collect linked addresses 
     addresses AS (
-        SELECT part_id_i, address_id, pa.last_upd_d, register_d
+        SELECT pa.ogc_fid, part_id_i, address_id, pa.last_upd_d, register_d
         FROM cornerstone.partaddr pa
         JOIN wic_addresses USING (ogc_fid)
         JOIN aux.addresses a USING (address)
@@ -22,22 +22,22 @@ CREATE TABLE aux.kid_wic_addresses AS (
 
     -- replace last_upd_d with register_d for first address
     addresses2 AS (
-        SELECT part_id_i, address_id, a.register_d
+        SELECT ogc_fid, part_id_i, address_id, a.register_d
         FROM addresses a JOIN first_address d using (part_id_i, last_upd_d)
     ),
 
     -- take unique rows from addresses and addresses2
     all_addresses AS (
-        SELECT part_id_i, address_id, last_upd_d as date
+        SELECT ogc_fid, part_id_i, address_id, last_upd_d as date
         FROM addresses
         UNION
-        SELECT part_id_i, address_id, register_d as date
+        SELECT ogc_fid, part_id_i, address_id, register_d as date
         FROM addresses2
     ),
 
     -- get addresses through mother
     mother_addresses AS (
-        SELECT k.part_id_i, a.address_id,
+        SELECT ogc_fid, k.part_id_i, a.address_id,
                 greatest(a.date, min_visit_date) as date, k.mothr_id_i
         FROM aux.kid_mothers k
         JOIN all_addresses a
