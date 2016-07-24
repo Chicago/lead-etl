@@ -12,7 +12,7 @@ with all_addresses as (
     select 
         geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || clean_street_type
             as address, 
-        geocode_xcoord, geocode_ycoord, nullif(geocode_census_block_2010, ' ') as census_block_id,
+        geocode_xcoord, geocode_ycoord, '17031' || nullif(geocode_census_block_2010, ' ') as census_block_id,
         CASE WHEN geocode_ward ~ E'^\\d+$' THEN geocode_ward::int END ward_id,
         CASE WHEN geocode_community_area ~ E'^\\d+$' THEN geocode_community_area::int END community_area_id,
         'currbllshort' as source
