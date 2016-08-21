@@ -142,3 +142,12 @@ data/cornerstone/addresses_for_geocoding.csv <- input/cornerstone/addresses_for_
 ; unique cornerstone addresses geocoded using city geocoder
 psql/cornerstone/addresses <- input/cornerstone/addresses.sh, $[CORNERSTONE_ADDRESSES_FILE]
     $INPUT0 $INPUT1 && touch $OUTPUT
+
+psql/stellar/ <- [method:psql_schema -timecheck]
+
+$(for table in ADDR CA_LINK CASE_RCD CHILD Event Invest LAB; do
+
+echo "psql/stellar/"$table" <- \$[STELLAR_DIR]/"$table".DBF, psql/stellar/schema"
+echo "    ogr2ogr -f PostgreSQL PG:'host=\$[PGHOST] user=\$[PGUSER] password=\$[PGPASSWORD] dbname=\$[PGDATABASE]' \$INPUT -lco 'schema=stellar' -lco 'overwrite=yes' && touch \$OUTPUT"
+
+done)
