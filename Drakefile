@@ -1,5 +1,5 @@
 psql()
-    psql -v ON_ERROR_STOP=1 -f $INPUT && touch $OUTPUT
+    psql -v ON_ERROR_STOP=1 -f $INPUT 2>&1 && touch $OUTPUT
 
 ; create a schema (does not drop)
 psql_schema()
@@ -13,8 +13,6 @@ PYTHONPATH=/home/epotash/
 %include input/Drakefile
 
 %include buildings/Drakefile
-
-;%include aux/dedupe/Drakefile
 
 %include aux/Drakefile
 
