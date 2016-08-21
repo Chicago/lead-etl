@@ -19,7 +19,8 @@ select kid_id, address_id,
     max(bll) as max_bll,
     avg(bll) as mean_bll
 from output.tests 
-where 1=1
+where address_id is not null and 
+(1=1)
 group by 1,2
 )
 
@@ -43,3 +44,5 @@ from wic_addresses w
 FULL OUTER JOIN test_addresses t using (kid_id, address_id)
 
 );
+
+alter table output.kid_addresses add primary key (kid_id, address_id);
