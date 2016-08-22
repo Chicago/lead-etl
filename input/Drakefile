@@ -151,3 +151,6 @@ echo "psql/stellar/"$table" <- \$[STELLAR_DIR]/"$table".DBF, psql/stellar/schema
 echo "    ogr2ogr -f PostgreSQL PG:'host=\$[PGHOST] user=\$[PGUSER] password=\$[PGPASSWORD] dbname=\$[PGDATABASE]' \$INPUT -lco 'schema=stellar' -lco 'overwrite=yes' && touch \$OUTPUT"
 
 done)
+
+psql/input/icare <- input/icare.sh, $[ICARE_FILE]
+    $INPUT0 $INPUT1 && touch $OUTPUT
