@@ -4,6 +4,7 @@ psql/dedupe/ <- [method:psql_schema -timecheck]
 psql/dedupe/infants <- dedupe/infants.sql, psql/aux/tests, psql/cornerstone/PartEnrl, psql/cornerstone/Partaddr2, psql/cornerstone/PartPgm, psql/input/icare [method:psql]
 
 ; use dedupe library to generate preliminary entity map
+; takes about 30 minutes using 12 cores
 psql/entity_map <- dedupe/pgdedupe.py, psql/dedupe/infants
     python $INPUT -v && touch $OUTPUT
 
