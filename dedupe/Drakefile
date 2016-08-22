@@ -1,7 +1,7 @@
 psql/dedupe/ <- [method:psql_schema -timecheck]
 
 ; merge kid info from tests and cornerstone
-psql/dedupe/infants <- dedupe/infants.sql, psql/aux/tests, psql/cornerstone/PartEnrl, psql/cornerstone/Partaddr2, psql/cornerstone/PartPgm [method:psql]
+psql/dedupe/infants <- dedupe/infants.sql, psql/aux/tests, psql/cornerstone/PartEnrl, psql/cornerstone/Partaddr2, psql/cornerstone/PartPgm, psql/input/icare [method:psql]
 
 ; use dedupe library to generate preliminary entity map
 psql/entity_map <- dedupe/pgdedupe.py, psql/dedupe/infants

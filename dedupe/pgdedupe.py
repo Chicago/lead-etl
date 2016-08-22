@@ -35,6 +35,11 @@ import dedupe
 source_table='dedupe.infants'
 id_column = 'id'
 
+import random
+import numpy.random
+random.seed(0)
+numpy.random.seed(0)
+
 # ## Logging
 
 # Dedupe uses Python logging to show or suppress verbose output. Added
@@ -53,7 +58,7 @@ elif opts.verbose >= 2:
 logging.getLogger().setLevel(log_level)
 
 # ## Setup
-settings_file = 'asdf123445'
+#settings_file = 'asdf123445'
 training_file = '/home/epotash/lead/data/dedupe/training_new.json'
 
 start_time = time.time()
@@ -103,9 +108,8 @@ if True:
             {"field" : "first_name", "type" : "String"},
             {"field" : "last_name", "type" : "String"},
             {"field" : "date_of_birth", "type" : "String"},
-#            {"field" : "sex", "type" : "Exact"},
-#            {"field" : "day", "type" : "Price"},
-            {"field" : "address", "type" : "String","Has Missing" : True},
+            {"field" : "address", "type" : "String"},
+            {"field" : "sex", "type" : "Exact"},
             {"field" : "count", "type" : "Price"}
     ]
 
@@ -159,13 +163,13 @@ if True:
     # However, requiring that we cover every single true dupe pair may
     # mean that we have to use blocks that put together many, many
     # distinct pairs that we'll have to expensively, compare as well.
-    deduper.train(ppc=0.1, uncovered_dupes=5) # was .01
+    deduper.train(maximum_comparisons=5000000000, recall=0.95)
 
     # When finished, save our labeled, training pairs to disk
     with open(training_file, 'w') as tf:
         deduper.writeTraining(tf)
-    with open(settings_file, 'w') as sf:
-        deduper.writeSettings(sf)
+    #with open(settings_file, 'w') as sf:
+    #    deduper.writeSettings(sf)
 
     # We can now remove some of the memory hobbing objects we used
     # for training
