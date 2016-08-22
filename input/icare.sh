@@ -7,6 +7,6 @@ CREATE TABLE input.icare (
     address text, address_2 text, city text, state text, zip text, county text
 );"
 
-psql -v ON_ERROR_STOP=1 -c "\COPY input.icare FROM $1 WITH CSV HEADER"
+cat $1 | psql -v ON_ERROR_STOP=1 -c "\COPY input.icare FROM STDIN WITH CSV HEADER"
 
-psql -v ON_ERROR_STOP=1 -c "ALTER TABLE input.icare add id serial primary key;"
+psql -v ON_ERROR_STOP=1 -c "ALTER TABLE input.icare add icare_id serial primary key;"
