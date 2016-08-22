@@ -3,49 +3,42 @@ DROP TABLE IF EXISTS aux.addresses;
 CREATE TABLE aux.addresses(address_id serial primary key, address text unique not null, geom geometry, census_tract_id text, census_block_id text, ward_id int, community_area_id int, source text);
 
 -- load addresses from geocoded tests
-INSERT INTO aux.addresses (address, geom, census_tract_id, census_block_id, ward_id, community_area_id, source) (
+INSERT INTO aux.addresses (address, geom, source) (
 
 -- first get all addresses and areas from currbllshort
 -- and addresses from m7 and cornerstone
--- only take addresses where city starts with 'CH'-- Chicago geocoder doesn't work outside of Chicago:w
+-- only take addresses where city starts with 'CH'-- Chicago geocoder doesn't work outside of Chicago
 with all_addresses as (
     select 
-        geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || clean_street_type
-            as address, 
-        geocode_xcoord, geocode_ycoord, '17031' || nullif(geocode_census_block_2010, ' ') as census_block_id,
-        CASE WHEN geocode_ward ~ E'^\\d+$' THEN geocode_ward::int END ward_id,
-        CASE WHEN geocode_community_area ~ E'^\\d+$' THEN geocode_community_area::int END community_area_id,
+        geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || clean_street_type as address,
+        geocode_xcoord, geocode_ycoord, 
         'currbllshort' as source
     from input.currbllshort
     WHERE city ilike 'CH%'
     UNION ALL
     select
-        geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || geocode_street_type
-            as address, 
-        geocode_xcoord::decimal, geocode_ycoord::decimal, null, null, null, 'm7'
+        geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || geocode_street_type as address,
+        geocode_xcoord::decimal, geocode_ycoord::decimal,
+        'm7'
     from input.m7
     WHERE city ilike 'CH%'
     UNION ALL
     select
-        geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || geocode_street_type
-            as address, 
-        geocode_xcoord::decimal, geocode_ycoord::decimal, null, null, null, 'cornerstone'
+        geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || geocode_street_type as address,
+        geocode_xcoord::decimal, geocode_ycoord::decimal, 
+        'cornerstone'
     from cornerstone.addresses
     WHERE city ilike 'CH%' and geocode_xcoord != 'ERROR' and geocode_ycoord != 'ERROR'
-),
-addresses as (
-	select distinct on (address) address,
-	st_transform(st_setsrid(st_point(geocode_xcoord,geocode_ycoord),3435), 4326) as geom,
-        census_block_id, ward_id, community_area_id, source
-	from all_addresses
-	where address is not null
-        and geocode_xcoord != -1 and geocode_ycoord != -1
-        order by address, (census_block_id is null) asc
 )
-	select address, geom, 
-	substring(census_block_id for 11), census_block_id, 
-	ward_id, community_area_id, source
-	from addresses
+
+select distinct on (address) address,
+    st_transform(st_setsrid(st_point(geocode_xcoord,geocode_ycoord),3435), 4326) as geom,
+    source
+from all_addresses
+where address is not null and
+    geocode_xcoord != -1 and geocode_ycoord != -1
+order by 1
+
 );
 
 -- load addresses from chicago address table
