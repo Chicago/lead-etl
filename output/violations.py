@@ -23,6 +23,7 @@ from input.building_violations
 join output.addresses a using (address)
 """ % (KEYWORD_COLUMNS, STATUS_COLUMNS), 
     parse_dates=['violation_date', 'violation_status_date'], 
+    tables=['input.building_violations', 'output.addresses'],
     target=True)
 
 class ViolationsAggregation(SpacetimeAggregation):

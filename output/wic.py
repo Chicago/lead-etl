@@ -31,7 +31,7 @@ select *,
 array_remove(array[lang_1_c, lang_2_c, lang_3_c], null) as language,
 array_remove(array[pa_cde1_c, pa_cde2_c, pa_cde3_c, pa_cde4_c, pa_cde5_c], null) as assistance
 from enroll 
-""", parse_dates=['register_d', 'last_upd_d'], target=True)]
+""", tables=['aux.kid_wics', 'aux.kid_mothers'], parse_dates=['register_d', 'last_upd_d'], target=True)]
 
     def get_aggregates(self, date, delta):
         
@@ -75,7 +75,7 @@ array_remove(array[
 FROM aux.kids
 JOIN aux.kid_mothers USING (kid_id)
 JOIN cornerstone.birth USING (part_id_i, mothr_id_i)
-""", parse_dates=['date_of_birth'])
+""", tables=['aux.kids', 'aux.kid_mothers'], parse_dates=['date_of_birth'])
             ]
 
     def get_aggregates(self, date, delta):
@@ -111,7 +111,7 @@ JOIN aux.kid_mothers USING (kid_id)
 JOIN cornerstone.birth b USING (part_id_i, mothr_id_i)
 JOIN cornerstone.prenatl p ON b.mothr_id_i = p.part_id_i
 where date_of_birth - visit_d between -365 and 365
-""", parse_dates=['date_of_birth', 'visit_d'])
+""", tables=['aux.kids', 'aux.kid_mothers'], parse_dates=['date_of_birth', 'visit_d'])
             ]
 
     def get_aggregates(self, date, delta):

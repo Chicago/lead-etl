@@ -20,7 +20,7 @@ class Inspections(Step):
         self.inputs = [FromSQL(query="""
 select *, least(init_date, comply_date) as min_date
 from output.inspections join output.addresses using (address_id) 
-""", parse_dates=['min_date', 'comply_date', 'init_date'], target=False)]
+""", parse_dates=['min_date', 'comply_date', 'init_date'], tables=['output.inspections', 'output.addresses'], target=False)]
 
     def run(self, df):
         # TODO: verify and explain why fillna(True)

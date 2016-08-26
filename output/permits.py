@@ -4,7 +4,7 @@ from drain.aggregation import SpacetimeAggregation
 
 PERMIT_TYPES = ['electric_wiring', 'elevator_equipment', 'signs', 'new_construction', 'renovation_alteration', 'easy_permit_process', 'porch_construction', 'wrecking_demolition', 'scaffolding', 'reinstate_revoked_pmt', 'for_extension_of_pmt']
 
-permits = FromSQL("select * from aux.building_permits join output.addresses using (address)", parse_dates=['issue_date'], target=True)
+permits = FromSQL("select * from aux.building_permits join output.addresses using (address)", parse_dates=['issue_date'], tables=['aux.building_permits', 'output.addresses'], target=True)
 
 class PermitsAggregation(SpacetimeAggregation):
     def __init__(self, spacedeltas, dates, **kwargs):
