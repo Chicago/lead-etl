@@ -5,6 +5,7 @@ from lead.output.kids import KidsAggregation
 from lead.output.permits import PermitsAggregation
 from lead.output.violations import ViolationsAggregation
 from lead.output.inspections import InspectionsAggregation
+from lead.output.events import EventsAggregation
 from lead.output.wic import EnrollAggregation, BirthAggregation, PrenatalAggregation
 
 from drain import util, data
@@ -25,7 +26,7 @@ indexes = {
 
 deltas = {
     'address': ['1y', '2y', '5y', '10y', 'all'],
-    'complex': ['1y', '2y', '5y'],
+    'complex': ['1y', '2y', '5y', '10y', 'all'],
     'block': ['1y','2y','5y'],
     'tract': ['1y','2y','3y']
 }
@@ -37,6 +38,7 @@ args = dict(
     assessor = ['address', 'building', 'complex', 'block', 'tract'],
     tests = deltas,
     inspections = deltas,
+    events = deltas,
     permits = deltas,
     kids = dict(kid=['all'], **deltas),
     violations = util.dict_subset(deltas, ('address', 'block')),
