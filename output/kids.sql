@@ -37,6 +37,12 @@ kids as (
     select * from wic 
     full outer join summary using (kid_id) 
     left join aux.kids using (kid_id)
+),
+
+icare as (
+    select kid_id
+    from aux.kid_icares
+    group by 1
 )
 
 SELECT k.*,
@@ -53,12 +59,15 @@ SELECT k.*,
     max_bll.address_id as max_bll_address_id,
 
     least(first_wic_date, first.date) as min_date,
-    greatest(last_wic_date, last_sample_date) as max_date
+    greatest(last_wic_date, last_sample_date) as max_date,
+
+    icare.kid_id is not null as icare
 
 FROM kids k
 LEFT JOIN first_bll6 USING (kid_id)
 LEFT JOIN first_bll10 USING (kid_id)
 LEFT JOIN first USING (kid_id)
 LEFT JOIN max_bll USING (kid_id)
+LEFT JOIN icare USING (kid_id)
 where date_of_birth is not null
 );
