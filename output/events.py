@@ -36,14 +36,14 @@ class Events(Step):
         Step.__init__(self, **kwargs)
         self.inputs = [Merge(inputs=[
             FromSQL("""
-                select comp_date, event_code, res_code, upper(assemaddr) as address
+                select comp_date, event_code, res_code, address_id
                 from stellar.event
-                join stellar.addr on addr_id = id_number
+                join aux.stellar_addresses on addr_id = id_number
                 where class = 'I'
-            """, tables=['stellar.Event', 'stellar.ADDR'],
+            """, tables=['stellar.Event', 'aux.stellar_addresses'],
             parse_dates=['comp_date'], target=True), 
             FromSQL(table='output.addresses', target=True)
-        ], on='address')]
+        ], on='address_id')]
 
     def run(self, event):
         # concatenate event and res code, e.g. 'REINS_C'

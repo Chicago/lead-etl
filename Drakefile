@@ -6,6 +6,23 @@ psql_schema()
     schema=$(basename $OUTPUT)
     psql -v ON_ERROR_STOP=1 -c "CREATE SCHEMA IF NOT EXISTS $schema" && mkdir -p $OUTPUT && touch $OUTPUT/schema
 
+psql_copy()
+    schema=$(basename $(dirname $OUTPUT))
+    table=$(basename $OUTPUT)
+    cat <(echo "SET SCHEMA '$schema'; DROP TABLE IF EXISTS $table;")\
+        <(head -n $CSVSQL_LINES $INPUT0 |\
+          csvsql $CSVSQL_OPTIONS --tables $table -i postgresql)\
+        <(echo "\COPY $table FROM $INPUT0 $PSQL_COPY_OPTIONS")\
+    | psql -v ON_ERROR_STOP=1
+    touch $OUTPUT
+        
+; default use 10000 lines for schema type inference
+CSVSQL_LINES:=100000
+; default do not put constraints on columns
+CSVSQL_OPTIONS:='--no-constraints --no-inference'
+; default is WITH CSV HEADER
+PSQL_COPY_OPTIONS:='WITH CSV HEADER'
+    
 %include default_profile
 
 PYTHONPATH=/home/epotash/
@@ -21,3 +38,5 @@ PYTHONPATH=/home/epotash/
 %include output/Drakefile
 
 ;%include discontinuity/Drakefile
+
+%include addresses/Drakefile

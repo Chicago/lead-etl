@@ -4,7 +4,7 @@ from lead.output.tests import TestsAggregation
 from lead.output.kids import KidsAggregation
 from lead.output.permits import PermitsAggregation
 from lead.output.violations import ViolationsAggregation
-from lead.output.inspections import InspectionsAggregation
+from lead.output.investigations import InvestigationsAggregation
 from lead.output.events import EventsAggregation
 from lead.output.wic import EnrollAggregation, BirthAggregation, PrenatalAggregation
 
@@ -37,7 +37,7 @@ args = dict(
     buildings = ['building', 'complex', 'block', 'tract'],
     assessor = ['address', 'building', 'complex', 'block', 'tract'],
     tests = deltas,
-    inspections = deltas,
+    investigations = deltas,
     events = deltas,
     permits = deltas,
     kids = dict(kid=['all'], **deltas),

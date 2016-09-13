@@ -10,6 +10,7 @@ psql/output/kids <- output/kids.sql, psql/aux/kids, psql/output/tests, psql/aux/
 psql/output/tests <- output/tests.sql, psql/aux/tests, psql/aux/kid_tests_info, psql/aux/test_addresses [method:psql]
 
 psql/output/labs <- output/labs.sql, psql/aux/tests [method:psql]
+psql/output/lab_years <- output/lab_years.sql, psql/aux/tests [method:psql]
 
 psql/output/kid_addresses <- output/kid_addresses.sql, psql/aux/kid_wic_addresses, psql/output/tests [method:psql]
 
@@ -17,6 +18,7 @@ psql/output/kid_addresses <- output/kid_addresses.sql, psql/aux/kid_wic_addresse
 ; including tests, wic, assessor, inspections
 psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/output/inspections, psql/aux/complex_addresses, psql/aux/assessor, psql/aux/test_addresses, psql/aux/kid_wic_addresses [method:psql]
 
-psql/output/inspections <- output/inspections.sql, psql/aux/addresses, psql/aux/inspections, psql/aux/inspection_addresses [method:psql]
+; rename columns and convert closure reason text into codes
+psql/output/investigations <- output/investigations.sql, psql/stellar/Invest, psql/aux/stellar_addresses [method:psql]
 
 psql/output/kids_extra <- output/kids_extra.sql, psql/output/tests [method:psql]

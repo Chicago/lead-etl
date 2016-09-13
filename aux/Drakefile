@@ -1,9 +1,8 @@
 ; summarize assessor and buildings data per address (sources have multiple entries per address over time)
 psql/aux/assessor <- aux/assessor.sql [method:psql]
 
-; match inspections with addresses
-psql/aux/inspections <- aux/inspections.sql, psql/input/inspections [method:psql]
-psql/aux/inspection_addresses <- aux/inspection_addresses.sql, psql/input/inspections, psql/aux/addresses [method:psql]
+; match stellar.addr with aux.addresses
+psql/aux/stellar_addresses <- aux/stellar_addresses.sql, psql/stellar/ADDR, psql/aux/addresses [method:psql]
 
 ; collect complete tests (not missing name, dob, or test date)
 psql/aux/tests <- aux/tests.sql, psql/input/currbllshort, psql/input/m7 [method:psql]
