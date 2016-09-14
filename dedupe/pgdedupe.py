@@ -145,7 +145,7 @@ if True:
 
     # use 'y', 'n' and 'u' keys to flag duplicates
     # press 'f' when you are finished
-    dedupe.convenience.consoleLabel(deduper)
+    #dedupe.convenience.consoleLabel(deduper)
 
     # Notice our two arguments here
     #
@@ -166,8 +166,8 @@ if True:
     deduper.train(maximum_comparisons=5000000000, recall=0.95)
 
     # When finished, save our labeled, training pairs to disk
-    with open(training_file, 'w') as tf:
-        deduper.writeTraining(tf)
+    #with open(training_file, 'w') as tf:
+    #    deduper.writeTraining(tf)
     #with open(settings_file, 'w') as sf:
     #    deduper.writeSettings(sf)
 
