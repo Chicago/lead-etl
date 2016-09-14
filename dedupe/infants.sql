@@ -32,11 +32,12 @@ infants as (
 )
 
 -- unaccent text fields for dedupe
+-- also remove that unicode character from that address!
 select unaccent(first_name) first_name, 
     unaccent(last_name) last_name, 
     date_of_birth::text, 
     unaccent(sex) sex, 
-    unaccent(address) address, 
+    regexp_replace(unaccent(address), '[\x80-\xFF]', '', 'g') as address, 
     min(date_of_birth) - '1970-01-01' as day, count(*) as count,
     array_remove(array_agg(test_id), null) test_ids, 
     array_remove(array_agg(cornerstone_id), null) cornerstone_ids,
