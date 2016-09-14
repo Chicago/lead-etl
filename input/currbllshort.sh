@@ -6,7 +6,7 @@ temp=$(mktemp)
 echo $temp
 sed 's/""//g' "$INPUT1" | uniq > $temp
 
-psql -c "
+psql -v ON_ERROR_STOP=1 -c "
     DROP TABLE IF EXISTS input.currbllshort; 
     
     CREATE TABLE input.currbllshort (
@@ -59,9 +59,9 @@ psql -c "
         clean_lname text,
         clean_namedob text,
         ezid int,
-        geocode_census_block_2010 text,
-        geocode_census_tract_2010 text,
-        geocode_census_tract_2000 text,
+        --geocode_census_block_2010 text,
+        --geocode_census_tract_2010 text,
+        --geocode_census_tract_2000 text,
         geocode_full_addr text,
         geocode_house_low text,
         geocode_house_high text,
@@ -72,12 +72,9 @@ psql -c "
         geocode_ycoord decimal,
         geocode_status1 text,
         geocode_status2 text,
-        ezidnum int,
-        aclean_address text
-        );"
-
-head -n 1000000 "$temp" | PGCLIENTENCODING="latin1" psql -c \
-    "\COPY input.currbllshort FROM STDIN WITH CSV HEADER;"
-
-tail -n +1000001 "$temp" | PGCLIENTENCODING="latin1" psql -c \
+        ezidnum int
+        );" &&\
+head -n 1000000 "$temp" | PGCLIENTENCODING="latin1" psql -v ON_ERROR_STOP=1 -c \
+    "\COPY input.currbllshort FROM STDIN WITH CSV HEADER;" &&\
+tail -n +1000001 "$temp" | PGCLIENTENCODING="latin1" psql -v ON_ERROR_STOP=1 -c \
     "\COPY input.currbllshort FROM STDIN WITH CSV;"
