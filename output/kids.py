@@ -113,6 +113,9 @@ class KidsAggregation(SpacetimeAggregation):
             Aggregate(['max_bll', 'mean_bll', 'address_max_bll', 'address_mean_bll'], 
                     ['mean', 'median', 'min', 'max']),
 
+            # ebll past, present, future, ever count the number of kids who 
+            # moved into this address in the period defined by date and delta 
+            # and who were poisoned before, during, after or ever relative to their time living there
             Fraction(Count([lambda k: k.first_bll6_sample_date.notnull(), 
                             lambda k: k.first_bll10_sample_date.notnull()],
                            ['bll6_ever', 'bll10_ever']),
