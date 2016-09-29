@@ -43,8 +43,8 @@ psql/input/census_blocks <- data/shapefiles/census_blocks/CensusBlockTIGER2010.s
 psql/input/assessor <- input/assessor.sh
     $INPUT $ASSESSOR_FILE && touch $OUTPUT
 
-; old blood tests, $[M7_FILE]
-psql/input/m7 <- input/m7.sh
+; old blood tests
+psql/input/m7 <- input/m7.sh, $[M7_FILE]
 	$INPUT $INPUT1 && touch $OUTPUT
 
 ; current blood tests
@@ -121,20 +121,10 @@ psql/cornerstone/ <- [method:psql_schema -timecheck]
 
 $(for table in Partaddr PartPgm PartEnrl Prenatl Birth; do
 
-echo "psql/cornerstone/"${table}" <- \$[CORNERSTONE_DIR]/"$table".dbf"
+echo "psql/cornerstone/"${table,,}" <- \$[CORNERSTONE_DIR]/"$table".dbf"
 echo "    ogr2ogr -f PostgreSQL PG:'host=\$[PGHOST] user=\$[PGUSER] password=\$[PGPASSWORD] dbname=\$[PGDATABASE]' \$INPUT -lco 'schema=cornerstone' -lco 'overwrite=yes' && touch \$OUTPUT"
 
 done)
-
-;data/Partaddr.csv <- $[CORNERSTONE_DIR]/Partaddr.dbf, input/dbf2csv.py
-;    python $INPUT1 $INPUT0 > $OUTPUT
-
-; ogr2ogr for Partaddr only creates table but does not load data! so \copy data with dbf2csv
-;psql/cornerstone/Partaddr2 <- $[CORNERSTONE_DIR]/Partaddr.dbf, psql/cornerstone/Partaddr, input/dbf2csv.py
-;    psql -v ON_ERROR_STOP=1 -c 'alter table cornerstone.partaddr drop column ogc_fid'
-;    python $INPUT2 $INPUT0 | psql -v ON_ERROR_STOP=1 -c '\copy cornerstone.partaddr from STDIN with csv header'
-;    psql -v ON_ERROR_STOP=1 -c 'alter table cornerstone.partaddr add column ogc_fid serial primary key'
-;    touch $OUTPUT
 
 data/cornerstone/addresses_for_geocoding.csv <- input/cornerstone/addresses_for_geocoding.sql, psql/cornerstone/Partaddr
     psql -f $INPUT > $OUTPUT
@@ -147,7 +137,7 @@ psql/stellar/ <- [method:psql_schema -timecheck]
 
 $(for table in ADDR CA_LINK CASE_RCD CHILD Event Invest LAB; do
 
-echo "psql/stellar/"${table}" <- \$[STELLAR_DIR]/"$table".DBF, psql/stellar/schema"
+echo "psql/stellar/"${table,,}" <- \$[STELLAR_DIR]/"$table".DBF, psql/stellar/schema"
 echo "    ogr2ogr -f PostgreSQL PG:'host=\$[PGHOST] user=\$[PGUSER] password=\$[PGPASSWORD] dbname=\$[PGDATABASE]' \$INPUT -lco 'schema=stellar' -lco 'overwrite=yes' && touch \$OUTPUT"
 
 done)

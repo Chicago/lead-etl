@@ -3,7 +3,7 @@ drop table if exists output.investigations;
 create table output.investigations as (
 
 select
-    address_id, 
+    address_id, apt,
     ins_ref_dt as referral_date,
     insp_comp as init_date,
     insrslsum in ('I', 'B') as hazard_int,
@@ -13,8 +13,8 @@ select
     addr_cl_dt as closure_date,
     adr_cl_rsn as closure_reason,
     CASE 
-        WHEN adr_cl_rsn ~ '(NOH|NO H|COMPO|NEG|ALL|HUD|CMPL)' THEN 1
-        WHEN adr_cl_rsn in (
+        WHEN adr_cl_rsn ~* '(NOH|NO H|COMPO|NEG|ALL|HUD|CMPL)' THEN 1
+        WHEN upper(adr_cl_rsn) in (
             'CMPLY','COMPLIED','COMPLY','OCMPLY',',COMPLY','CMPY',
             'COMPONENTS','COMPONENTS ACCE','COMPONENTS ACCP','COMP  ACCEPT',
             'COMPONENTS ACC','COMPENTS','ACCECPTABLE', 'ALLCOMPONENTS A',
@@ -32,17 +32,17 @@ select
             ',NO HAZARDS',',NO H AZARDS','N-HAZ/COMP-ACC','N O HAZARDS',',NO HAZRDS',
             'NOHAZARDS',
             'NO HARZARDS','NO HAZZARDS','N-HAZ', 'NO HAZZARD','NO HARZARD') THEN 1
-        WHEN adr_cl_rsn ~ 'ADM' THEN 2
-        WHEN adr_cl_rsn ~ 'DEL' THEN 3
-        WHEN adr_cl_rsn ~ 'COURT' THEN 4
-        WHEN adr_cl_rsn ~ 'MOVE' THEN 5
-        WHEN adr_cl_rsn ~ 'REFU' THEN 6
-        WHEN adr_cl_rsn ~ 'LOC' THEN 7
-        WHEN adr_cl_rsn ~ 'VAC' THEN 8
-        WHEN adr_cl_rsn ~ 'WRO' THEN 9
-        WHEN adr_cl_rsn ~ 'DUP' THEN 10
-        WHEN adr_cl_rsn ~ 'RAZ' THEN 11
-        WHEN adr_cl_rsn ~ 'SATTY' THEN 12
+        WHEN adr_cl_rsn ~* 'ADM' THEN 2
+        WHEN adr_cl_rsn ~* 'DEL' THEN 3
+        WHEN adr_cl_rsn ~* 'COURT' THEN 4
+        WHEN adr_cl_rsn ~* 'MOVE' THEN 5
+        WHEN adr_cl_rsn ~* 'REFU' THEN 6
+        WHEN adr_cl_rsn ~* 'LOC' THEN 7
+        WHEN adr_cl_rsn ~* 'VAC' THEN 8
+        WHEN adr_cl_rsn ~* 'WRO' THEN 9
+        WHEN adr_cl_rsn ~* 'DUP' THEN 10
+        WHEN adr_cl_rsn ~* 'RAZ' THEN 11
+        WHEN adr_cl_rsn ~* 'SATTY' THEN 12
     END as closure_code
 
 from stellar.invest 

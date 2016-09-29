@@ -2,7 +2,7 @@
 psql/aux/assessor <- aux/assessor.sql [method:psql]
 
 ; match stellar.addr with aux.addresses
-psql/aux/stellar_addresses <- aux/stellar_addresses.sql, psql/stellar/ADDR, psql/aux/addresses [method:psql]
+psql/aux/stellar_addresses <- aux/stellar_addresses.sql, psql/stellar/addr, psql/aux/addresses [method:psql]
 
 ; collect complete tests (not missing name, dob, or test date)
 psql/aux/tests <- aux/tests.sql, psql/input/currbllshort, psql/input/m7 [method:psql]
@@ -23,7 +23,7 @@ psql/aux/test_addresses <- aux/test_addresses.sql, psql/aux/tests, psql/aux/addr
 
 psql/aux/kid_mothers <- aux/kid_mothers.sql, psql/aux/kids, psql/aux/kid_wics [method:psql]
 
-psql/aux/kid_wic_addresses <- aux/kid_wic_addresses.sql, psql/aux/kid_wics, psql/aux/kid_mothers, psql/cornerstone/addresses [method:psql]
+psql/aux/kid_wic_addresses <- aux/kid_wic_addresses.sql, psql/aux/kid_wics, psql/aux/kid_mothers, psql/cornerstone/addresses, psql/aux/kids, psql/aux/addresses [method:psql]
 
 ; calculate kid ethnicity based on last name and address
 psql/aux/kid_ethnicity <- aux/kid_ethnicity.sql, psql/aux/kids, psql/input/surnames, psql/aux/kid_test_addresses, psql/aux/addresses, psql/output/acs [method:psql]
@@ -37,8 +37,8 @@ psql/aux/buildings <- aux/buildings.py, psql/input/buildings, psql/buildings/bui
 
 ; binarize building permit type
 psql/aux/building_permits <- aux/building_permits.py, psql/input/building_permits
-    $INPUT && touch $OUTPUT
+    python $INPUT && touch $OUTPUT
 
 ; binarize and aggregate wic program data
 psql/aux/wic_kids <- aux/wic.py, psql/wic/wic_kids
-    $INPUT && touch $OUTPUT
+    python $INPUT && touch $OUTPUT

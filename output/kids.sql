@@ -32,7 +32,29 @@ summary AS (
     group by kid_id
 ),
 
--- do this query so that the table is compatibe with revise
+blls AS (
+    with bll_windows as (
+        select kid_id, date, bll,
+        coalesce(lag(date) OVER (PARTITION BY kid_id order by date asc), date_of_birth) as last_date,
+        coalesce(lag(bll) OVER (PARTITION BY kid_id order by date asc), 0) as last_bll
+        from output.tests join aux.kids using (kid_id)
+        where (1=1)
+    )
+
+    select kid_id,
+        avg(bll) as avg_bll,
+        -- when last_sample_date = date_of_birth time series is a point
+        -- make cumulative_bll null
+        CASE WHEN min(last_date) != max(date) THEN
+            sum((date - last_date)*(last_bll +(bll - last_bll)/2.0))
+        END 
+        as cumulative_bll,
+        max(date) - min(last_date) as days
+    from bll_windows
+    group by 1
+),
+
+-- do this query so that the table is compatible with revise
 kids as (
     select * from wic 
     full outer join summary using (kid_id) 
@@ -47,6 +69,11 @@ icare as (
 
 SELECT k.*,
     max_bll.bll as max_bll,
+    blls.avg_bll,
+    -- cumulative bll is measured in ug/dL * years
+    blls.cumulative_bll / 365 as cumulative_bll,
+    -- average cumulative bll is measured in ug/dL
+    blls.cumulative_bll / blls.days as avg_cumulative_bll,
 
     first_bll6.date first_bll6_sample_date,
     first_bll10.date first_bll10_sample_date,
@@ -69,5 +96,6 @@ LEFT JOIN first_bll10 USING (kid_id)
 LEFT JOIN first USING (kid_id)
 LEFT JOIN max_bll USING (kid_id)
 LEFT JOIN icare USING (kid_id)
+LEFT JOIN blls USING (kid_id)
 where date_of_birth is not null
 );

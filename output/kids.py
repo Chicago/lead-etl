@@ -46,6 +46,9 @@ def revise_kid_addresses(date):
         return Merge(inputs=[kids, kid_addresses], on='kid_id')
 
 class KidsAggregation(SpacetimeAggregation):
+    """
+    This is really an aggregation of kid addresses.
+    """
     def __init__(self, spacedeltas, dates, **kwargs):
         SpacetimeAggregation.__init__(self, spacedeltas=spacedeltas, 
             dates=dates, prefix='kids',
@@ -110,7 +113,11 @@ class KidsAggregation(SpacetimeAggregation):
                        ['mean'], ['address_total_time', #'address_wic_time', 
                         'address_test_time']),
 
-            Aggregate(['max_bll', 'mean_bll', 'address_max_bll', 'address_mean_bll'], 
+            # the first of these are kid level, not address-kid level
+            # that means kids get double counted when aggregated to above the address level 
+            # if they lived in multiple addresses on that e.g. census tract. oh well.
+            Aggregate(['max_bll', 'avg_bll', 'cumulative_bll', 'avg_cumulative_bll', 
+                       'mean_bll', 'address_max_bll', 'address_mean_bll'], 
                     ['mean', 'median', 'min', 'max']),
 
             # ebll past, present, future, ever count the number of kids who 
