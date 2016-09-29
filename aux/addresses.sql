@@ -42,14 +42,14 @@ order by 1
 );
 
 -- load addresses from chicago address table
-INSERT INTO aux.addresses (address, geom, source) (
+/*INSERT INTO aux.addresses (address, geom, source) (
         SELECT DISTINCT ON (cmpaddabrv) a.cmpaddabrv, a.geom,
         'addresses'
         FROM input.addresses a
 	left join aux.addresses a2 on a.cmpaddabrv = a2.address where a2.address is null
 	and a.cmpaddabrv is not null
         ORDER BY cmpaddabrv, edittime desc
-);
+);*/
 
 -- load addresses from chicago buildings footprint
 INSERT INTO aux.addresses (address, geom, source) (
