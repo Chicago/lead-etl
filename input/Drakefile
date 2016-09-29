@@ -1,45 +1,52 @@
+; $INPUT is path to folder containing single shp file
+; $OUTPUT is path sql success file, which determines import table and schema
+; shapefile is converted to 4326 using ogr2ogr before import
 import_shapefile()
-        BASENAME=$(echo $INPUT | sed 's/.shp//')
-        # get table name from output, e.g. change $[SQL_DIR]/input/wards gives input.wards
-        TABLENAME=$(echo $OUTPUT | sed ''s/^.*\/\(.*\)\/\(.*\)$/\1.\2/'')
-        # ogr2ogr doesn't like an existing file
-        rm -f "$BASENAME"4326.*
-        ogr2ogr -t_srs EPSG:4326 "$BASENAME"4326.shp $INPUT
-        # -q suppresses query output which for large shapefiles seems to slow down the import
-        shp2pgsql -I -D -d -s 4326 "$BASENAME"4326.shp $TABLENAME | psql -q
-        touch $OUTPUT
+    BASENAME=$(basename $(ls $INPUT/*.shp))
+    # get table name from output, e.g. change $[SQL_DIR]/input/wards gives input.wards
+    TABLENAME=$(echo $OUTPUT | sed 's/^.*\/\(.*\)\/\(.*\)$/\1.\2/')
+    # ogr2ogr doesn't like an existing file
+    rm -rf "$INPUT"/4326/
+    mkdir -p $INPUT/4326/
+    ogr2ogr -t_srs EPSG:4326 $INPUT/4326/$BASENAME $INPUT/$BASENAME
+    echo $TABLENAME
+    # -q suppresses query output which for large shapefiles seems to slow down the import
+    shp2pgsql -I -D -d -s 4326 $INPUT/4326/$BASENAME $TABLENAME | psql -q && touch $OUTPUT
 
+; $URL is a source url
+; $OUTPUT0 is a target for the zip file
+; $OUTPUT1 is a directory to unzip into
 wget_unzip()
     mkdir -p $(dirname $OUTPUT0)
     wget --output-document="$OUTPUT0" "$URL"
-    unzip -o "$OUTPUT0" -d $(dirname $OUTPUT1)
+    unzip -o "$OUTPUT0" -d $OUTPUT1
 
-$[SQL_DIR]/input/ <- [method:psql_schema]
+$[SQL_DIR]/input/ <- [method:psql_schema -timecheck]
 
 ; wards
 URL="https://data.cityofchicago.org/api/geospatial/sp34-6z76?method=export&format=Shapefile"
-data/shapefiles/wards.zip, data/shapefiles/wards/WARDS_2015.shp <- [-timecheck method:wget_unzip]
-$[SQL_DIR]/input/wards <- data/shapefiles/wards/WARDS_2015.shp, $[SQL_DIR]/input/ [method:import_shapefile]
+data/shapefiles/wards.zip, data/shapefiles/wards/ <- [-timecheck method:wget_unzip]
+$[SQL_DIR]/input/wards <- data/shapefiles/wards/, $[SQL_DIR]/input/ [method:import_shapefile]
 
 ; census tracts
 URL="https://data.cityofchicago.org/api/geospatial/5jrd-6zik?method=export&format=Shapefile"
-data/shapefiles/census_tracts.zip, data/shapefiles/census_tracts/CensusTractsTIGER2010.shp <- [-timecheck method:wget_unzip]
-$[SQL_DIR]/input/census_tracts <- data/shapefiles/census_tracts/CensusTractsTIGER2010.shp, $[SQL_DIR]/input/ [method:import_shapefile]
+data/shapefiles/census_tracts.zip, data/shapefiles/census_tracts/ <- [-timecheck method:wget_unzip]
+$[SQL_DIR]/input/census_tracts <- data/shapefiles/census_tracts/, $[SQL_DIR]/input/ [method:import_shapefile]
 	
 ; addresses
-URL="https://datacatalog.cookcountyil.gov/api/geospatial/jev2-4wjs?method=export&format=Shapefile"
-data/shapefiles/addresses.zip, data/shapefiles/addresses/addressPointChi.shp <- [-timecheck method:wget_unzip]
-$[SQL_DIR]/input/addresses <- data/shapefiles/addresses/addressPointChi.shp, $[SQL_DIR]/input/ [method:import_shapefile]
+;URL="https://datacatalog.cookcountyil.gov/api/geospatial/jev2-4wjs?method=export&format=Shapefile"
+;data/shapefiles/addresses.zip, data/shapefiles/addresses/ <- [-timecheck method:wget_unzip]
+;$[SQL_DIR]/input/addresses <- data/shapefiles/addresses/, $[SQL_DIR]/input/ [method:import_shapefile]
 
 ; community areas
 URL="https://data.cityofchicago.org/api/geospatial/cauq-8yn6?method=export&format=Shapefile"
-data/shapefiles/community_areas.zip, data/shapefiles/community_areas/CommAreas.shp <- [-timecheck method:wget_unzip]
-$[SQL_DIR]/input/community_areas <- data/shapefiles/community_areas/CommAreas.shp, $[SQL_DIR]/input/ [method:import_shapefile]
+data/shapefiles/community_areas.zip, data/shapefiles/community_areas/ <- [-timecheck method:wget_unzip]
+$[SQL_DIR]/input/community_areas <- data/shapefiles/community_areas/, $[SQL_DIR]/input/ [method:import_shapefile]
 
 ; census blocks
 URL="https://data.cityofchicago.org/api/geospatial/mfzt-js4n?method=export&format=Shapefile"
-data/shapefiles/census_blocks.zip, data/shapefiles/census_blocks/CensusBlockTIGER2010.shp <- [-timecheck method:wget_unzip]
-$[SQL_DIR]/input/census_blocks <- data/shapefiles/census_blocks/CensusBlockTIGER2010.shp, $[SQL_DIR]/input/ [method:import_shapefile]
+data/shapefiles/census_blocks.zip, data/shapefiles/census_blocks/ <- [-timecheck method:wget_unzip]
+$[SQL_DIR]/input/census_blocks <- data/shapefiles/census_blocks/, $[SQL_DIR]/input/ [method:import_shapefile]
 
 ; assessor 
 $[SQL_DIR]/input/assessor <- input/assessor.sh, $[SQL_DIR]/input/
@@ -52,10 +59,6 @@ $[SQL_DIR]/input/m7 <- input/m7.sh, $[SQL_DIR]/input/
 ; current blood tests
 $[SQL_DIR]/input/currbllshort <- input/currbllshort.sh, $[CURRBLLSHORT_FILE], $[SQL_DIR]/input/
     $INPUT $INPUT1 && touch $OUTPUT
-
-; inspections
-$[SQL_DIR]/input/inspections <- input/inspections.sh, $[SQL_DIR]/input/
-    $INPUT $INSPECTIONS_FILE && touch $OUTPUT
 
 ; census surname ethnicity
 ; documentation: http://www2.census.gov/topics/genealogy/2000surnames/surnames.pdf
@@ -128,7 +131,7 @@ echo "    ogr2ogr -f PostgreSQL PG:'host=\$[PGHOST] user=\$[PGUSER] password=\$[
 
 done)
 
-data/cornerstone/addresses_for_geocoding.csv <- input/cornerstone/addresses_for_geocoding.sql, $[SQL_DIR]/cornerstone/Partaddr
+data/cornerstone/addresses_for_geocoding.csv <- input/cornerstone/addresses_for_geocoding.sql, $[SQL_DIR]/cornerstone/partaddr
     psql -f $INPUT > $OUTPUT
 
 ; unique cornerstone addresses geocoded using city geocoder
