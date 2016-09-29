@@ -38,7 +38,3 @@ psql/aux/buildings <- aux/buildings.py, psql/input/buildings, psql/buildings/bui
 ; binarize building permit type
 psql/aux/building_permits <- aux/building_permits.py, psql/input/building_permits
     python $INPUT && touch $OUTPUT
-
-; binarize and aggregate wic program data
-psql/aux/wic_kids <- aux/wic.py, psql/wic/wic_kids
-    python $INPUT && touch $OUTPUT

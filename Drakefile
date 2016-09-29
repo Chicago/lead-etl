@@ -25,8 +25,6 @@ PSQL_COPY_OPTIONS:='WITH CSV HEADER'
     
 %include default_profile
 
-PYTHONPATH=/home/epotash/
-
 %include input/Drakefile
 
 %include buildings/Drakefile

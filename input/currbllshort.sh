@@ -2,8 +2,6 @@
 
 # psql \copy doesn't like "" as null for non-text
 # currbllshort has duplicates, use uniq
-temp=$(mktemp)
-echo $temp
 sed 's/""//g' "$INPUT1" | uniq > $temp
 
 psql -v ON_ERROR_STOP=1 -c "
