@@ -41,7 +41,6 @@ Use our [drain pipeline](https://github.com/dssg/drain/) to run run models in pa
 
 ## Running the model
 
-### Install prerequisites
 #### 1. First install python dependencies:
 ```
 pip install -r requirements.txt
@@ -70,7 +69,8 @@ STELLAR_DIR= # Directory containing Stellar DBF files
 ICARE_FILE= # Immunization records CSV file
 DEDUPE_TRAINING_FILE= # dedupe JSON training file
 ```
-#### 4. Run the workflow by typing `drake`. To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
+#### 4. Run the workflow by typing `drake`.
+To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
 
 ## Software we use
   - [drake](https://github.com/Factual/drake): workflow management
