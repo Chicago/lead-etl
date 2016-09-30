@@ -40,7 +40,20 @@ Generate model features by aggregating the datasets at a variety of spatial and 
 Use our [drain pipeline](https://github.com/dssg/drain/) to run run models in parallel and serialize the results.
 
 ## Running the model
-We run the workflow using drake. Specify the following environment variables in the `lead/default_profile` file:
+
+### Install prerequisites
+1. First install python dependencies:
+```
+pip install -r requirements.txt
+```
+
+2. Then install PostgreSQL extensions (requires admin privileges):
+```
+CREATE EXTENSION postgis;
+CREATE EXTENSION unaccent;
+```
+
+3. Specify the following environment variables in the `lead/default_profile` file:
 
 ```
 # Postgresql databse connection information
@@ -49,13 +62,18 @@ PGDATABASE=
 PGUSER=
 PGPASSWORD=
 
+SQL_DIR= # directory to store sql success files
 ASSESSOR_FILE= # Cook County Tax Assessor MDB file
 CURRBLLSHORT_FILE= # Current blood lead levels CSV file
 M7_FILE= # Old blood lead levels CSV file
 CORNERSTONE_DIR= # Directory containing Cornerstone DBF files
 CORNERSTONE_ADDRESSES_FILE= # Geocoded Cornerstone addresses CSV file
 STELLAR_DIR= # Directory containing Stellar DBF files
+ICARE_FILE= # Immunization records CSV file
+DEDUPE_TRAINING_FILE= # dedupe JSON training file
 ```
+
+4. Run the workflow by typing `drake`. To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
 
 ## Software we use
   - [drake](https://github.com/Factual/drake): workflow management
