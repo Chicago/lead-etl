@@ -1,4 +1,4 @@
-drop table if exists aux.kid_ethnicity;
+drop table if exists output.kid_ethnicity;
 
 -- calculate probability of ethnicity (E) given surname (S) and census tract and year (T)
 -- know P(E|S) from census surname data, know P(E|T) from american commnuity survey
@@ -8,7 +8,7 @@ drop table if exists aux.kid_ethnicity;
 -- where P(E) is just the national ethnicity distribution which we've hardcoded
 
 -- TODO: use age-specific ethnicity stats from ACS
-create table aux.kid_ethnicity as (
+create table output.kid_ethnicity as (
 with ethnicity as (
 select distinct on (kid_id)
 	kid_id,
@@ -21,15 +21,14 @@ select distinct on (kid_id)
     coalesce(acs.race_prop_hispanic*s.pct_hispanic/100, acs.race_prop_hispanic, s.pct_hispanic/100)/.174 p_hispanic
 from aux.kids k
 left join input.surnames s on k.last_name = s.surname
-left join aux.kid_tests t using (kid_id)
-left join aux.tests using (test_id)
+left join output.kid_addresses using (kid_id)
 left join aux.addresses a using (address_id)
 left join output.acs on 
     acs.census_tract_id = a.census_tract_id::decimal and
     -- get appropriate year between 2009 and 2014
     acs.year = least (2014, 
         greatest(extract(year from k.date_of_birth), 2009))
-order by kid_id, min_date asc
+order by kid_id, address_min_date asc
 )
 select e.*,
 CASE 

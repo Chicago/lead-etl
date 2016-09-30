@@ -10,7 +10,7 @@ $[SQL_DIR]/output/kids <- output/kids.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/outpu
 $[SQL_DIR]/output/tests <- output/tests.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/aux/kid_tests_info, $[SQL_DIR]/aux/test_addresses, $[SQL_DIR]/output/schema [method:psql]
 
 $[SQL_DIR]/output/labs <- output/labs.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/output/schema [method:psql]
-$[SQL_DIR]/output/lab_years <- output/lab_years.sql, $[SQL_DIR]/aux/tests, $[PSQL_DIR]/output/schema [method:psql]
+$[SQL_DIR]/output/lab_years <- output/lab_years.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/output/schema [method:psql]
 
 $[SQL_DIR]/output/kid_addresses <- output/kid_addresses.sql, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/output/tests [method:psql]
 
@@ -22,3 +22,6 @@ $[SQL_DIR]/output/addresses <- output/addresses.sql, $[SQL_DIR]/aux/addresses, $
 $[SQL_DIR]/output/investigations <- output/investigations.sql, $[SQL_DIR]/stellar/invest, $[SQL_DIR]/aux/stellar_addresses, $[SQL_DIR]/output/schema [method:psql]
 
 $[SQL_DIR]/output/kids_extra <- output/kids_extra.sql, $[SQL_DIR]/output/tests, $[SQL_DIR]/output/lab_years [method:psql]
+
+; calculate kid ethnicity based on last name and address
+$[SQL_DIR]/output/kid_ethnicity <- output/kid_ethnicity.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/input/surnames, $[SQL_DIR]/output/kid_addresses, $[SQL_DIR]/aux/addresses, $[SQL_DIR]/output/acs [method:psql]
