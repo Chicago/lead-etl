@@ -6,7 +6,7 @@ engine = util.create_engine()
 edges = pd.read_sql("""
 with kid_ids as (
     SELECT id, first_name, last_name, date_of_birth, coalesce(canon_id, id) kid_id 
-    FROM dedupe.infants LEFT JOIN entity_map using (id)
+    FROM dedupe.infants LEFT JOIN dedupe.entity_map0 using (id)
 )
 
 SELECT k1.kid_id id1, k2.kid_id id2 from

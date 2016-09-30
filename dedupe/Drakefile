@@ -1,21 +1,21 @@
-psql/dedupe/ <- [method:psql_schema -timecheck]
+$[SQL_DIR]/dedupe/schema <- [method:psql_schema -timecheck]
 
 ; merge kid info from tests and cornerstone
-psql/dedupe/infants <- dedupe/infants.sql, psql/aux/tests, psql/cornerstone/PartEnrl, psql/cornerstone/Partaddr2, psql/cornerstone/PartPgm, psql/input/icare [method:psql]
+$[SQL_DIR]/dedupe/infants <- dedupe/infants.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/cornerstone/partenrl, $[SQL_DIR]/cornerstone/partaddr, $[SQL_DIR]/cornerstone/partpgm, $[SQL_DIR]/input/icare, $[SQL_DIR]/dedupe/schema [method:psql]
 
 ; use dedupe library to generate preliminary entity map
 ; takes about 30 minutes using 12 cores
-psql/entity_map <- dedupe/pgdedupe.py, psql/dedupe/infants
-    python $INPUT -v 2>&1 && touch $OUTPUT
+$[SQL_DIR]/dedupe/entity_map0 <- dedupe/pgdedupe.py, $[DEDUPE_TRAINING_FILE], $[SQL_DIR]/dedupe/infants
+    python $INPUT -v 2 -t $INPUT1 >&1 && touch $OUTPUT
 
 ; find exact matches on first_name, last_name, date_of_birth that dedupe missed
-psql/dedupe/exact_matches <- dedupe/exact_matches.py, psql/entity_map, psql/dedupe/infants
+$[SQL_DIR]/dedupe/exact_matches <- dedupe/exact_matches.py, $[SQL_DIR]/dedupe/entity_map0, $[SQL_DIR]/dedupe/infants
     python $INPUT && touch $OUTPUT
 
 ; resolve entity_map with exact_matches for a final entity map
-psql/dedupe/entity_map <- dedupe/entity_map.sql, psql/dedupe/exact_matches, psql/entity_map, psql/dedupe/infants [method:psql]
+$[SQL_DIR]/dedupe/entity_map <- dedupe/entity_map.sql, $[SQL_DIR]/dedupe/exact_matches, $[SQL_DIR]/dedupe/entity_map0, $[SQL_DIR]/dedupe/infants [method:psql]
 
 ; create test and wic reference tables
-psql/aux/kid_tests <- dedupe/kid_tests.sql, psql/dedupe/entity_map [method:psql]
-psql/aux/kid_wics <- dedupe/kid_wics.sql, psql/dedupe/entity_map [method:psql]
-psql/aux/kid_icares <- dedupe/kid_icares.sql, psql/dedupe/entity_map [method:psql]
+$[SQL_DIR]/aux/kid_tests <- dedupe/kid_tests.sql, $[SQL_DIR]/dedupe/entity_map [method:psql]
+$[SQL_DIR]/aux/kid_wics <- dedupe/kid_wics.sql, $[SQL_DIR]/dedupe/entity_map [method:psql]
+$[SQL_DIR]/aux/kid_icares <- dedupe/kid_icares.sql, $[SQL_DIR]/dedupe/entity_map [method:psql]

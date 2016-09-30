@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-
 # TODO: put these tables in a schema
 # TODO: generate the last query from the first
 """
@@ -34,6 +30,7 @@ import dedupe
 
 source_table='dedupe.infants'
 id_column = 'id'
+target_table='dedupe.entity_map0'
 
 import random
 import numpy.random
@@ -49,6 +46,7 @@ optp = optparse.OptionParser()
 optp.add_option('-v', '--verbose', dest='verbose', action='count',
                 help='Increase verbosity (specify multiple times for more)'
                 )
+optp.add_option('-t', '--training', dest='training', help='Training file path')
 (opts, args) = optp.parse_args()
 log_level = logging.WARNING
 if opts.verbose == 1:
@@ -59,7 +57,7 @@ logging.getLogger().setLevel(log_level)
 
 # ## Setup
 #settings_file = 'asdf123445'
-training_file = '/home/epotash/lead/data/dedupe/training_new.json'
+training_file = opts.training
 
 start_time = time.time()
 
@@ -351,12 +349,12 @@ clustered_dupes = deduper.matchBlocks(candidates_gen(c4),
 # We now have a sequence of tuples of donor ids that dedupe believes
 # all refer to the same entity. We write this out onto an entity map
 # table
-c.execute("DROP TABLE IF EXISTS entity_map")
+c.execute("DROP TABLE IF EXISTS %s" % target_table)
 
-print 'creating entity_map database'
-c.execute("CREATE TABLE entity_map "
+print 'creating %s table' % target_table
+c.execute("CREATE TABLE %s "
           "(%s INTEGER, canon_id INTEGER, "
-          " cluster_score FLOAT, PRIMARY KEY(%s))" % (id_column, id_column))
+          " cluster_score FLOAT, PRIMARY KEY(%s))" % (target_table, id_column, id_column))
 
 csv_file = tempfile.NamedTemporaryFile(prefix='entity_map_', delete=False)
 csv_writer = csv.writer(csv_file)
@@ -371,14 +369,14 @@ c4.close()
 csv_file.close()
 
 f = open(csv_file.name, 'r')
-c.copy_expert("COPY entity_map FROM STDIN CSV", f)
+c.copy_expert("COPY target_table FROM STDIN CSV" % target_table, f)
 f.close()
 
 os.remove(csv_file.name)
 
 con.commit()
 
-c.execute("CREATE INDEX head_index ON entity_map (canon_id)")
+c.execute("CREATE INDEX head_index ON %s (canon_id)" % target_table)
 con.commit()
 
 # Print out the number of duplicates found
