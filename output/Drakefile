@@ -15,8 +15,8 @@ $[SQL_DIR]/output/lab_years <- output/lab_years.sql, $[SQL_DIR]/aux/tests, $[SQL
 $[SQL_DIR]/output/kid_addresses <- output/kid_addresses.sql, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/output/tests [method:psql]
 
 ; residential flag calculated by combination of data
-; including tests, wic, assessor, inspections
-$[SQL_DIR]/output/addresses <- output/addresses.sql, $[SQL_DIR]/aux/addresses, $[SQL_DIR]/output/inspections, $[SQL_DIR]/aux/complex_addresses, $[SQL_DIR]/aux/assessor, $[SQL_DIR]/aux/test_addresses, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/output/schema [method:psql]
+; including tests, wic, assessor, investigations
+$[SQL_DIR]/output/addresses <- output/addresses.sql, $[SQL_DIR]/aux/addresses, $[SQL_DIR]/output/investigations, $[SQL_DIR]/aux/complex_addresses, $[SQL_DIR]/aux/assessor, $[SQL_DIR]/aux/test_addresses, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/output/schema [method:psql]
 
 ; rename columns and convert closure reason text into codes
 $[SQL_DIR]/output/investigations <- output/investigations.sql, $[SQL_DIR]/stellar/invest, $[SQL_DIR]/aux/stellar_addresses, $[SQL_DIR]/output/schema [method:psql]

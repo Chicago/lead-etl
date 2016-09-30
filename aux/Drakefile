@@ -36,7 +36,3 @@ $[SQL_DIR]/aux/buildings <- aux/buildings.py, $[SQL_DIR]/input/buildings, $[SQL_
 ; binarize building permit type
 $[SQL_DIR]/aux/building_permits <- aux/building_permits.py, $[SQL_DIR]/input/building_permits, $[SQL_DIR]/aux/schema
     python $INPUT && touch $OUTPUT
-
-; calculate kid ethnicity based on last name and address
-$[SQL_DIR]/aux/kid_ethnicity <- aux/kid_ethnicity.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/input/surnames, $[SQL_DIR]/aux/kid_tests, $[SQL_DIR]/aux/test_addresses, $[SQL_DIR]/aux/addresses, $[SQL_DIR]/output/acs [method:psql]
-
