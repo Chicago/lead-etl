@@ -21,7 +21,8 @@ select distinct on (kid_id)
     coalesce(acs.race_prop_hispanic*s.pct_hispanic/100, acs.race_prop_hispanic, s.pct_hispanic/100)/.174 p_hispanic
 from aux.kids k
 left join input.surnames s on k.last_name = s.surname
-left join aux.kid_test_addresses t using (kid_id)
+left join aux.kid_tests t using (kid_id)
+left join aux.tests using (test_id)
 left join aux.addresses a using (address_id)
 left join output.acs on 
     acs.census_tract_id = a.census_tract_id::decimal and

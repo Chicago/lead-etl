@@ -1,10 +1,12 @@
+PSQL="psql -v ON_ERROR_STOP=1"
+
 psql()
-    psql -v ON_ERROR_STOP=1 -f $INPUT 2>&1 && touch $OUTPUT
+    $PSQL -f $INPUT 2>&1 && touch $OUTPUT
 
 ; create a schema (does not drop)
 psql_schema()
-    schema=$(basename $OUTPUT)
-    psql -v ON_ERROR_STOP=1 -c "CREATE SCHEMA IF NOT EXISTS $schema" && mkdir -p $OUTPUT && touch $OUTPUT/schema
+    schema=$(basename $(dirname $OUTPUT))
+    $PSQL -c "CREATE SCHEMA IF NOT EXISTS $schema" && mkdir -p $(dirname $OUTPUT) && touch $OUTPUT
 
 psql_copy()
     schema=$(basename $(dirname $OUTPUT))
@@ -13,7 +15,7 @@ psql_copy()
         <(head -n $CSVSQL_LINES $INPUT0 |\
           csvsql $CSVSQL_OPTIONS --tables $table -i postgresql)\
         <(echo "\COPY $table FROM $INPUT0 $PSQL_COPY_OPTIONS")\
-    | psql -v ON_ERROR_STOP=1
+    | $PSQL
     touch $OUTPUT
         
 ; default use 10000 lines for schema type inference

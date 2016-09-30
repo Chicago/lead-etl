@@ -36,10 +36,10 @@ engine = util.create_engine()
 building_components = pd.read_sql('select * from buildings.building_components', engine)
 
 buildings = pd.read_sql("""
-select ogc_fid id,
+select gid id,
     t_add1, f_add1, bldg_condi, vacancy_st is not null as vacant, nullif(stories,0) as stories,
     nullif(no_of_unit,0) as units, nullif(year_built, 0) as year_built,
-    st_area(wkb_geometry) as area 
+    st_area(geom) as area 
 from input.buildings"""
 , engine)
 

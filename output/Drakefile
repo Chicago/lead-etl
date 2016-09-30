@@ -1,24 +1,24 @@
-psql/output/ <- [-timecheck method:psql_schema]
+$[SQL_DIR]/output/schema <- [-timecheck method:psql_schema]
 
 ; calculate proportions from the input acs counts
-psql/output/acs <- output/acs.py, psql/input/acs
+$[SQL_DIR]/output/acs <- output/acs.py, $[SQL_DIR]/input/acs, $[SQL_DIR]/output/schema
     $INPUT && touch $OUTPUT
 
-psql/output/kids <- output/kids.sql, psql/aux/kids, psql/output/tests, psql/aux/kid_wics, psql/aux/kid_wic_addresses, psql/aux/kid_icares [method:psql]
+$[SQL_DIR]/output/kids <- output/kids.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/output/tests, $[SQL_DIR]/aux/kid_wics, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/aux/kid_icares, $[SQL_DIR]/output/schema [method:psql]
 
 ; join tests with kid_tests and test_addresses to get all the ids in one place
-psql/output/tests <- output/tests.sql, psql/aux/tests, psql/aux/kid_tests_info, psql/aux/test_addresses [method:psql]
+$[SQL_DIR]/output/tests <- output/tests.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/aux/kid_tests_info, $[SQL_DIR]/aux/test_addresses, $[SQL_DIR]/output/schema [method:psql]
 
-psql/output/labs <- output/labs.sql, psql/aux/tests [method:psql]
-psql/output/lab_years <- output/lab_years.sql, psql/aux/tests [method:psql]
+$[SQL_DIR]/output/labs <- output/labs.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/output/schema [method:psql]
+$[SQL_DIR]/output/lab_years <- output/lab_years.sql, $[SQL_DIR]/aux/tests, $[PSQL_DIR]/output/schema [method:psql]
 
-psql/output/kid_addresses <- output/kid_addresses.sql, psql/aux/kid_wic_addresses, psql/output/tests [method:psql]
+$[SQL_DIR]/output/kid_addresses <- output/kid_addresses.sql, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/output/tests [method:psql]
 
 ; residential flag calculated by combination of data
 ; including tests, wic, assessor, inspections
-psql/output/addresses <- output/addresses.sql, psql/aux/addresses, psql/output/inspections, psql/aux/complex_addresses, psql/aux/assessor, psql/aux/test_addresses, psql/aux/kid_wic_addresses [method:psql]
+$[SQL_DIR]/output/addresses <- output/addresses.sql, $[SQL_DIR]/aux/addresses, $[SQL_DIR]/output/inspections, $[SQL_DIR]/aux/complex_addresses, $[SQL_DIR]/aux/assessor, $[SQL_DIR]/aux/test_addresses, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/output/schema [method:psql]
 
 ; rename columns and convert closure reason text into codes
-psql/output/investigations <- output/investigations.sql, psql/stellar/invest, psql/aux/stellar_addresses [method:psql]
+$[SQL_DIR]/output/investigations <- output/investigations.sql, $[SQL_DIR]/stellar/invest, $[SQL_DIR]/aux/stellar_addresses, $[SQL_DIR]/output/schema [method:psql]
 
-psql/output/kids_extra <- output/kids_extra.sql, psql/output/tests, psql/output/lab_years [method:psql]
+$[SQL_DIR]/output/kids_extra <- output/kids_extra.sql, $[SQL_DIR]/output/tests, $[SQL_DIR]/output/lab_years [method:psql]

@@ -14,8 +14,7 @@ $[SQL_DIR]/aux/tests <- aux/tests.sql, $[SQL_DIR]/input/currbllshort, $[SQL_DIR]
 $[SQL_DIR]/aux/kid_tests_info <- aux/kid_tests_info.sql, $[SQL_DIR]/aux/kid_tests, $[SQL_DIR]/aux/kids [method:psql]
 
 ; generate canonical list of kids by taking mode of deduped kid clusters
-$[SQL_DIR]/aux/mode <- aux/mode.sql [method:psql]
-$[SQL_DIR]/aux/kids <- aux/kids.sql, $[SQL_DIR]/dedupe/infants, $[SQL_DIR]/dedupe/entity_map, $[SQL_DIR]/aux/mode, $[SQL_DIR]/aux/schema [method:psql]
+$[SQL_DIR]/aux/kids <- aux/kids.sql, $[SQL_DIR]/dedupe/infants, $[SQL_DIR]/dedupe/entity_map, $[SQL_DIR]/aux/schema [method:psql]
 
 ; initialize address table with Chicago addresses and geocoded addresses from currbllshort and buildings datasets
 $[SQL_DIR]/aux/addresses <- aux/addresses.sql, $[SQL_DIR]/buildings/addresses, $[SQL_DIR]/input/census_tracts, $[SQL_DIR]/input/wards, $[SQL_DIR]/input/currbllshort, $[SQL_DIR]/input/m7, $[SQL_DIR]/cornerstone/addresses, $[SQL_DIR]/aux/schema [method:psql]
@@ -27,9 +26,6 @@ $[SQL_DIR]/aux/kid_mothers <- aux/kid_mothers.sql, $[SQL_DIR]/aux/kids, $[SQL_DI
 
 $[SQL_DIR]/aux/kid_wic_addresses <- aux/kid_wic_addresses.sql, $[SQL_DIR]/aux/kid_wics, $[SQL_DIR]/aux/kid_mothers, $[SQL_DIR]/cornerstone/addresses, $[SQL_DIR]/aux/kids, $[SQL_DIR]/aux/addresses [method:psql]
 
-; calculate kid ethnicity based on last name and address
-$[SQL_DIR]/aux/kid_ethnicity <- aux/kid_ethnicity.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/input/surnames, $[SQL_DIR]/aux/kid_test_addresses, $[SQL_DIR]/aux/addresses, $[SQL_DIR]/output/acs [method:psql]
-
 ; generate a mapping of addresses to buildings and complexes
 $[SQL_DIR]/aux/complex_addresses <- aux/complex_addresses.sql, $[SQL_DIR]/buildings/complex_buildings, $[SQL_DIR]/buildings/building_addresses, $[SQL_DIR]/buildings/addresses, $[SQL_DIR]/aux/addresses [method:psql]
 
@@ -40,3 +36,7 @@ $[SQL_DIR]/aux/buildings <- aux/buildings.py, $[SQL_DIR]/input/buildings, $[SQL_
 ; binarize building permit type
 $[SQL_DIR]/aux/building_permits <- aux/building_permits.py, $[SQL_DIR]/input/building_permits, $[SQL_DIR]/aux/schema
     python $INPUT && touch $OUTPUT
+
+; calculate kid ethnicity based on last name and address
+$[SQL_DIR]/aux/kid_ethnicity <- aux/kid_ethnicity.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/input/surnames, $[SQL_DIR]/aux/kid_tests, $[SQL_DIR]/aux/tests, $[SQL_DIR]/aux/addresses, $[SQL_DIR]/output/acs [method:psql]
+

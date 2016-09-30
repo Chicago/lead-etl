@@ -1,10 +1,10 @@
 drop table if exists aux.complex_addresses;
 
 create temp sequence complex_id;
-SELECT setval('complex_id', (select max(complex_id)+1 from buildings.complex_buildings));
+SELECT setval('complex_id', (select max(complex_id)::int+1 from buildings.complex_buildings));
 
 create temp sequence building_id;
-SELECT setval('building_id', (select max(orig_bldg_)+1 from buildings.original_buildings));
+SELECT setval('building_id', (select max(orig_bldg_)::int+1 from buildings.original_buildings));
 
 create table aux.complex_addresses as ( 
     select a.address_id,
