@@ -1,40 +1,42 @@
+$[SQL_DIR]/aux/schema <- [method:psql_schema -timecheck]
+
 ; summarize assessor and buildings data per address (sources have multiple entries per address over time)
-psql/aux/assessor <- aux/assessor.sql [method:psql]
+$[SQL_DIR]/aux/assessor <- aux/assessor.sql [method:psql]
 
 ; match stellar.addr with aux.addresses
-psql/aux/stellar_addresses <- aux/stellar_addresses.sql, psql/stellar/addr, psql/aux/addresses [method:psql]
+$[SQL_DIR]/aux/stellar_addresses <- aux/stellar_addresses.sql, $[SQL_DIR]/stellar/addr, $[SQL_DIR]/aux/addresses [method:psql]
 
 ; collect complete tests (not missing name, dob, or test date)
-psql/aux/tests <- aux/tests.sql, psql/input/currbllshort, psql/input/m7 [method:psql]
+$[SQL_DIR]/aux/tests <- aux/tests.sql, $[SQL_DIR]/input/currbllshort, $[SQL_DIR]/input/m7, $[SQL_DIR]/aux/schema [method:psql]
 
 ; auxillary information about tests: test number, first and last test, first ebll, maximum bll
 ; also importantly drops tests with invalid dates (null kid date of birth or sample date < date of birth)
-psql/aux/kid_tests_info <- aux/kid_tests_info.sql, psql/aux/kid_tests, psql/aux/kids [method:psql]
+$[SQL_DIR]/aux/kid_tests_info <- aux/kid_tests_info.sql, $[SQL_DIR]/aux/kid_tests, $[SQL_DIR]/aux/kids [method:psql]
 
 ; generate canonical list of kids by taking mode of deduped kid clusters
-psql/aux/mode <- aux/mode.sql [method:psql]
-psql/aux/kids <- aux/kids.sql, psql/dedupe/infants, psql/dedupe/entity_map, psql/aux/mode [method:psql]
+$[SQL_DIR]/aux/mode <- aux/mode.sql [method:psql]
+$[SQL_DIR]/aux/kids <- aux/kids.sql, $[SQL_DIR]/dedupe/infants, $[SQL_DIR]/dedupe/entity_map, $[SQL_DIR]/aux/mode, $[SQL_DIR]/aux/schema [method:psql]
 
 ; initialize address table with Chicago addresses and geocoded addresses from currbllshort and buildings datasets
-psql/aux/addresses <- aux/addresses.sql, psql/input/addresses, psql/buildings/addresses, psql/input/census_tracts, psql/input/wards, psql/input/currbllshort, psql/input/m7, psql/cornerstone/addresses [method:psql]
+$[SQL_DIR]/aux/addresses <- aux/addresses.sql, $[SQL_DIR]/input/addresses, $[SQL_DIR]/buildings/addresses, $[SQL_DIR]/input/census_tracts, $[SQL_DIR]/input/wards, $[SQL_DIR]/input/currbllshort, $[SQL_DIR]/input/m7, $[SQL_DIR]/cornerstone/addresses, $[SQL_DIR]/aux/schema [method:psql]
 
 ; match tests to addresses
-psql/aux/test_addresses <- aux/test_addresses.sql, psql/aux/tests, psql/aux/addresses [method:psql]
+$[SQL_DIR]/aux/test_addresses <- aux/test_addresses.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/aux/addresses [method:psql]
 
-psql/aux/kid_mothers <- aux/kid_mothers.sql, psql/aux/kids, psql/aux/kid_wics [method:psql]
+$[SQL_DIR]/aux/kid_mothers <- aux/kid_mothers.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/aux/kid_wics [method:psql]
 
-psql/aux/kid_wic_addresses <- aux/kid_wic_addresses.sql, psql/aux/kid_wics, psql/aux/kid_mothers, psql/cornerstone/addresses, psql/aux/kids, psql/aux/addresses [method:psql]
+$[SQL_DIR]/aux/kid_wic_addresses <- aux/kid_wic_addresses.sql, $[SQL_DIR]/aux/kid_wics, $[SQL_DIR]/aux/kid_mothers, $[SQL_DIR]/cornerstone/addresses, $[SQL_DIR]/aux/kids, $[SQL_DIR]/aux/addresses [method:psql]
 
 ; calculate kid ethnicity based on last name and address
-psql/aux/kid_ethnicity <- aux/kid_ethnicity.sql, psql/aux/kids, psql/input/surnames, psql/aux/kid_test_addresses, psql/aux/addresses, psql/output/acs [method:psql]
+$[SQL_DIR]/aux/kid_ethnicity <- aux/kid_ethnicity.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/input/surnames, $[SQL_DIR]/aux/kid_test_addresses, $[SQL_DIR]/aux/addresses, $[SQL_DIR]/output/acs [method:psql]
 
 ; generate a mapping of addresses to buildings and complexes
-psql/aux/complex_addresses <- aux/complex_addresses.sql, psql/buildings/complex_buildings, psql/buildings/building_addresses, psql/buildings/addresses, psql/aux/addresses [method:psql]
+$[SQL_DIR]/aux/complex_addresses <- aux/complex_addresses.sql, $[SQL_DIR]/buildings/complex_buildings, $[SQL_DIR]/buildings/building_addresses, $[SQL_DIR]/buildings/addresses, $[SQL_DIR]/aux/addresses [method:psql]
 
 ; building level aggregation of footprint data
-psql/aux/buildings <- aux/buildings.py, psql/input/buildings, psql/buildings/building_components
+$[SQL_DIR]/aux/buildings <- aux/buildings.py, $[SQL_DIR]/input/buildings, $[SQL_DIR]/buildings/building_components, $[SQL_DIR]/aux/schema
     python $INPUT && touch $OUTPUT
 
 ; binarize building permit type
-psql/aux/building_permits <- aux/building_permits.py, psql/input/building_permits
+$[SQL_DIR]/aux/building_permits <- aux/building_permits.py, $[SQL_DIR]/input/building_permits, $[SQL_DIR]/aux/schema
     python $INPUT && touch $OUTPUT
