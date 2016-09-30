@@ -1,30 +1,29 @@
 ; create schema
-psql/buildings <- [-timecheck]
-    psql -c "create schema if not exists buildings" && mkdir -p psql/buildings
+$[SQL_DIR]/buildings/schema <- [method:psql_schema -timecheck]
 
 ; extract buildings and generate orig_bldg_ when it is zero in input
-psql/buildings/original_buildings <- buildings/original_buildings.sql, psql/input/buildings [method:psql]
+$[SQL_DIR]/buildings/original_buildings <- buildings/original_buildings.sql, $[SQL_DIR]/input/buildings, $[SQL_DIR]/buildings/schema [method:psql]
 
 ; extract all addresses from buildings address ranges
-psql/buildings/original_addresses <- buildings/original_addresses.sql, psql/buildings/original_buildings [method:psql]
+$[SQL_DIR]/buildings/original_addresses <- buildings/original_addresses.sql, $[SQL_DIR]/buildings/original_buildings [method:psql]
 
 ; get unique representative for each address
-psql/buildings/addresses <- buildings/addresses.sql, psql/buildings/original_addresses [method:psql]
+$[SQL_DIR]/buildings/addresses <- buildings/addresses.sql, $[SQL_DIR]/buildings/original_addresses [method:psql]
 
 ; deduplicate buildings
-psql/buildings/building_components <- buildings/building_components.py, psql/buildings/original_buildings
+$[SQL_DIR]/buildings/building_components <- buildings/building_components.py, $[SQL_DIR]/buildings/original_buildings
     $INPUT && touch $OUTPUT
 
 ; associate addresses with deduplicated buildings
-psql/buildings/building_addresses <- buildings/building_addresses.sql, psql/buildings/building_components [method:psql]
+$[SQL_DIR]/buildings/building_addresses <- buildings/building_addresses.sql, $[SQL_DIR]/buildings/building_components [method:psql]
 
 ; collect unique buildings
-psql/buildings/buildings <- buildings/buildings.sql, psql/buildings/building_addresses [method:psql]
+$[SQL_DIR]/buildings/buildings <- buildings/buildings.sql, $[SQL_DIR]/buildings/building_addresses [method:psql]
 
 ; deduplicate building complexes
-psql/buildings/complex_components <- buildings/complex_components.py, psql/buildings/building_components
+$[SQL_DIR]/buildings/complex_components <- buildings/complex_components.py, $[SQL_DIR]/buildings/building_components
     $INPUT && touch $OUTPUT
 
 ; associate addresses with deduplicated buildings
-psql/buildings/complex_buildings <- buildings/complex_buildings.sql, psql/buildings/complex_components [method:psql]
+$[SQL_DIR]/buildings/complex_buildings <- buildings/complex_buildings.sql, $[SQL_DIR]/buildings/complex_components [method:psql]
 
