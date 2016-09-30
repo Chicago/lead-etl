@@ -2,8 +2,6 @@
 
 # psql \copy doesn't like "" as null for non-text
 # currbllshort has duplicates, use uniq
-sed 's/""//g' "$INPUT1" | uniq > $temp
-
 psql -v ON_ERROR_STOP=1 -c "
     DROP TABLE IF EXISTS input.currbllshort; 
     
@@ -72,7 +70,5 @@ psql -v ON_ERROR_STOP=1 -c "
         geocode_status2 text,
         ezidnum int
         );" &&\
-head -n 1000000 "$temp" | PGCLIENTENCODING="latin1" psql -v ON_ERROR_STOP=1 -c \
-    "\COPY input.currbllshort FROM STDIN WITH CSV HEADER;" &&\
-tail -n +1000001 "$temp" | PGCLIENTENCODING="latin1" psql -v ON_ERROR_STOP=1 -c \
-    "\COPY input.currbllshort FROM STDIN WITH CSV;"
+cat "$INPUT1" | sed 's/""//g' | uniq | PGCLIENTENCODING="latin1" psql -v ON_ERROR_STOP=1 -c \
+    "\COPY input.currbllshort FROM STDIN WITH CSV HEADER;"
