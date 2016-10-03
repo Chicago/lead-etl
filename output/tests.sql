@@ -6,7 +6,9 @@ create table output.tests as (
             ('5001 S MICHIGAN AVE', '1634 W POLK ST', '810 W MONTROSE AVE') 
         THEN null ELSE a.address_id END AS address_id,
         apt, lab_id,
-        bll, sample_date as date, sample_type, sample_date - k.date_of_birth AS age,
+        bll, sample_date as date, 
+        CASE WHEN lab_id = 'C16' THEN 'V' ELSE sample_type END AS sample_type, 
+        sample_date - k.date_of_birth AS age,
         first, first_bll6, first_bll10, increase, test_number
     
     from aux.tests t
