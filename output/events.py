@@ -40,7 +40,7 @@ class Events(Step):
                 from stellar.event
                 join aux.stellar_addresses on addr_id = id_number
                 where class = 'I'
-            """, tables=['stellar.Event', 'aux.stellar_addresses'],
+            """, tables=['stellar.event', 'aux.stellar_addresses'],
             parse_dates=['comp_date'], target=True), 
             FromSQL(table='output.addresses', target=True)
         ], on='address_id')]
