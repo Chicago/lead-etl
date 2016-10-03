@@ -28,7 +28,8 @@ PSQL_COPY_OPTIONS:='WITH CSV HEADER'
 %include default_profile
 
 %include input/Drakefile
-
+%include input/stellar/Drakefile
+%include input/cornerstone/Drakefile
 %include buildings/Drakefile
 
 %include aux/Drakefile

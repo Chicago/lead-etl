@@ -122,6 +122,3 @@ $[SQL_DIR]/input/acs <- input/acs/import.py, data/acs.csv
 
 $[SQL_DIR]/input/icare <- input/icare.sh, $[ICARE_FILE]
     $INPUT0 $INPUT1 && touch $OUTPUT
-
-%include input/stellar/Drakefile
-%include input/cornerstone/Drakefile
