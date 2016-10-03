@@ -46,7 +46,7 @@ class AssessorAggregation(SimpleAggregation):
             Aggregate(lambda a: a.beds / a.units, 'mean', name='beds_per_unit'),
             Aggregate(lambda a: a.baths / a.units, 'mean', name='baths_per_unit'),
 
-            Proportion(lambda a: a.taxpayer_address == a.address, name='owner_occupied'),
+            Proportion(lambda a: a.owner_occupied > 0, name='owner_occupied'),
             Proportion([lambda a, c=c: a[c] > 0 for c in CLASSES],
                     name=CLASSES)
         ]
