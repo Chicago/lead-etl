@@ -369,7 +369,7 @@ c4.close()
 csv_file.close()
 
 f = open(csv_file.name, 'r')
-c.copy_expert("COPY target_table FROM STDIN CSV" % target_table, f)
+c.copy_expert("COPY %s FROM STDIN CSV" % target_table, f)
 f.close()
 
 os.remove(csv_file.name)

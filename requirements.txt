@@ -1,1 +1,2 @@
 dedupe
+psycopg2
