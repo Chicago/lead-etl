@@ -21,8 +21,8 @@ create table output.kids_extra as (
             array_agg(l.lab_id) as labs,
             count(*) as test_count,
 
-            max(mode_bll) as lod,
-            max(CASE WHEN age < 1*375 THEN mode_bll END) as lod_under1,
+            max(bll_percentiles[1]) as lod,
+            max(CASE WHEN age < 1*375 THEN bll_percentiles[1] END) as lod_under1,
             
             max(CASE WHEN age < 1*375 THEN bll END) max_bll_under1,
 
@@ -53,11 +53,11 @@ create table output.kids_extra as (
                 - min(CASE WHEN age >= 375 THEN last_date END))/365.0 as bll_years_over1
 
         from (select * from bll_windows UNION ALL select * from vbll_windows) t
-        join output.lab_years l on 
+        join output.lab_months l on 
             l.lab_id = t.lab_id and 
-            l.year = extract(year from date) and 
+            l.month = date_trunc('month', date) and
             l.sample_type = t.sample_type
-        where l.test_count > 1000
+        where l.count >= 50 and bll_percentiles[1] <= 10
         group by kid_id, venal
     )
 
