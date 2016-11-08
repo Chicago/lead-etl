@@ -50,7 +50,9 @@ create table output.kids_extra as (
                     THEN (date - last_date)*(last_bll +(bll - last_bll)/2.0) 
             END) END) / 365 as cumulative_bll_over1,
             (max(CASE WHEN age >= 375 THEN date END) 
-                - min(CASE WHEN age >= 375 THEN last_date END))/365.0 as bll_years_over1
+                - min(CASE WHEN age >= 375 THEN last_date END))/365.0 as bll_years_over1,
+
+            max(CASE WHEN age < 1*375 THEN date END) as max_sample_date_under1
 
         from (select * from bll_windows UNION ALL select * from vbll_windows) t
         join output.lab_months l on 

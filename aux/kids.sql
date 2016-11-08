@@ -4,7 +4,7 @@ create table aux.kids as (
 
 select kid_id, 
     mode() WITHIN GROUP (order by first_name) as first_name, 
-    mode() WITHIN GROUP (order by first_name) as last_name,
+    mode() WITHIN GROUP (order by last_name) as last_name,
 
     -- take the mode date of birth
     -- if a birth date doesn't make sense, exclude it from the average

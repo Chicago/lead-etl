@@ -9,7 +9,6 @@ $[SQL_DIR]/output/kids <- output/kids.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/outpu
 ; join tests with kid_tests and test_addresses to get all the ids in one place
 $[SQL_DIR]/output/tests <- output/tests.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/aux/kid_tests_info, $[SQL_DIR]/aux/test_addresses, $[SQL_DIR]/output/schema [method:psql]
 
-$[SQL_DIR]/output/lab_years <- output/lab_years.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/output/schema [method:psql]
 $[SQL_DIR]/output/lab_months <- output/lab_months.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/output/schema [method:psql]
 
 $[SQL_DIR]/output/kid_addresses <- output/kid_addresses.sql, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/output/tests [method:psql]
