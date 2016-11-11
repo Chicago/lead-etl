@@ -112,7 +112,7 @@ if True:
     ]
 
     # Create a new deduper object and pass our data model to it.
-    deduper = dedupe.Dedupe(fields, num_cores=12)
+    deduper = dedupe.Dedupe(fields, num_cores=8)
 
     # Named cursor runs server side with psycopg2
     cur = con.cursor('donor_select')
