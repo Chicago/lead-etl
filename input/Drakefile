@@ -122,3 +122,6 @@ $[SQL_DIR]/input/acs <- input/acs/import.py, data/acs.csv
 
 $[SQL_DIR]/input/icare <- input/icare.sh, $[ICARE_FILE]
     $INPUT0 $INPUT1 && touch $OUTPUT
+
+$[SQL_DIR]/input/hcv <- input/hcv.sh, $[HCV_FILE]
+    $INPUT0 && touch $OUTPUT
