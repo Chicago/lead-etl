@@ -11,7 +11,7 @@ $[SQL_DIR]/output/tests <- output/tests.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/au
 
 $[SQL_DIR]/output/lab_months <- output/lab_months.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/output/schema [method:psql]
 
-$[SQL_DIR]/output/kid_addresses <- output/kid_addresses.sql, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/output/tests [method:psql]
+$[SQL_DIR]/output/kid_addresses <- output/kid_addresses.sql, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/output/tests, $[SQL_DIR]/aux/kid_hcvs, $[SQL_DIR]/aux/kid_stellars, $[SQL_DIR]/aux/addresses [method:psql]
 
 ; residential flag calculated by combination of data
 ; including tests, wic, assessor, investigations

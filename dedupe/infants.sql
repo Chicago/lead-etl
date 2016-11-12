@@ -41,7 +41,7 @@ infants as (
     JOIN stellar.addr using (addr_id)
     UNION ALL
     -- hcv
-    SELECT null, null, null, null, member_number,
+    SELECT null, null, null, null, hcv_id,
         split_part(child_name, ', ', 2), split_part(child_name, ', ', 1), 
         null, date_of_birth, address
     FROM input.hcv

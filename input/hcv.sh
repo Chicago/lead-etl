@@ -10,3 +10,5 @@ CREATE TABLE input.hcv (
 );"
 
 cat $INPUT1 | sed 's/NULL//g' | psql -v ON_ERROR_STOP=1 -c "\COPY input.hcv FROM STDIN WITH CSV HEADER"
+
+psql -v ON_ERROR_STOP=1 -c "ALTER TABLE input.hcv ADD COLUMN hcv_id serial primary key;"
