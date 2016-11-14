@@ -8,13 +8,6 @@ first_bll6 AS ( select * FROM output.tests t where first_bll6 and 1=1),
 first_bll10 AS ( select * FROM output.tests where first_bll10 and 1=1),
 first AS ( select * FROM output.tests where first and 1=1),
 
-wic AS ( 
-    select kid_id, min(date) first_wic_date, max(date) as last_wic_date
-    from aux.kid_wic_addresses
-    where 1=1 
-    group by 1
-),
-
 max_bll AS (
     select distinct on(kid_id) *
     from output.tests
@@ -22,10 +15,11 @@ max_bll AS (
     order by kid_id, bll desc, date asc, test_id asc
 ),
 
-summary AS (
+test_summary AS (
     select kid_id,
     count(distinct address_id) address_count, count(*) test_count,
     avg(bll) as mean_bll,
+    min(date) as first_sample_date,
     max(date) as last_sample_date
     from output.tests
     where 1=1
@@ -54,10 +48,36 @@ blls AS (
     group by 1
 ),
 
+kid_address_pre as (
+    select kid_id, min(address_min_date) as date
+    from output.kid_addresses
+    group by kid_id
+    UNION ALL
+    select kid_id, min(address_max_date) as date
+    from output.kid_addresses
+    group by kid_id
+),
+kid_address_dates as (
+    select kid_id, 
+        least(min_date, first_sample_date) as min_date,
+        greatest(max_date, last_sample_date) as max_date
+    from (
+        select kid_id, 
+        min(date) as min_date, 
+        max(date) as max_date
+        from kid_address_pre
+        where (1=1)
+        group by 1
+    ) t full outer join test_summary using (kid_id)
+),
+
 -- do this query so that the table is compatible with revise
-kids as (
-    select * from wic 
-    full outer join summary using (kid_id) 
+-- to be in kids must either have an address entry 
+-- coming from blood tests, wic, hcv, or stellar
+-- or a blood test
+summary as (
+    select * from kid_address_dates
+    full outer join test_summary using (kid_id)
     left join aux.kids using (kid_id)
 ),
 
@@ -67,7 +87,7 @@ icare as (
     group by 1
 )
 
-SELECT k.*,
+SELECT s.*,
     max_bll.bll as max_bll,
     blls.avg_bll,
     -- cumulative bll is measured in ug/dL * years
@@ -77,7 +97,6 @@ SELECT k.*,
 
     first_bll6.date first_bll6_sample_date,
     first_bll10.date first_bll10_sample_date,
-    first.date as first_sample_date,
     max_bll.date as max_bll_sample_date,
 
     first.address_id as first_sample_address_id,
@@ -85,12 +104,9 @@ SELECT k.*,
     first_bll10.address_id as first_bll10_address_id,
     max_bll.address_id as max_bll_address_id,
 
-    least(first_wic_date, first.date) as min_date,
-    greatest(last_wic_date, last_sample_date) as max_date,
-
     icare.kid_id is not null as icare
 
-FROM kids k
+FROM summary s
 LEFT JOIN first_bll6 USING (kid_id)
 LEFT JOIN first_bll10 USING (kid_id)
 LEFT JOIN first USING (kid_id)

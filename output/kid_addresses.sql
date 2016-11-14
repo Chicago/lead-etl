@@ -25,21 +25,19 @@ test_addresses as (
 ),
 
 hcv_addresses as (
-    select kid_id, address_id
-    from input.hcv
-    join aux.kid_hcvs on member_number = hcv_id
-    join aux.addresses using (address)
+    select kid_id, address_id, 
+        min(date) as min_date,
+        max(date) as max_date
+    from aux.kid_hcv_addresses
     where (1=1)
     group by 1,2
 ),
 
 stellar_addresses as (
-    select kid_id, address_id
-    from aux.kid_stellars
-    join stellar.ca_link on stellar_id = child_id
-    join stellar.addr using (addr_id)
-    join aux.addresses using on address = upper(assemaddr)
-    join output.addresses using (address)
+    select kid_id, address_id,
+        min(date) as min_date,
+        max(date) as max_date
+    from aux.kid_stellar_addresses
     where (1=1)
     group by 1,2
 )
@@ -57,13 +55,18 @@ select kid_id, address_id,
     t.max_bll as address_max_bll,
     t.mean_bll as address_mean_bll,
 
-    least(w.min_date, t.min_date) as address_min_date,
-    greatest(w.min_date, t.min_date) as address_max_date
+    h.min_date as address_hcv_min_date,
+    h.max_date as address_hcv_max_date,
+    s.min_date as address_stellar_min_date,
+    s.max_date as address_stellar_max_date,
+
+    least(w.min_date, t.min_date, h.min_date, s.min_date) as address_min_date,
+    greatest(w.min_date, t.min_date, h.max_date, s.max_date) as address_max_date
 
 from wic_addresses w 
 FULL OUTER JOIN test_addresses t using (kid_id, address_id)
-FULL OUTER JOIN hcv_addresses using (kid_id, address_id)
-FULL OUTER JOIN stellar_addresses using (kid_id, address_id)
+FULL OUTER JOIN hcv_addresses h using (kid_id, address_id)
+FULL OUTER JOIN stellar_addresses s using (kid_id, address_id)
 );
 
 alter table output.kid_addresses add primary key (kid_id, address_id);

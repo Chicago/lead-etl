@@ -36,3 +36,8 @@ $[SQL_DIR]/aux/buildings <- aux/buildings.py, $[SQL_DIR]/input/buildings, $[SQL_
 ; binarize building permit type
 $[SQL_DIR]/aux/building_permits <- aux/building_permits.py, $[SQL_DIR]/input/building_permits, $[SQL_DIR]/aux/schema
     python $INPUT && touch $OUTPUT
+
+; aux.kid_hcv_addresses and aux.kid_stellar_addresses used by output.kid_addresses
+$[SQL_DIR]/aux/kid_hcv_addresses <- aux/kid_hcv_addresses.sql, $[SQL_DIR]/input/hcv, $[SQL_DIR]/aux/kids, $[SQL_DIR]/aux/addresses, $[SQL_DIR]/aux/kid_hcvs [method:psql]
+
+$[SQL_DIR]/aux/kid_stellar_addresses <- aux/kid_stellar_addresses.sql, $[SQL_DIR]/aux/kid_stellars, $[SQL_DIR]/stellar/ca_link, $[SQL_DIR]/stellar/addr, $[SQL_DIR]/aux/addresses [method:psql]
