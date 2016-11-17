@@ -1,7 +1,7 @@
 drop table if exists output.investigations;
 
 create table output.investigations as (
-
+with investigations as (
 select
     address_id, apt,
     ins_ref_dt as referral_date,
@@ -9,7 +9,7 @@ select
     insrslsum in ('I', 'B') as hazard_int,
     insrslsum in ('E', 'B') as hazard_ext,
 
-    abt_cmp_dt as comply_date,
+    abt_cmp_dt as abatement_date,
     addr_cl_dt as closure_date,
     adr_cl_rsn as closure_reason,
     CASE 
@@ -47,5 +47,11 @@ select
 
 from stellar.invest 
 join aux.stellar_addresses using (addr_id)
+)
 
+select *, 
+    CASE WHEN abatement_date is not null THEN abatement_date
+    WHEN closure_code = 1 THEN closure_date END as comply_date
+FROM investigations
 );
+
