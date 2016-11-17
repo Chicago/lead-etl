@@ -49,7 +49,7 @@ CREATE TABLE aux.kid_wic_addresses AS (
         UNION SELECT * FROM mother_addresses) a
     JOIN aux.kid_wics USING (part_id_i)
     JOIN aux.kids using (kid_id)
-    WHERE date_of_birth - date < 365
+    WHERE date_of_birth - a.date < 365 -- can't be enrolled before -1 years old
 );
 
 create index on aux.kid_wic_addresses (kid_id, address_id);
