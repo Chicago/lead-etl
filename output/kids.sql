@@ -47,7 +47,12 @@ blls AS (
     from bll_windows
     group by 1
 ),
-
+wic as (
+    select kid_id, min(date) as min_date
+    from aux.kid_wics
+    where (1=1)
+    group by kid_id
+),
 kid_address_pre as (
     select kid_id, min(address_min_date) as date
     from output.kid_addresses
@@ -104,7 +109,8 @@ SELECT s.*,
     first_bll10.address_id as first_bll10_address_id,
     max_bll.address_id as max_bll_address_id,
 
-    icare.kid_id is not null as icare
+    icare.kid_id is not null as icare,
+    wic.min_date as first_wic_date
 
 FROM summary s
 LEFT JOIN first_bll6 USING (kid_id)
@@ -113,5 +119,8 @@ LEFT JOIN first USING (kid_id)
 LEFT JOIN max_bll USING (kid_id)
 LEFT JOIN icare USING (kid_id)
 LEFT JOIN blls USING (kid_id)
+LEFT JOIN wic USING (kid_id)
 where date_of_birth is not null
 );
+
+alter table output.kids add primary key (kid_id);
