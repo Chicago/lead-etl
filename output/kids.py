@@ -71,7 +71,7 @@ class KidsAggregation(SpacetimeAggregation):
     def get_aggregates(self, date, index, delta):
         if index == 'kid':
             return [
-                Aggregate(['address_count', 'test_count'],
+                Aggregate(['test_address_count', 'address_count', 'test_count'],
                         'max', fname=False),
                 Aggregate(['max_bll'], 'max', fname=False),
                 # Comment out this and all other wic aggregates because they can't be lagged
@@ -92,7 +92,7 @@ class KidsAggregation(SpacetimeAggregation):
 
         aggregates = [
             counts,
-            Aggregate(['address_count', 'test_count'], 
+            Aggregate(['test_address_count', 'test_count', 'address_count'], 
                     ['median', 'mean', 'min', 'max']),
 
             Count([lambda k: k.address_test_min_date.notnull(), 

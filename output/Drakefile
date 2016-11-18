@@ -4,7 +4,7 @@ $[SQL_DIR]/output/schema <- [-timecheck method:psql_schema]
 $[SQL_DIR]/output/acs <- output/acs.py, $[SQL_DIR]/input/acs, $[SQL_DIR]/output/schema
     $INPUT && touch $OUTPUT
 
-$[SQL_DIR]/output/kids <- output/kids.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/output/tests, $[SQL_DIR]/aux/kid_wics, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/aux/kid_icares, $[SQL_DIR]/output/schema, $[SQL_DIR]/output/kid_addresses [method:psql]
+$[SQL_DIR]/output/kids <- output/kids.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/output/tests, $[SQL_DIR]/aux/kid_wic_min_date, $[SQL_DIR]/aux/kid_icares, $[SQL_DIR]/output/schema, $[SQL_DIR]/output/kid_addresses [method:psql]
 
 ; join tests with kid_tests and test_addresses to get all the ids in one place
 $[SQL_DIR]/output/tests <- output/tests.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/aux/kid_tests_info, $[SQL_DIR]/aux/test_addresses, $[SQL_DIR]/output/schema [method:psql]

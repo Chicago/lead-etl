@@ -45,7 +45,6 @@ infants as (
         split_part(child_name, ', ', 2), split_part(child_name, ', ', 1), 
         null, date_of_birth, address
     FROM input.hcv
- 
 )
 
 -- unaccent text fields for dedupe

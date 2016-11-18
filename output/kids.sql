@@ -17,7 +17,7 @@ max_bll AS (
 
 test_summary AS (
     select kid_id,
-    count(distinct address_id) address_count, count(*) test_count,
+    count(distinct address_id) test_address_count, count(*) test_count,
     avg(bll) as mean_bll,
     min(date) as first_sample_date,
     max(date) as last_sample_date
@@ -48,26 +48,26 @@ blls AS (
     group by 1
 ),
 wic as (
-    select kid_id, min(date) as min_date
-    from aux.kid_wics
+    select kid_id, min(date) as first_wic_date
+    from aux.kid_wic_min_date
     where (1=1)
     group by kid_id
 ),
 kid_address_pre as (
-    select kid_id, min(address_min_date) as date
+    select kid_id, address_id, min(address_min_date) as date
     from output.kid_addresses
-    group by kid_id
+    group by kid_id, address_id
     UNION ALL
-    select kid_id, min(address_max_date) as date
+    select kid_id, address_id, max(address_max_date) as date
     from output.kid_addresses
-    group by kid_id
+    group by kid_id, address_id
 ),
 kid_address_dates as (
-    select kid_id, 
+    select kid_id, address_count,
         least(min_date, first_sample_date) as min_date,
         greatest(max_date, last_sample_date) as max_date
     from (
-        select kid_id, 
+        select kid_id, count(distinct address_id) as address_count,
         min(date) as min_date, 
         max(date) as max_date
         from kid_address_pre
@@ -75,17 +75,16 @@ kid_address_dates as (
         group by 1
     ) t full outer join test_summary using (kid_id)
 ),
-
 -- do this query so that the table is compatible with revise
 -- to be in kids must either have an address entry 
 -- coming from blood tests, wic, hcv, or stellar
 -- or a blood test
 summary as (
     select * from kid_address_dates
+    full outer join wic using (kid_id)
     full outer join test_summary using (kid_id)
     left join aux.kids using (kid_id)
 ),
-
 icare as (
     select kid_id
     from aux.kid_icares
@@ -109,8 +108,7 @@ SELECT s.*,
     first_bll10.address_id as first_bll10_address_id,
     max_bll.address_id as max_bll_address_id,
 
-    icare.kid_id is not null as icare,
-    wic.min_date as first_wic_date
+    icare.kid_id is not null as icare
 
 FROM summary s
 LEFT JOIN first_bll6 USING (kid_id)
@@ -119,7 +117,6 @@ LEFT JOIN first USING (kid_id)
 LEFT JOIN max_bll USING (kid_id)
 LEFT JOIN icare USING (kid_id)
 LEFT JOIN blls USING (kid_id)
-LEFT JOIN wic USING (kid_id)
 where date_of_birth is not null
 );
 
