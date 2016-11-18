@@ -27,6 +27,7 @@ import psycopg2
 import psycopg2.extras
 
 import dedupe
+import multiprocessing
 
 source_table='dedupe.infants'
 id_column = 'id'
@@ -112,7 +113,7 @@ if True:
     ]
 
     # Create a new deduper object and pass our data model to it.
-    deduper = dedupe.Dedupe(fields, num_cores=8)
+    deduper = dedupe.Dedupe(fields, num_cores=multiprocessing.cpu_count())
 
     # Named cursor runs server side with psycopg2
     cur = con.cursor('donor_select')
