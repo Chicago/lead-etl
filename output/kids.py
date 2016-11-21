@@ -17,6 +17,8 @@ KIDS_PARSE_DATES = ['date_of_birth', 'first_wic_date',
 
 KID_ADDRESSES_PARSE_DATES = ['address_min_date', 'address_max_date', 
         'address_wic_min_date', 'address_wic_max_date', 
+        'address_hcv_min_date', 'address_hcv_max_date', 
+        'address_stellar_min_date', 'address_stellar_max_date', 
         'address_test_min_date', 'address_test_max_date']
 
 def revise_kid_addresses(date):
