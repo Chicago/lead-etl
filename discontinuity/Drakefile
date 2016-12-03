@@ -1,0 +1,17 @@
+$[SQL_DIR]/discontinuity/schema <- [method:psql_schema -timecheck]
+
+$[SQL_DIR]/discontinuity/max_bll_under1 <- discontinuity/max_bll_under1.sql, $[SQL_DIR]/discontinuity/schema, $[SQL_DIR]/output/kids_extra, $[SQL_DIR]/output/kids [method:psql]
+
+$[SQL_DIR]/discontinuity/treatment <- discontinuity/treatment.sql, $[SQL_DIR]/discontinuity/max_bll_under1, $[SQL_DIR]/output/investigations, $[SQL_DIR]/discontinuity/addresses [method:psql]
+
+$[SQL_DIR]/discontinuity/tests <- discontinuity/tests.sql, $[SQL_DIR]/discontinuity/max_bll_under1, $[SQL_DIR]/output/tests [method:psql]
+
+$[SQL_DIR]/discontinuity/investigations <- discontinuity/investigations.sql, $[SQL_DIR]/discontinuity/max_bll_under1, $[SQL_DIR]/output/investigations [method:psql]
+
+$[SQL_DIR]/discontinuity/buildings <- discontinuity/buildings.sql, $[SQL_DIR]/discontinuity/max_bll_under1, $[SQL_DIR]/output/kids, $[SQL_DIR]/output/addresses, $[SQL_DIR]/aux/buildings, $[SQL_DIR]/aux/assessor [method:psql]
+
+$[SQL_DIR]/discontinuity/kids <- discontinuity/kids.sql, $[SQL_DIR]/discontinuity/max_bll_under1, $[SQL_DIR]/output/kids, $[SQL_DIR]/output/kid_addresses, $[SQL_DIR]/output/tests [method:psql]
+
+$[SQL_DIR]/discontinuity/addresses <- discontinuity/addresses.sql, $[SQL_DIR]/discontinuity/max_bll_under1, $[SQL_DIR]/output/kids, $[SQL_DIR]/output/kid_addresses [method:psql]
+
+;$[SQL_DIR]/discontinuity/first_bll6_sample_age <- discontinuity/first_bll6_sample_age.sql, $[SQL_DIR]/output/kids, $[SQL_DIR]/discontinuity/schema [method:psql]
