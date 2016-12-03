@@ -35,7 +35,13 @@ CREATE TABLE aux.tests AS (
         date_of_birth,
         -- null invalid sex
         CASE WHEN sex IN ('M','F') THEN sex ELSE null END as sex,
-        bll, sample_type,sample_date,
+        bll,
+        CASE
+            WHEN lab_id = 'C16' THEN 'V'        -- lab C16 is misreported as capillary
+            WHEN sample_type = 'F' THEN 'C'     -- F is for fingerstick, same as capillary
+            ELSE sample_type
+        END AS sample_type,
+        sample_date,
         lab_id,
         -- form geocode addresses from components
         CASE WHEN city ilike 'CH%' THEN

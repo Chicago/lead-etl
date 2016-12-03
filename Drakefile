@@ -38,6 +38,6 @@ PSQL_COPY_OPTIONS:='WITH CSV HEADER'
 
 %include output/Drakefile
 
-;%include discontinuity/Drakefile
+%include discontinuity/Drakefile
 
 ;%include addresses/Drakefile

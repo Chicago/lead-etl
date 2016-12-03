@@ -1,4 +1,3 @@
-#! /usr/bin/python
 from drain import util
 import pandas as pd
 
@@ -22,5 +21,6 @@ for category in categories:
 
     props[category + '_count'] = acs[category + '_count_total']
 
-props.to_sql(name='acs', schema='output', con=engine, 
-        if_exists='replace', index=True)
+db = util.PgSQLDatabase(engine)
+db.to_sql(props, name='acs', schema='output', 
+        if_exists='replace', index=True, pk=['census_tract_id', 'year'])

@@ -12,7 +12,6 @@ create table output.kid_ethnicity as (
 with ethnicity as (
 select distinct on (kid_id)
 	kid_id,
-	last_name,
 	s.surname is null surname_null,
 	s.ethnicity surname_ethnicity,
 	coalesce(acs.race_prop_white*s.pct_white/100, acs.race_prop_white, s.pct_white/100)/.774 p_white,

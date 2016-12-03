@@ -3,7 +3,7 @@ drop table if exists output.investigations;
 create table output.investigations as (
 with investigations as (
 select
-    address_id, apt,
+    address_id, apt, addr_id,
     ins_ref_dt as referral_date,
     insp_comp as init_date,
     insrslsum in ('I', 'B') as hazard_int,

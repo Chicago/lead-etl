@@ -27,3 +27,5 @@ from aux.addresses a join aux.complex_addresses ca using (address_id)
 left join residential_complexes rc using (complex_id)
 left join residential_addresses ta using(address_id)
 );
+
+alter table output.addresses add primary key (address_id);
