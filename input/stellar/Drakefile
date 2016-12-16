@@ -6,3 +6,5 @@ echo "$[SQL_DIR]/stellar/"${table,,}" <- \$[STELLAR_DIR]/"$table".DBF, $[SQL_DIR
 echo "    ogr2ogr -f PostgreSQL PG:'host=\$[PGHOST] user=\$[PGUSER] password=\$[PGPASSWORD] dbname=\$[PGDATABASE]' \$INPUT -lco 'schema=stellar' -lco 'overwrite=yes' && touch \$OUTPUT"
 
 done)
+
+$[SQL_DIR]/stellar/event_class_id_number_idx <- input/stellar/event_class_id_number_idx.sql, $[SQL_DIR]/stellar/event [method:psql]
