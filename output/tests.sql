@@ -6,7 +6,7 @@ create table output.tests as (
             ('5001 S MICHIGAN AVE', '1634 W POLK ST', '810 W MONTROSE AVE') 
         THEN null ELSE a.address_id END AS address_id,
         apt, t.lab_id,
-        bll, sample_date as date, 
+        bll, sample_date as date, analysis_date, reported_date,
         t.sample_type, 
         sample_date - k.date_of_birth AS age,
         first, first_bll6, first_bll10, increase, test_number,
