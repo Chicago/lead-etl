@@ -43,6 +43,11 @@ URL="https://data.cityofchicago.org/api/geospatial/cauq-8yn6?method=export&forma
 data/shapefiles/community_areas.zip, data/shapefiles/community_areas/ <- [-timecheck method:wget_unzip]
 $[SQL_DIR]/input/community_areas <- data/shapefiles/community_areas/, $[SQL_DIR]/input/schema [method:import_shapefile]
 
+; zip codes
+URL="https://data.cityofchicago.org/api/geospatial/gdcf-axmw?method=export&format=Shapefile"
+data/shapefiles/zip_codes.zip, data/shapefiles/zip_codes/ <- [-timecheck method:wget_unzip]
+$[SQL_DIR]/input/zip_codes <- data/shapefiles/zip_codes/, $[SQL_DIR]/input/schema [method:import_shapefile]
+
 ; census blocks
 URL="https://data.cityofchicago.org/api/geospatial/mfzt-js4n?method=export&format=Shapefile"
 data/shapefiles/census_blocks.zip, data/shapefiles/census_blocks/ <- [-timecheck method:wget_unzip]

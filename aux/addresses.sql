@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS aux.addresses;
 
-CREATE TABLE aux.addresses(address_id serial primary key, address text unique not null, geom geometry, census_tract_id text, census_block_id text, ward_id int, community_area_id int, source text);
+CREATE TABLE aux.addresses(address_id serial primary key, address text unique not null, geom geometry, census_tract_id text, census_block_id text, ward_id int, community_area_id int, zip_code int, source text);
 
 -- load addresses from geocoded tests
 INSERT INTO aux.addresses (address, geom, source) (
@@ -80,3 +80,8 @@ WHERE ward_id is null;
 UPDATE aux.addresses a
 SET community_area_id = (select c.area_numbe::int from input.community_areas c where st_contains(c.geom, a.geom) limit 1)
 WHERE community_area_id is null;
+
+-- zip code
+UPDATE aux.addresses a
+SET zip_code = (select z.zip::int from input.zip_codes z where st_contains(z.geom, a.geom) limit 1)
+WHERE zip_code is null;
