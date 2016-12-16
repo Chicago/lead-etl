@@ -34,24 +34,34 @@ create table output.kids_extra as (
             array_remove(array_agg(distinct CASE WHEN age <= 1*365 THEN address_id END), null)
                 as addresses_under1,
             max(CASE WHEN age <= 1*365 THEN bll END) max_bll_under1,
+            max(CASE WHEN age <= 2*365 THEN bll END) max_bll_under2,
             max(CASE WHEN age > 1*365 THEN bll END) max_bll_over1,
             max(CASE WHEN age between 366 and 4*365 THEN bll END) max_bll_over1_under4,
+            max(CASE WHEN age between 365*2 and 4*365 THEN bll END) max_bll_over2_under4,
 
             min(CASE WHEN age <= 1*365 THEN bll END) min_bll_under1,
+            min(CASE WHEN age <= 2*365 THEN bll END) min_bll_under2,
             min(CASE WHEN age > 1*365 THEN bll END) min_bll_over1,
             min(CASE WHEN age between 366 and 4*365 THEN bll END) min_bll_over1_under4,
+            min(CASE WHEN age between 365*2 and 4*365 THEN bll END) min_bll_over2_under4,
 
-            avg(CASE WHEN age > 365 THEN bll END) as avg_bll_over1,
             avg(CASE WHEN age <= 365 THEN bll END) as avg_bll_under1,
+            avg(CASE WHEN age <= 2*365 THEN bll END) as avg_bll_under2,
+            avg(CASE WHEN age > 365 THEN bll END) as avg_bll_over1,
             avg(CASE WHEN age between 366 and 4*365 THEN bll END) avg_bll_over1_under4,
+            avg(CASE WHEN age between 365*2 and 4*365 THEN bll END) avg_bll_over2_under4,
 
-            count(CASE WHEN age > 1*365 THEN bll END) count_bll_over1,
             count(CASE WHEN age <= 1*365 THEN bll END)count_bll_under1,
+            count(CASE WHEN age <= 2*365 THEN bll END)count_bll_under2,
+            count(CASE WHEN age > 1*365 THEN bll END) count_bll_over1,
             count(CASE WHEN age between 366 and 4*365 THEN bll END) count_bll_over1_under4,
+            count(CASE WHEN age between 365*2 and 4*365 THEN bll END) count_bll_over2_under4,
 
             max(CASE WHEN age <= 1*365 THEN date END) as last_date_under1,
+            max(CASE WHEN age <= 2*365 THEN date END) as last_date_under2,
             max(CASE WHEN age > 1*365 THEN date END) as last_date_over1,
-            max(CASE WHEN age between 366 and 4*365 THEN date END) last_date_over1_under4
+            max(CASE WHEN age between 366 and 4*365 THEN date END) last_date_over1_under4,
+            max(CASE WHEN age between 365*2 and 4*365 THEN date END) last_date_over2_under4
 
         from tests
         where detected
@@ -62,10 +72,14 @@ create table output.kids_extra as (
         select kid_id, venal, 
             max(CASE WHEN age <= 365 and last_date_under1 = date THEN bll END)
                 as last_bll_under1,
+            max(CASE WHEN age <= 2*365 and last_date_under2 = date THEN bll END)
+                as last_bll_under2,
             max(CASE WHEN age > 365 and last_date_over1 = date THEN bll END)
                 as last_bll_over1,
             max(CASE WHEN age between 366 and 4*365 and last_date_over1_under4 = date THEN bll END)
-                as last_bll_over1_under4
+                as last_bll_over1_under4,
+            max(CASE WHEN age between 365*2 and 4*365 and last_date_over2_under4 = date THEN bll END)
+                as last_bll_over2_under4
         from tests join tests_detected_agg using (kid_id, venal)
         where detected
         group by 1,2
