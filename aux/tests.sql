@@ -10,7 +10,8 @@ DROP TABLE IF EXISTS aux.tests CASCADE;
 CREATE TABLE aux.tests AS (
     WITH tests AS (
         select first_name, mi, last_name, date_of_birth, sex, 
-            bll, sample_type, sample_date, analysis_date, reported_date,
+            bll, sample_type, sample_date, 
+            analysis_date, reported_date, provider_id, -- m7 doesn't have these
             lab_id, address, clean_address, apt, city,
             geocode_house_low, geocode_pre, geocode_street_name, 
             clean_street_type as geocode_street_type,
@@ -21,7 +22,8 @@ CREATE TABLE aux.tests AS (
         select first_name, null as mi, last_name,
             nullif(regexp_replace(date_of_birth, '\s', '', 'g'), '')::date, 
             sex, nullif(regexp_replace(bll, '\s', '', 'g'), '')::int, sample_type, 
-            nullif(regexp_replace(sample_date, '\s', '', 'g'), '')::date, null, null,
+            nullif(regexp_replace(sample_date, '\s', '', 'g'), '')::date, 
+            null, null, null,
             lab as lab_id, 
             address, cleaned_address, apt, city,
             geocode_house_low, geocode_pre, geocode_street_name, geocode_street_type,
@@ -42,7 +44,8 @@ CREATE TABLE aux.tests AS (
             WHEN sample_type = 'F' THEN 'C'     -- F is for fingerstick, same as capillary
             ELSE sample_type
         END AS sample_type,
-        sample_date, reported_date, analysis_date,
+        sample_date, 
+        reported_date, analysis_date, provider_id,
         lab_id,
         -- form geocode addresses from components
         CASE WHEN city ilike 'CH%' THEN
