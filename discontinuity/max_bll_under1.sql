@@ -5,7 +5,7 @@ create table discontinuity.max_bll_under1 as (
     from output.kids_extra a 
     join output.kids using (kid_id)
     where 
-    (not a.venal)
+    (not a.venous)
     and a.max_bll_under1 is not null
     and first_sample_address_id is not null
 );
