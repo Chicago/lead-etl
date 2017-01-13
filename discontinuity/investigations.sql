@@ -6,6 +6,8 @@ create table discontinuity.investigations as (
         count(init_date) as investigations_init_count,
         count(comply_date) as investigations_comply_count,
 
+        coalesce(max(referral_date) > max(closure_date), False) as investigations_open,
+
         CASE WHEN count(init_date) > 0 THEN count(init_date)/count(referral_date) END as investigations_init_prop,
         CASE WHEN count(init_date) > 0 THEN count(comply_date)/count(referral_date) END as investigations_comply_prop,
 
