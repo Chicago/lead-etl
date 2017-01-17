@@ -41,17 +41,23 @@ Use our [drain pipeline](https://github.com/dssg/drain/) to run run models in pa
 
 ## Running the model
 
-#### 1. First install python dependencies:
+#### 1. Install software dependencies:
+- drake
+- mdbtools
+- ogr2ogr with PostgreSQL driver (requires libmq)
+
+#### 2. Install python dependencies:
 ```
 pip install -r requirements.txt
 ```
-#### 2. Then install PostgreSQL extensions (requires admin privileges):
+#### 3. Create and configure PostgreSQL database:
+Install these PostgreSQL extensions (requires admin privileges):
 ```
 CREATE EXTENSION postgis;
 CREATE EXTENSION unaccent;
 ```
 
-#### 3. Specify the following environment variables in the `lead/default_profile` file:
+#### 4. Specify the following environment variables in the `lead/default_profile` file:
 ```
 # Postgresql databse connection information
 PGHOST=
@@ -69,7 +75,7 @@ STELLAR_DIR= # Directory containing Stellar DBF files
 ICARE_FILE= # Immunization records CSV file
 DEDUPE_TRAINING_FILE= # dedupe JSON training file
 ```
-#### 4. Run the workflow by typing `drake`.
+#### 5. Run the workflow by typing `drake`.
 To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
 
 ## Software we use
