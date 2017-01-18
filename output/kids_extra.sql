@@ -57,12 +57,12 @@ create table output.kids_extra as (
             count(CASE WHEN age between 366 and 4*365 THEN bll END) count_bll_over1_under4,
             count(CASE WHEN age between 365*2 and 4*365 THEN bll END) count_bll_over2_under4,
 
-            max(CASE WHEN age <= 1*365 THEN date END) as last_date_under1,
+            min(CASE WHEN age <= 1*365 THEN date END) as first_sample_date_under1,
+            max(CASE WHEN age <= 1*365 THEN date END) as last_sample_date_under1,
+            min(CASE WHEN age <= 1*365 THEN reported_date END) as first_reported_date_under1,
             max(CASE WHEN age <= 1*365 THEN reported_date END) as last_reported_date_under1,
-            max(CASE WHEN age <= 2*365 THEN date END) as last_date_under2,
-            max(CASE WHEN age > 1*365 THEN date END) as last_date_over1,
-            max(CASE WHEN age between 366 and 4*365 THEN date END) last_date_over1_under4,
-            max(CASE WHEN age between 365*2 and 4*365 THEN date END) last_date_over2_under4
+            max(CASE WHEN age > 1*365 THEN date END) as last_sample_date_over1,
+            max(CASE WHEN age between 366 and 4*365 THEN date END) last_sample_date_over1_under4
 
         from tests
         where detected
@@ -71,16 +71,12 @@ create table output.kids_extra as (
 
     last_blls as (
         select kid_id, venous, 
-            max(CASE WHEN age <= 365 and last_date_under1 = date THEN bll END)
+            max(CASE WHEN age <= 365 and last_sample_date_under1 = date THEN bll END)
                 as last_bll_under1,
-            max(CASE WHEN age <= 2*365 and last_date_under2 = date THEN bll END)
-                as last_bll_under2,
-            max(CASE WHEN age > 365 and last_date_over1 = date THEN bll END)
+            max(CASE WHEN age > 365 and last_sample_date_over1 = date THEN bll END)
                 as last_bll_over1,
-            max(CASE WHEN age between 366 and 4*365 and last_date_over1_under4 = date THEN bll END)
-                as last_bll_over1_under4,
-            max(CASE WHEN age between 365*2 and 4*365 and last_date_over2_under4 = date THEN bll END)
-                as last_bll_over2_under4
+            max(CASE WHEN age between 366 and 4*365 and last_sample_date_over1_under4 = date THEN bll END)
+                as last_bll_over1_under4
         from tests join tests_detected_agg using (kid_id, venous)
         where detected
         group by 1,2
