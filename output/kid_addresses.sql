@@ -68,3 +68,4 @@ FULL OUTER JOIN stellar_addresses s using (kid_id, address_id)
 );
 
 alter table output.kid_addresses add primary key (kid_id, address_id);
+create index on output.kid_addresses (address_id);
