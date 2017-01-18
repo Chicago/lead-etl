@@ -107,7 +107,7 @@ $[DATA_DIR]/census-postgres/ <- [-timecheck]
 
 $(for y in {2009..2014}; do
 
-echo "URL=\"http://www2.census.gov/programs-surveys/acs/summary_file/"$y"/$[DATA_DIR]/5_year_by_state/Illinois_Tracts_Block_Groups_Only.zip\""
+echo "URL=\"http://www2.census.gov/programs-surveys/acs/summary_file/"$y"/data/5_year_by_state/Illinois_Tracts_Block_Groups_Only.zip\""
 echo "$[DATA_DIR]/acs/acs"$y"_5yr.zip, $[DATA_DIR]/acs/acs"$y"_5yr/ <- [-timecheck method:wget_unzip]"
 
 echo "input/acs/generated/acs"$y"_5yr/import.sql <- input/acs/census_postgres.sh, $[DATA_DIR]/census-postgres/"
