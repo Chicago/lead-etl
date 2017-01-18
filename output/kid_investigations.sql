@@ -3,12 +3,13 @@ drop table if exists output.kid_investigations;
 create table output.kid_investigations as (
     with kid_stellars as (
         select kid_id,
-            first_sample_date, 
+            coalesce(reported_date, date) as first_reported_date, 
             stellar_id as child_id, 
             addr_id
-        from output.kids
+        from output.tests
             join aux.kid_stellars using (kid_id)
             join stellar.ca_link on stellar_id = child_id
+        where first
         group by 1,2,3,4
     ),
     investigations as (
@@ -18,7 +19,7 @@ create table output.kid_investigations as (
             min(comply_date) as next_comply_date
         from kid_stellars
         join output.investigations using (addr_id)
-        where referral_date >= first_sample_date
+        where referral_date >= first_reported_date
         group by 1
     ),
     events as (
@@ -30,7 +31,7 @@ create table output.kid_investigations as (
         join stellar.event on
             ((class = 'C' and id_number = child_id) or
              (class = 'I' and id_number = addr_id))
-        where least(ref_date, due_date, comp_date) >= first_sample_date
+        where least(ref_date, due_date, comp_date) >= first_reported_date
         group by 1
     )
     select kid_id,
