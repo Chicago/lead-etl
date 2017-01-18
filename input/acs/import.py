@@ -1,4 +1,3 @@
-#! /usr/bin/python
 import pandas as pd
 from drain import util
 import sys

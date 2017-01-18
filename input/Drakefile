@@ -99,31 +99,14 @@ $[DATA_DIR]/building_violations.csv <- [-timecheck]
 	wget -O- "https://data.cityofchicago.org/api/views/22u3-xenr/rows.csv?accessType=DOWNLOAD" | sed 's/, ,/,,/g' > $OUTPUT
 $[SQL_DIR]/input/building_violations <- input/building_violations.sql, $[DATA_DIR]/building_violations.csv, $[SQL_DIR]/input/schema [method:psql]
 
-; American Community Survey data gets imported into its own db
 %include $[ACS_PROFILE]
-
-$[DATA_DIR]/census-postgres/ <- [-timecheck]
-     git clone https://github.com/censusreporter/census-postgres.git $OUTPUT
-
-$(for y in {2009..2014}; do
-
-echo "URL=\"http://www2.census.gov/programs-surveys/acs/summary_file/"$y"/data/5_year_by_state/Illinois_Tracts_Block_Groups_Only.zip\""
-echo "$[DATA_DIR]/acs/acs"$y"_5yr.zip, $[DATA_DIR]/acs/acs"$y"_5yr/ <- [-timecheck method:wget_unzip]"
-
-echo "input/acs/generated/acs"$y"_5yr/import.sql <- input/acs/census_postgres.sh, $[DATA_DIR]/census-postgres/"
-echo "    \$INPUT0 \$INPUT1/acs"$y"_5yr/ $[DATA_DIR]/acs/acs"$y"_5yr/ input/acs/generated/acs"$y"_5yr/"
-
-echo "$[SQL_DIR]/acs"$y"_5yr <- input/acs/generated/acs"$y"_5yr/import.sql, $[DATA_DIR]/acs/acs"$y"_5yr/ [method:psql]"
-
-done)
-
 ; selected acs variables copied to lead db via csv
-$[DATA_DIR]/acs.csv <- input/acs/download.py, $[SQL_DIR]/acs2009_5yr, $[SQL_DIR]/acs2010_5yr, $[SQL_DIR]/acs2011_5yr, $[SQL_DIR]/acs2012_5yr, $[SQL_DIR]/acs2013_5yr
-    $INPUT $OUTPUT
+$[DATA_DIR]/acs.csv <- input/acs/download.py
+    python $INPUT $OUTPUT
 
 %include $[PROFILE]
 $[SQL_DIR]/input/acs <- input/acs/import.py, $[DATA_DIR]/acs.csv
-    $INPUT $INPUT1 && touch $OUTPUT
+    python $INPUT $INPUT1 && touch $OUTPUT
 
 $[SQL_DIR]/input/icare <- input/icare.sh, $[ICARE_FILE]
     $INPUT0 $INPUT1 && touch $OUTPUT
