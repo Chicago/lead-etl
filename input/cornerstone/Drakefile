@@ -7,7 +7,7 @@ echo "    ogr2ogr -f PostgreSQL PG:'host=\$[PGHOST] user=\$[PGUSER] password=\$[
 
 done)
 
-data/cornerstone/addresses_for_geocoding.csv <- input/cornerstone/addresses_for_geocoding.sql, $[SQL_DIR]/cornerstone/partaddr
+$[DATA_DIR]/cornerstone/addresses_for_geocoding.csv <- input/cornerstone/addresses_for_geocoding.sql, $[SQL_DIR]/cornerstone/partaddr
     mkdir -p $(dirname $OUTPUT)
     psql -f $INPUT > $OUTPUT
 

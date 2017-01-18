@@ -11,7 +11,7 @@ import_shapefile()
     ogr2ogr -t_srs EPSG:4326 $INPUT/4326/$BASENAME $INPUT/$BASENAME
     echo $TABLENAME
     # -q suppresses query output which for large shapefiles seems to slow down the import
-    shp2pgsql -I -D -d -s 4326 $INPUT/4326/$BASENAME $TABLENAME | psql -q && touch $OUTPUT
+    shp2pgsql -I -D -d -s 4326 $INPUT/4326/$BASENAME $TABLENAME | psql -v ON_ERROR_STOP=1 -q && touch $OUTPUT
 
 ; $URL is a source url
 ; $OUTPUT0 is a target for the zip file
@@ -25,33 +25,33 @@ $[SQL_DIR]/input/schema <- [method:psql_schema -timecheck]
 
 ; wards
 URL="https://data.cityofchicago.org/api/geospatial/sp34-6z76?method=export&format=Shapefile"
-data/shapefiles/wards.zip, data/shapefiles/wards/ <- [-timecheck method:wget_unzip]
-$[SQL_DIR]/input/wards <- data/shapefiles/wards/, $[SQL_DIR]/input/schema [method:import_shapefile]
+$[DATA_DIR]/shapefiles/wards.zip, $[DATA_DIR]/shapefiles/wards/ <- [-timecheck method:wget_unzip]
+$[SQL_DIR]/input/wards <- $[DATA_DIR]/shapefiles/wards/, $[SQL_DIR]/input/schema [method:import_shapefile]
 
 ; census tracts
 URL="https://data.cityofchicago.org/api/geospatial/5jrd-6zik?method=export&format=Shapefile"
-data/shapefiles/census_tracts.zip, data/shapefiles/census_tracts/ <- [-timecheck method:wget_unzip]
-$[SQL_DIR]/input/census_tracts <- data/shapefiles/census_tracts/, $[SQL_DIR]/input/schema [method:import_shapefile]
+$[DATA_DIR]/shapefiles/census_tracts.zip, $[DATA_DIR]/shapefiles/census_tracts/ <- [-timecheck method:wget_unzip]
+$[SQL_DIR]/input/census_tracts <- $[DATA_DIR]/shapefiles/census_tracts/, $[SQL_DIR]/input/schema [method:import_shapefile]
 	
 ; addresses
 ;URL="https://datacatalog.cookcountyil.gov/api/geospatial/jev2-4wjs?method=export&format=Shapefile"
-;data/shapefiles/addresses.zip, data/shapefiles/addresses/ <- [-timecheck method:wget_unzip]
-;$[SQL_DIR]/input/addresses <- data/shapefiles/addresses/, $[SQL_DIR]/input/schema [method:import_shapefile]
+;$[DATA_DIR]/shapefiles/addresses.zip, $[DATA_DIR]/shapefiles/addresses/ <- [-timecheck method:wget_unzip]
+;$[SQL_DIR]/input/addresses <- $[DATA_DIR]/shapefiles/addresses/, $[SQL_DIR]/input/schema [method:import_shapefile]
 
 ; community areas
 URL="https://data.cityofchicago.org/api/geospatial/cauq-8yn6?method=export&format=Shapefile"
-data/shapefiles/community_areas.zip, data/shapefiles/community_areas/ <- [-timecheck method:wget_unzip]
-$[SQL_DIR]/input/community_areas <- data/shapefiles/community_areas/, $[SQL_DIR]/input/schema [method:import_shapefile]
+$[DATA_DIR]/shapefiles/community_areas.zip, $[DATA_DIR]/shapefiles/community_areas/ <- [-timecheck method:wget_unzip]
+$[SQL_DIR]/input/community_areas <- $[DATA_DIR]/shapefiles/community_areas/, $[SQL_DIR]/input/schema [method:import_shapefile]
 
 ; zip codes
 URL="https://data.cityofchicago.org/api/geospatial/gdcf-axmw?method=export&format=Shapefile"
-data/shapefiles/zip_codes.zip, data/shapefiles/zip_codes/ <- [-timecheck method:wget_unzip]
-$[SQL_DIR]/input/zip_codes <- data/shapefiles/zip_codes/, $[SQL_DIR]/input/schema [method:import_shapefile]
+$[DATA_DIR]/shapefiles/zip_codes.zip, $[DATA_DIR]/shapefiles/zip_codes/ <- [-timecheck method:wget_unzip]
+$[SQL_DIR]/input/zip_codes <- $[DATA_DIR]/shapefiles/zip_codes/, $[SQL_DIR]/input/schema [method:import_shapefile]
 
 ; census blocks
 URL="https://data.cityofchicago.org/api/geospatial/mfzt-js4n?method=export&format=Shapefile"
-data/shapefiles/census_blocks.zip, data/shapefiles/census_blocks/ <- [-timecheck method:wget_unzip]
-$[SQL_DIR]/input/census_blocks <- data/shapefiles/census_blocks/, $[SQL_DIR]/input/schema [method:import_shapefile]
+$[DATA_DIR]/shapefiles/census_blocks.zip, $[DATA_DIR]/shapefiles/census_blocks/ <- [-timecheck method:wget_unzip]
+$[SQL_DIR]/input/census_blocks <- $[DATA_DIR]/shapefiles/census_blocks/, $[SQL_DIR]/input/schema [method:import_shapefile]
 
 ; assessor 
 $[SQL_DIR]/input/assessor <- input/assessor.sh, $[SQL_DIR]/input/schema
@@ -67,62 +67,62 @@ $[SQL_DIR]/input/currbllshort <- input/currbllshort.sh, $[CURRBLLSHORT_FILE], $[
 
 ; census surname ethnicity
 ; documentation: http://www2.census.gov/topics/genealogy/2000surnames/surnames.pdf
-data/surnames/names.zip <- [-timecheck]
+$[DATA_DIR]/surnames/names.zip <- [-timecheck]
     mkdir -p `dirname $OUTPUT`
     wget -O $OUTPUT http://www2.census.gov/topics/genealogy/2000surnames/names.zip
 
-data/surnames/app_c.csv <- data/surnames/names.zip
+$[DATA_DIR]/surnames/app_c.csv <- $[DATA_DIR]/surnames/names.zip
     unzip -o $INPUT -d `dirname $OUTPUT` && touch $OUTPUT # update timestamp
 
 ; remove suprressed values
-data/surnames/surnames.csv <- data/surnames/app_c.csv
+$[DATA_DIR]/surnames/surnames.csv <- $[DATA_DIR]/surnames/app_c.csv
     cat $INPUT | sed 's/(S)/0/g' > $OUTPUT
 
-$[SQL_DIR]/input/surnames <- input/surnames.sql, data/surnames/surnames.csv, $[SQL_DIR]/input/schema [method:psql]
+$[SQL_DIR]/input/surnames <- input/surnames.sql, $[DATA_DIR]/surnames/surnames.csv, $[SQL_DIR]/input/schema [method:psql]
 
 ; download, unzip, and import buildings data
-data/shapefiles/buildings/data/Buildings.zip <- [-timecheck]
+$[DATA_DIR]/shapefiles/buildings/data/Buildings.zip <- [-timecheck]
     git clone https://github.com/Chicago/osd-building-footprints.git $(dirname $(dirname $OUTPUT))
 
-data/shapefiles/buildings/data/shp/ <- data/shapefiles/buildings/data/Buildings.zip [-timecheck]
+$[DATA_DIR]/shapefiles/buildings/data/shp/ <- $[DATA_DIR]/shapefiles/buildings/data/Buildings.zip [-timecheck]
     unzip $INPUT -d $OUTPUT
 
-$[SQL_DIR]/input/buildings <- data/shapefiles/buildings/data/shp/, $[SQL_DIR]/input/schema [method:import_shapefile]
+$[SQL_DIR]/input/buildings <- $[DATA_DIR]/shapefiles/buildings/data/shp/, $[SQL_DIR]/input/schema [method:import_shapefile]
 
 ; download and import building permit data
-data/building_permits.csv <- [-timecheck]
+$[DATA_DIR]/building_permits.csv <- [-timecheck]
 	wget -O- "https://data.cityofchicago.org/api/views/ydr8-5enu/rows.csv?accessType=DOWNLOAD" | sed 's/\$//g' > $OUTPUT
-$[SQL_DIR]/input/building_permits <- input/building_permits.sql, data/building_permits.csv, $[SQL_DIR]/input/schema [method:psql]
+$[SQL_DIR]/input/building_permits <- input/building_permits.sql, $[DATA_DIR]/building_permits.csv, $[SQL_DIR]/input/schema [method:psql]
 
 ; download and import building violations data
-data/building_violations.csv <- [-timecheck]
+$[DATA_DIR]/building_violations.csv <- [-timecheck]
 	wget -O- "https://data.cityofchicago.org/api/views/22u3-xenr/rows.csv?accessType=DOWNLOAD" | sed 's/, ,/,,/g' > $OUTPUT
-$[SQL_DIR]/input/building_violations <- input/building_violations.sql, data/building_violations.csv, $[SQL_DIR]/input/schema [method:psql]
+$[SQL_DIR]/input/building_violations <- input/building_violations.sql, $[DATA_DIR]/building_violations.csv, $[SQL_DIR]/input/schema [method:psql]
 
 ; American Community Survey data gets imported into its own db
 %include $[ACS_PROFILE]
 
-data/census-postgres/ <- [-timecheck]
+$[DATA_DIR]/census-postgres/ <- [-timecheck]
      git clone https://github.com/censusreporter/census-postgres.git $OUTPUT
 
 $(for y in {2009..2014}; do
 
-echo "URL=\"http://www2.census.gov/programs-surveys/acs/summary_file/"$y"/data/5_year_by_state/Illinois_Tracts_Block_Groups_Only.zip\""
-echo "data/acs/acs"$y"_5yr.zip, data/acs/acs"$y"_5yr/ <- [-timecheck method:wget_unzip]"
+echo "URL=\"http://www2.census.gov/programs-surveys/acs/summary_file/"$y"/$[DATA_DIR]/5_year_by_state/Illinois_Tracts_Block_Groups_Only.zip\""
+echo "$[DATA_DIR]/acs/acs"$y"_5yr.zip, $[DATA_DIR]/acs/acs"$y"_5yr/ <- [-timecheck method:wget_unzip]"
 
-echo "input/acs/generated/acs"$y"_5yr/import.sql <- input/acs/census_postgres.sh, data/census-postgres/"
-echo "    \$INPUT0 \$INPUT1/acs"$y"_5yr/ data/acs/acs"$y"_5yr/ input/acs/generated/acs"$y"_5yr/"
+echo "input/acs/generated/acs"$y"_5yr/import.sql <- input/acs/census_postgres.sh, $[DATA_DIR]/census-postgres/"
+echo "    \$INPUT0 \$INPUT1/acs"$y"_5yr/ $[DATA_DIR]/acs/acs"$y"_5yr/ input/acs/generated/acs"$y"_5yr/"
 
-echo "$[SQL_DIR]/acs"$y"_5yr <- input/acs/generated/acs"$y"_5yr/import.sql, data/acs/acs"$y"_5yr/ [method:psql]"
+echo "$[SQL_DIR]/acs"$y"_5yr <- input/acs/generated/acs"$y"_5yr/import.sql, $[DATA_DIR]/acs/acs"$y"_5yr/ [method:psql]"
 
 done)
 
 ; selected acs variables copied to lead db via csv
-data/acs.csv <- input/acs/download.py, $[SQL_DIR]/acs2009_5yr, $[SQL_DIR]/acs2010_5yr, $[SQL_DIR]/acs2011_5yr, $[SQL_DIR]/acs2012_5yr, $[SQL_DIR]/acs2013_5yr
+$[DATA_DIR]/acs.csv <- input/acs/download.py, $[SQL_DIR]/acs2009_5yr, $[SQL_DIR]/acs2010_5yr, $[SQL_DIR]/acs2011_5yr, $[SQL_DIR]/acs2012_5yr, $[SQL_DIR]/acs2013_5yr
     $INPUT $OUTPUT
 
 %include $[PROFILE]
-$[SQL_DIR]/input/acs <- input/acs/import.py, data/acs.csv
+$[SQL_DIR]/input/acs <- input/acs/import.py, $[DATA_DIR]/acs.csv
     $INPUT $INPUT1 && touch $OUTPUT
 
 $[SQL_DIR]/input/icare <- input/icare.sh, $[ICARE_FILE]
