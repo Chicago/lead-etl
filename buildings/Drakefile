@@ -12,7 +12,7 @@ $[SQL_DIR]/buildings/addresses <- buildings/addresses.sql, $[SQL_DIR]/buildings/
 
 ; deduplicate buildings
 $[SQL_DIR]/buildings/building_components <- buildings/building_components.py, $[SQL_DIR]/buildings/original_buildings
-    $INPUT && touch $OUTPUT
+    python $INPUT && touch $OUTPUT
 
 ; associate addresses with deduplicated buildings
 $[SQL_DIR]/buildings/building_addresses <- buildings/building_addresses.sql, $[SQL_DIR]/buildings/building_components [method:psql]
@@ -22,7 +22,7 @@ $[SQL_DIR]/buildings/buildings <- buildings/buildings.sql, $[SQL_DIR]/buildings/
 
 ; deduplicate building complexes
 $[SQL_DIR]/buildings/complex_components <- buildings/complex_components.py, $[SQL_DIR]/buildings/building_components
-    $INPUT && touch $OUTPUT
+    python $INPUT && touch $OUTPUT
 
 ; associate addresses with deduplicated buildings
 $[SQL_DIR]/buildings/complex_buildings <- buildings/complex_buildings.sql, $[SQL_DIR]/buildings/complex_components [method:psql]
