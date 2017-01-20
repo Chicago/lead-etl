@@ -13,7 +13,8 @@ from datetime import date
 import sys
 from drain.util import lru_cache
 
-DATES = (date(y,1,25) for y in range (2003, 2016))
+# default date is january 1
+DATES = (date(y,1,1) for y in range (2003, 2016))
 
 indexes = {
     'kid':'kid_id', 
