@@ -3,7 +3,7 @@ import numpy as np
 from drain import util
 import sys
 
-def read_acs(table, columns, engine, offsets={0:{}}, years=range(2009, 2015)):
+def read_acs(table, columns, engine, offsets={0:{}}, years=range(2009, 2016)):
     select = """
         select geoid, {fields} from acs{year}_5yr.{table}
         where geoid ~ 'US1703'
