@@ -6,7 +6,6 @@ from drain.aggregation import SpacetimeAggregation
 from drain.aggregate import Count, Fraction, Aggregate, days
 
 import pandas as pd
-import logging
 
 tests = Merge(inputs=[
     Merge(inputs=[
@@ -21,13 +20,14 @@ on='kid_id')
 tests.target = True
 
 class TestsAggregation(SpacetimeAggregation):
-    def __init__(self, spacedeltas, dates, **kwargs):
+    def __init__(self, spacedeltas, dates, parallel=False):
         SpacetimeAggregation.__init__(self,
-            spacedeltas=spacedeltas, dates=dates, prefix='tests',
-            date_column='date', censor_columns={'first_bll6_sample_date':[], 'first_bll10_sample_date':[]}, **kwargs)
-
-        if not self.parallel:
-            self.inputs = [tests]
+            inputs = [tests],
+            spacedeltas=spacedeltas, 
+            parallel=parallel,
+            dates=dates, prefix='tests',
+            date_column='date', censor_columns={'first_bll6_sample_date':[], 
+                                                'first_bll10_sample_date':[]})
 
     def get_aggregates(self, date, delta):
         kid_count = Aggregate('kid_id', 'nunique', 

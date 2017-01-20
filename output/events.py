@@ -40,8 +40,9 @@ events_table = FromSQL("""
 events_table.target = True
 
 class Events(Step):
-    def __init__(self, **kwargs):
-        Step.__init__(self, inputs = [events_table], **kwargs)
+    def __init__(self):
+        Step.__init__(self, inputs = [events_table])
+
     def run(self, event):
         # concatenate event and res code, e.g. 'REINS_C'
         event['event_res_code'] = event.event_code + '_' + event.res_code

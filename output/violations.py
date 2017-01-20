@@ -27,11 +27,12 @@ join output.addresses a using (address)
 violations.target=True
 
 class ViolationsAggregation(SpacetimeAggregation):
-    def __init__(self, spacedeltas, dates, **kwargs):
+    def __init__(self, spacedeltas, dates, parallel=False):
         SpacetimeAggregation.__init__(self, inputs = [violations],
                 spacedeltas=spacedeltas, dates=dates, 
                 prefix = 'violations', date_column = 'violation_date',
-                censor_columns = {'violation_status_date': ['violation_status']}, **kwargs)
+                censor_columns = {'violation_status_date': ['violation_status']},
+                parallel=parallel)
 
     def get_aggregates(self, date, data):
         aggregates = [

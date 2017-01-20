@@ -51,12 +51,12 @@ class KidsAggregation(SpacetimeAggregation):
     """
     This is really an aggregation of kid addresses.
     """
-    def __init__(self, spacedeltas, dates, **kwargs):
+    def __init__(self, spacedeltas, dates, parallel=False):
         SpacetimeAggregation.__init__(self, spacedeltas=spacedeltas, 
             dates=dates, prefix='kids',
             aggregator_args=['date', 'index', 'delta'],
             date_column='address_min_date', max_date_column='address_max_date',
-            **kwargs)
+            parallel=parallel)
 
         if not self.parallel:
             kid_addresses = revise_kid_addresses(date=dates[0])

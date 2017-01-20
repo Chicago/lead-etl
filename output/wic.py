@@ -10,28 +10,30 @@ from drain.aggregation import SpacetimeAggregation
 from drain.data import FromSQL
 from drain.util import list_filter_none, union
 
-class EnrollAggregation(SpacetimeAggregation):
-    def __init__(self, spacedeltas, dates, **kwargs):
-        SpacetimeAggregation.__init__(self,
-                spacedeltas = spacedeltas,
-                dates = dates,
-                prefix = 'wicenroll',
-                date_column = 'register_d', **kwargs)
-
-        if not self.parallel:
-            self.inputs = [FromSQL(query="""
-with enroll as (
-SELECT kid_id, p.* 
-FROM cornerstone.partenrl p join aux.kid_wics using (part_id_i)
-UNION ALL
-SELECT kid_id, p.*
-FROM cornerstone.partenrl p join aux.kid_mothers on p.part_id_i = mothr_id_i)
+enroll = FromSQL(query="""
+        with enroll as (
+        SELECT kid_id, p.* 
+        FROM cornerstone.partenrl p join aux.kid_wics using (part_id_i)
+        UNION ALL
+        SELECT kid_id, p.*
+        FROM cornerstone.partenrl p join aux.kid_mothers on p.part_id_i = mothr_id_i)
 
 select *, 
 array_remove(array[lang_1_c, lang_2_c, lang_3_c], null) as language,
 array_remove(array[pa_cde1_c, pa_cde2_c, pa_cde3_c, pa_cde4_c, pa_cde5_c], null) as assistance
 from enroll 
-""", tables=['aux.kid_wics', 'aux.kid_mothers'], parse_dates=['register_d', 'last_upd_d'], target=True)]
+""", tables=['aux.kid_wics', 'aux.kid_mothers'], parse_dates=['register_d', 'last_upd_d'])
+enroll.target = True
+
+class EnrollAggregation(SpacetimeAggregation):
+    def __init__(self, spacedeltas, dates, parallel=False):
+        SpacetimeAggregation.__init__(self,
+                inputs = [enroll],
+                spacedeltas = spacedeltas,
+                dates = dates,
+                prefix = 'wicenroll',
+                date_column = 'register_d', 
+                parallel=parallel)
 
     def get_aggregates(self, date, delta):
         
@@ -54,29 +56,30 @@ from enroll
         return aggregates
 
 
+births = FromSQL(query="""
+        SELECT *, 
+        apgar_n::int as apgar,
+        nullif(lgt_inch_n, 0) as length,
+        nullif(wgt_grm_n, 0) as weight,
+        nullif(headcirc_n, 0) as head_circumference,
+        array_remove(array[
+                    inf_cmp1_c, inf_cmp2_c, inf_cmp3_c, inf_cmp4_c, inf_cmp5_c
+                    ], null) as complication
+        FROM aux.kids
+        JOIN aux.kid_mothers USING (kid_id)
+        JOIN cornerstone.birth USING (part_id_i, mothr_id_i)
+        """, tables=['aux.kids', 'aux.kid_mothers'], parse_dates=['date_of_birth'])
+births.target = True
+
 class BirthAggregation(SpacetimeAggregation):
-    def __init__(self, spacedeltas, dates, **kwargs):
+    def __init__(self, spacedeltas, dates, parallel=False):
         SpacetimeAggregation.__init__(self,
+                inputs = [births],
                 spacedeltas = spacedeltas,
                 dates = dates,
                 prefix = 'wicbirth',
-                date_column = 'date_of_birth', **kwargs)
-
-        if not self.parallel:
-            self.inputs = [FromSQL(target=True, query="""
-SELECT *, 
-apgar_n::int as apgar,
-nullif(lgt_inch_n, 0) as length,
-nullif(wgt_grm_n, 0) as weight,
-nullif(headcirc_n, 0) as head_circumference,
-array_remove(array[
-        inf_cmp1_c, inf_cmp2_c, inf_cmp3_c, inf_cmp4_c, inf_cmp5_c
-], null) as complication
-FROM aux.kids
-JOIN aux.kid_mothers USING (kid_id)
-JOIN cornerstone.birth USING (part_id_i, mothr_id_i)
-""", tables=['aux.kids', 'aux.kid_mothers'], parse_dates=['date_of_birth'])
-            ]
+                date_column = 'date_of_birth', 
+                parallel=parallel)
 
     def get_aggregates(self, date, delta):
         
@@ -95,16 +98,7 @@ JOIN cornerstone.birth USING (part_id_i, mothr_id_i)
 
         return aggregates
 
-class PrenatalAggregation(SpacetimeAggregation):
-    def __init__(self, spacedeltas, dates, **kwargs):
-        SpacetimeAggregation.__init__(self,
-                spacedeltas = spacedeltas,
-                dates = dates,
-                prefix = 'wicprenatal',
-                date_column = 'visit_d', **kwargs)
-
-        if not self.parallel:
-            self.inputs = [FromSQL(target=True, query="""
+prenatal = FromSQL("""
 SELECT kid_id, date_of_birth, p.*
 FROM aux.kids
 JOIN aux.kid_mothers USING (kid_id)
@@ -112,7 +106,17 @@ JOIN cornerstone.birth b USING (part_id_i, mothr_id_i)
 JOIN cornerstone.prenatl p ON b.mothr_id_i = p.part_id_i
 where date_of_birth - visit_d between -365 and 365
 """, tables=['aux.kids', 'aux.kid_mothers'], parse_dates=['date_of_birth', 'visit_d'])
-            ]
+prenatal.target = True
+
+class PrenatalAggregation(SpacetimeAggregation):
+    def __init__(self, spacedeltas, dates, parallel=False):
+        SpacetimeAggregation.__init__(self,
+                inputs = [prenatal],
+                spacedeltas = spacedeltas,
+                dates = dates,
+                prefix = 'wicprenatal',
+                date_column = 'visit_d', 
+                parallel=parallel)
 
     def get_aggregates(self, date, delta):
 
