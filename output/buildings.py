@@ -7,16 +7,17 @@ import numpy as np
 CONDITIONS = ['condition_major', 'condition_minor', 
         'condition_uninhabitable', 'condition_sound']
 
-class BuildingsAggregation(SimpleAggregation):
-    def __init__(self, indexes, **kwargs):
-        SimpleAggregation.__init__(self, indexes=indexes, prefix='buildings', **kwargs)
-        if not self.parallel:
-            self.inputs = [FromSQL(query="select * from aux.buildings "
+buildings = FromSQL(query="select * from aux.buildings "
                 "join (select distinct on (building_id) * "
                        "from output.addresses order by building_id, address_id) a "
                 "using (building_id)",
-                tables=['aux.buildings', 'output.addresses'], target=True)]
+                tables=['aux.buildings', 'output.addresses'])
+buildings.target = True
 
+
+class BuildingsAggregation(SimpleAggregation):
+    def __init__(self, indexes, parallel=False):
+        SimpleAggregation.__init__(self, inputs=[buildings], indexes=indexes, prefix='buildings', parallel=parallel)
     @property
     def aggregates(self):
         return [

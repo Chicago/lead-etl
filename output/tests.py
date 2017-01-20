@@ -8,7 +8,18 @@ from drain.aggregate import Count, Fraction, Aggregate, days
 import pandas as pd
 import logging
 
-# TODO: make this more efficient by not including unnecessary address columns
+tests = Merge(inputs=[
+    Merge(inputs=[
+        FromSQL(table='output.tests', parse_dates=['date']), 
+        FromSQL(table='output.addresses')], on='address_id'),
+    # get kid first bll6 and bll10 counts to calculate incidences
+    FromSQL("""
+        select kid_id, first_bll6_sample_date, first_bll10_sample_date 
+        from output.kids
+    """, parse_dates=['first_bll6_sample_date', 'first_bll10_sample_date'])],
+on='kid_id')
+tests.target = True
+
 class TestsAggregation(SpacetimeAggregation):
     def __init__(self, spacedeltas, dates, **kwargs):
         SpacetimeAggregation.__init__(self,
@@ -16,17 +27,7 @@ class TestsAggregation(SpacetimeAggregation):
             date_column='date', censor_columns={'first_bll6_sample_date':[], 'first_bll10_sample_date':[]}, **kwargs)
 
         if not self.parallel:
-            self.inputs = [Merge(inputs=[
-                    Merge(inputs=[
-                        FromSQL(table='output.tests', parse_dates=['date'], target=True), 
-                        FromSQL(table='output.addresses', target=True)], on='address_id'),
-                    # get kid first bll6 and bll10 counts to calculate incidences
-                    FromSQL("""
-                    select kid_id, first_bll6_sample_date, first_bll10_sample_date 
-                    from output.kids
-                    """, parse_dates=['first_bll6_sample_date', 'first_bll10_sample_date'])],
-                on='kid_id', target=True
-            )]
+            self.inputs = [tests]
 
     def get_aggregates(self, date, delta):
         kid_count = Aggregate('kid_id', 'nunique', 

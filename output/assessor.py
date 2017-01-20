@@ -6,14 +6,15 @@ import numpy as np
 
 CLASSES = ['residential', 'incentive', 'multifamily', 'industrial', 'commercial', 'brownfield', 'nonprofit']
 
-class AssessorAggregation(SimpleAggregation):
-    def __init__(self, indexes, **kwargs):
-        SimpleAggregation.__init__(self, indexes=indexes, prefix='assessor', **kwargs)
-        if not self.parallel:
-            self.inputs = [FromSQL(query="select *, coalesce(nullif(apartments, 0), 1) as units "
+assessor = FromSQL(query="select *, coalesce(nullif(apartments, 0), 1) as units "
                 "from aux.assessor "
                 "join output.addresses using (address)",
-                tables=['aux.assessor', 'output.addresses'], target=True)]
+                tables=['aux.assessor', 'output.addresses'])
+assessor.target = True
+
+class AssessorAggregation(SimpleAggregation):
+    def __init__(self, indexes, parallel=False):
+        SimpleAggregation.__init__(self, inputs=[assessor], indexes=indexes, prefix='assessor', parallel=parallel)
 
     @property
     def aggregates(self):

@@ -16,10 +16,7 @@ CLOSURE_CODES = range(1,12+1)
 DATE_COLUMNS = ['referral_date', 'init_date', 'comply_date', 'closure_date']
 DATE_NAMES = ['referral', 'inspection', 'compliance', 'closure']
 
-class Inspections(Step):
-    def __init__(self, **kwargs):
-        Step.__init__(self, **kwargs)
-        self.inputs = [FromSQL(query="""
+inspections = FromSQL(query="""
         select * 
         from output.investigations join output.addresses using (address_id)
         where -- ensure referral_date <= init_date <= comply_date <= closure_date
@@ -27,7 +24,12 @@ class Inspections(Step):
             and coalesce(init_date <= least(comply_date, closure_date), true)
             and coalesce(comply_date <= closure_date, true)
         """, parse_dates=DATE_COLUMNS,
-        tables=['output.investigations', 'output.addresses'], target=False)]
+        tables=['output.investigations', 'output.addresses'])
+inspections.target = True
+
+class Inspections(Step):
+    def __init__(self):
+        Step.__init__(self, inputs=[inspections])
 
     def run(self, df):
         df['hazard'] = df.hazard_ext | df.hazard_int
@@ -46,9 +48,13 @@ class Inspections(Step):
 
         return df
 
+inspections_step = Inspections()
+inspections_step.target = True
+
 class InvestigationsAggregation(SpacetimeAggregation):
-    def __init__(self, spacedeltas, dates, **kwargs):
+    def __init__(self, spacedeltas, dates, parallel=False):
         SpacetimeAggregation.__init__(self,
+                inputs = [inspections_step],
                 spacedeltas = spacedeltas,
                 dates = dates,
                 prefix = 'investigations',
@@ -58,11 +64,7 @@ class InvestigationsAggregation(SpacetimeAggregation):
                             'inspection_to_compliance' ],
                     'init_date':['inspected', 'referral_to_inspection', 
                             'inspection_to_compliance']
-                }, 
-                **kwargs)
-
-        if not self.parallel:
-            self.inputs = [Inspections(target=True)]
+                }, parallel=parallel)
 
     def get_aggregates(self, date, delta):
         

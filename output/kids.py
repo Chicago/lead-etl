@@ -30,8 +30,7 @@ def revise_kid_addresses(date):
                 min_date_column='address_min_date', 
                 date_column='date',
                 date=date,
-                from_sql_args={'parse_dates':KID_ADDRESSES_PARSE_DATES,
-                               'target':True})
+                from_sql_args={'parse_dates':KID_ADDRESSES_PARSE_DATES})
         kids_filename = os.path.join(
                 os.path.dirname(__file__), 'kids.sql')
         kids = Revise(sql=kids_filename, 
@@ -41,9 +40,11 @@ def revise_kid_addresses(date):
                 date_column='date',
                 date=date, 
                 from_sql_args={'parse_dates':KIDS_PARSE_DATES, 
-                               'to_str':['first_name','last_name'],
-                               'target':True})
+                               'to_str':['first_name','last_name']})
         
+        for i in kid_addresses.inputs: i.target = True
+        for i in kids.inputs: i.target = True
+
         return Merge(inputs=[kids, kid_addresses], on='kid_id')
 
 class KidsAggregation(SpacetimeAggregation):
@@ -59,7 +60,8 @@ class KidsAggregation(SpacetimeAggregation):
 
         if not self.parallel:
             kid_addresses = revise_kid_addresses(date=dates[0])
-            addresses = FromSQL(table='output.addresses', target=True)
+            addresses = FromSQL(table='output.addresses')
+            addresses.target = True
             self.inputs = [Merge(inputs=[kid_addresses, addresses], 
                     on='address_id')]
 
