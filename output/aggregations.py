@@ -58,15 +58,12 @@ def all_dict(dates=None, lag=None):
         cls = getattr(sys.modules[__name__], '%sAggregation' % name.split('_')[-1].title())
         if name in ('buildings', 'assessor'):
             aggs[name] = cls(indexes={n:indexes[n] for n in a}, parallel=True)
-            aggs[name].target = True
             for i in aggs[name].inputs: i.target=True
         else:
             spacedeltas = {n: (indexes[n], d) 
                     for n, d in a.iteritems()}
             dates_lagged = [d - delta for d in dates] if delta is not None and name.startswith('wic') else dates
             aggs[name] = cls(spacedeltas=spacedeltas, dates=dates_lagged, parallel=True)
-            aggs[name].target = True
-            aggs[name].inputs
             for i in aggs[name].inputs: i.target=True
 
     return aggs
