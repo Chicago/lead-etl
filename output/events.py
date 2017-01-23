@@ -21,6 +21,7 @@ event_codes = [
 
 # most common combinations of event and res codes
 # TODO: consider including less common but useful ones
+# TODO: switch to Binarize step with min_freq!
 event_res_codes = [
     'REINS_C', 'INSSA_C', 'INSAR_N', 'CMPLY_C', 'ENVPH_C', 'INSAR_P',
     'CONFL_C', 'INSAR_W', 'SATTY_C', 'INSAR_Z', 'INSAC_P', 'INSAC_N',
