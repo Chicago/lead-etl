@@ -64,7 +64,9 @@ CREATE TABLE aux.tests AS (
     FROM tests
     -- only take tests with non-null first, last, dob, sample_date, bll
     WHERE bll is not null and 
-        coalesce(sample_date, date_of_birth) is not null and 
+        sample_date is not null and 
+        date_of_birth is not null and
+        sample_type is not null and
         coalesce(first_name, last_name) is not null is not null 
 );
 
