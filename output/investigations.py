@@ -63,7 +63,8 @@ class InvestigationsAggregation(SpacetimeAggregation):
                     'comply_date':['complied', 'referral_to_compliance', 
                             'inspection_to_compliance' ],
                     'init_date':['inspected', 'referral_to_inspection', 
-                            'inspection_to_compliance']
+                            'inspection_to_compliance'],
+                    'closure_date':['closure_code']
                 }, parallel=parallel)
 
     def get_aggregates(self, date, delta):
