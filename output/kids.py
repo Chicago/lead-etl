@@ -31,6 +31,7 @@ def revise_kid_addresses(date):
                 date_column='date',
                 date=date,
                 from_sql_args={'parse_dates':KID_ADDRESSES_PARSE_DATES})
+
         kids_filename = os.path.join(
                 os.path.dirname(__file__), 'kids.sql')
         kids = Revise(sql=kids_filename, 
