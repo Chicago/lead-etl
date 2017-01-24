@@ -36,6 +36,7 @@ class Inspections(Step):
         df['hazard_both'] = df.hazard_ext & df.hazard_int
         df['complied'] = df.comply_date.notnull()
         df['inspected'] = df.init_date.notnull()
+        df['open'] = df.closure_date.notnull()
 
         df['referral_to_inspection'] = (df['init_date'] - df['referral_date']) / day
         df['referral_to_compliance'] = (df['comply_date'] - df['referral_date']) / day
@@ -79,6 +80,7 @@ class InvestigationsAggregation(SpacetimeAggregation):
 
             Count('inspected', prop=True),
             Count('complied', prop=True),
+            Count('open', prop=True),
 
             Aggregate(['referral_to_inspection', 'referral_to_compliance', 
                         'referral_to_closure', 'inspection_to_compliance', 
