@@ -11,7 +11,7 @@ $[SQL_DIR]/aux/tests <- aux/tests.sql, $[SQL_DIR]/input/currbllshort, $[SQL_DIR]
 
 ; auxillary information about tests: test number, first and last test, first ebll, maximum bll
 ; also importantly drops tests with invalid dates (null kid date of birth or sample date < date of birth)
-$[SQL_DIR]/aux/kid_tests_info <- aux/kid_tests_info.sql, $[SQL_DIR]/aux/kid_tests, $[SQL_DIR]/aux/kids, $[SQL_DIR]/aux/test_addresses [method:psql]
+$[SQL_DIR]/aux/kid_tests_info <- aux/kid_tests_info.sql, $[SQL_DIR]/aux/kid_tests, $[SQL_DIR]/aux/kids, $[SQL_DIR]/aux/test_addresses, $[SQL_DIR]/aux/blls [method:psql]
 
 ; generate canonical list of kids by taking mode of deduped kid clusters
 $[SQL_DIR]/aux/kids <- aux/kids.sql, $[SQL_DIR]/dedupe/infants, $[SQL_DIR]/dedupe/entity_map, $[SQL_DIR]/aux/schema [method:psql]
