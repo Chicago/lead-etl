@@ -11,3 +11,5 @@ create table output.lab_months as (
     where lab_id != 'ERR'
     group by 1,2,3
 );
+
+alter table output.lab_months add primary key (lab_id, sample_type, month);
