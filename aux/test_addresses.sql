@@ -41,3 +41,4 @@ INSERT INTO aux.test_addresses (
                       '(([^ ]* ){3,}(AVE|BLVD|CT|DR|HWY|PKWY|PL|RD|ROW|SQ|ST|TER|WAY))( .*)$', '\1')
 );
 
+alter table aux.test_addresses add primary key (test_id);
