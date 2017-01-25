@@ -44,6 +44,12 @@ $[SQL_DIR]/aux/kid_stellar_addresses <- aux/kid_stellar_addresses.sql, $[SQL_DIR
 
 $[SQL_DIR]/aux/kid_wic_min_date <- aux/kid_wic_min_date.sql, $[SQL_DIR]/aux/kid_wics, $[SQL_DIR]/aux/kids, $[SQL_DIR]/cornerstone/partenrl [method:psql]
 
+; link between currbllshort and stellar tests
 $[SQL_DIR]/aux/labs_tests <- aux/labs_tests.sql, $[SQL_DIR]/stellar/lab, $[SQL_DIR]/aux/tests, $[SQL_DIR]/aux/kid_tests, $[SQL_DIR]/aux/kid_stellars [method:psql]
 
-$[SQL_DIR]/aux/blls <- aux/blls.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/output/lab_months [method:psql]
+$[SQL_DIR]/aux/lab_months <- aux/lab_months.sql, $[SQL_DIR]/aux/tests [method:psql]
+
+$[SQL_DIR]/aux/bll_months <- aux/bll_months.sql, $[SQL_DIR]/aux/lab_months, $[SQL_DIR]/aux/tests [method:psql]
+
+; imputed blls for each test in aux.tests
+$[SQL_DIR]/aux/blls <- aux/blls.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/aux/lab_months, $[SQL_DIR]/aux/bll_months [method:psql]

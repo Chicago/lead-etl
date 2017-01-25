@@ -18,10 +18,6 @@ create table output.tests as (
     left join aux.test_addresses ta using (test_id)
     left join aux.addresses a using (address_id)
     left join aux.kids k using (kid_id)
-    left join output.lab_months l on
-        l.lab_id = t.lab_id and
-        l.sample_type = t.sample_type and
-        l.month = date_trunc('month', sample_date)
 );
 
 alter table output.tests add primary key (test_id);
