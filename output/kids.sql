@@ -12,7 +12,14 @@ max_bll AS (
     select distinct on(kid_id) *
     from output.tests
     where 1=1
-    order by kid_id, bll desc, date asc, test_id asc
+    order by kid_id, bll desc nulls last, date asc, test_id asc
+),
+
+max_bll0 AS (
+    select distinct on(kid_id) *
+    from output.tests
+    where 1=1
+    order by kid_id, bll0 desc, date asc, test_id asc
 ),
 
 test_summary AS (
@@ -93,6 +100,7 @@ icare as (
 
 SELECT s.*,
     max_bll.bll as max_bll,
+    max_bll0.bll as max_bll0,
     blls.avg_bll,
     -- cumulative bll is measured in ug/dL * years
     blls.cumulative_bll / 365 as cumulative_bll,
@@ -115,6 +123,7 @@ LEFT JOIN first_bll6 USING (kid_id)
 LEFT JOIN first_bll10 USING (kid_id)
 LEFT JOIN first USING (kid_id)
 LEFT JOIN max_bll USING (kid_id)
+LEFT JOIN max_bll0 USING (kid_id)
 LEFT JOIN icare USING (kid_id)
 LEFT JOIN blls USING (kid_id)
 where date_of_birth is not null
