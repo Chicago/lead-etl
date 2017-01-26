@@ -3,7 +3,7 @@
 DROP TABLE IF EXISTS aux.stellar_addresses;
 
 CREATE TABLE aux.stellar_addresses AS (
-	SELECT addr_id, address_id, addrline2 as apt
+	SELECT addr_id, address_id, addr_apt as apt
 	FROM stellar.addr join aux.addresses on upper(assemaddr) = address
 );
 
