@@ -16,10 +16,7 @@ CLOSURE_CODES = range(1,12+1)
 DATE_COLUMNS = ['referral_date', 'init_date', 'comply_date', 'closure_date']
 DATE_NAMES = ['referral', 'inspection', 'compliance', 'closure']
 
-class Inspections(Step):
-    def __init__(self, **kwargs):
-        Step.__init__(self, **kwargs)
-        self.inputs = [FromSQL(query="""
+inspections = FromSQL(query="""
         select * 
         from output.investigations join output.addresses using (address_id)
         where -- ensure referral_date <= init_date <= comply_date <= closure_date
@@ -27,13 +24,19 @@ class Inspections(Step):
             and coalesce(init_date <= least(comply_date, closure_date), true)
             and coalesce(comply_date <= closure_date, true)
         """, parse_dates=DATE_COLUMNS,
-        tables=['output.investigations', 'output.addresses'], target=False)]
+        tables=['output.investigations', 'output.addresses'])
+inspections.target = True
+
+class Inspections(Step):
+    def __init__(self):
+        Step.__init__(self, inputs=[inspections])
 
     def run(self, df):
         df['hazard'] = df.hazard_ext | df.hazard_int
         df['hazard_both'] = df.hazard_ext & df.hazard_int
         df['complied'] = df.comply_date.notnull()
         df['inspected'] = df.init_date.notnull()
+        df['open'] = df.closure_date.notnull()
 
         df['referral_to_inspection'] = (df['init_date'] - df['referral_date']) / day
         df['referral_to_compliance'] = (df['comply_date'] - df['referral_date']) / day
@@ -46,9 +49,13 @@ class Inspections(Step):
 
         return df
 
+inspections_step = Inspections()
+inspections_step.target = True
+
 class InvestigationsAggregation(SpacetimeAggregation):
-    def __init__(self, spacedeltas, dates, **kwargs):
+    def __init__(self, spacedeltas, dates, parallel=False):
         SpacetimeAggregation.__init__(self,
+                inputs = [inspections_step],
                 spacedeltas = spacedeltas,
                 dates = dates,
                 prefix = 'investigations',
@@ -57,12 +64,9 @@ class InvestigationsAggregation(SpacetimeAggregation):
                     'comply_date':['complied', 'referral_to_compliance', 
                             'inspection_to_compliance' ],
                     'init_date':['inspected', 'referral_to_inspection', 
-                            'inspection_to_compliance']
-                }, 
-                **kwargs)
-
-        if not self.parallel:
-            self.inputs = [Inspections(target=True)]
+                            'inspection_to_compliance'],
+                    'closure_date':['closure_code']
+                }, parallel=parallel)
 
     def get_aggregates(self, date, delta):
         
@@ -76,6 +80,7 @@ class InvestigationsAggregation(SpacetimeAggregation):
 
             Count('inspected', prop=True),
             Count('complied', prop=True),
+            Count('open', prop=True),
 
             Aggregate(['referral_to_inspection', 'referral_to_compliance', 
                         'referral_to_closure', 'inspection_to_compliance', 

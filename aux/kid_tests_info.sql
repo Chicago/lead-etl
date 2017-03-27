@@ -3,11 +3,12 @@ drop table if exists aux.kid_tests_info;
 create table aux.kid_tests_info as (
 
 WITH tests AS (
-    select *,
+    select kid_id, test_id, address_id, sample_date, b.bll, 
         row_number() OVER w as test_number,
         -- last_bll used to compute lagged max(bll) series for increase column below
-        lag(bll) over w as last_bll
+        lag(b.bll) over w as last_bll
     from aux.tests 
+    join aux.blls b using (test_id)
     join aux.kid_tests using (test_id) 
     join aux.kids using (kid_id)
     left join aux.test_addresses using (test_id)
@@ -37,7 +38,7 @@ lag AS (
     from tests
 )
 
-select tests.kid_id, test_id, 
+select tests.kid_id, test_id,
     first_bll6.test_id is not null as first_bll6,
     first_bll10.test_id is not null as first_bll10,
     test_number = 1 as first,

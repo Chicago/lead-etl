@@ -3,7 +3,7 @@ import numpy as np
 from drain import util
 import sys
 
-def read_acs(table, columns, engine, offsets={0:{}}, years=range(2009, 2015)):
+def read_acs(table, columns, engine, offsets={0:{}}, years=range(2009, 2016)):
     select = """
         select geoid, {fields} from acs{year}_5yr.{table}
         where geoid ~ 'US1703'
@@ -141,19 +141,14 @@ for i in range(len(insurances)):
 insurance_agg = aggregate(insurance, prefix='health', index=index)
 
 # TENURE
-tenure_table='B11012'
+tenure_table='B25003'
 tenure_columns={
-    'tenure_count_total': 0,
-    'tenure_count_owner': 1,
-    'tenure_count_renter': 2
-}
-tenure_offsets = {
-    3: {'family_type': 'married'},
-    7: {'family_type': 'male'},
-    10: {'family_type': 'female'}
+    'tenure_count_total': 1,
+    'tenure_count_owner': 2,
+    'tenure_count_renter': 3
 }
 
-tenure = read_acs(tenure_table, tenure_columns, engine, tenure_offsets)
+tenure = read_acs(tenure_table, tenure_columns, engine)
 tenure_agg = aggregate(tenure, prefix='tenure', index=index)
 
 acs = tenure_agg.join((insurance_agg, health_agg, edu_agg, poverty_agg, race_agg, hispanic_agg), how='outer')

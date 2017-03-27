@@ -13,7 +13,8 @@ from datetime import date
 import sys
 from drain.util import lru_cache
 
-DATES = (date(y,1,25) for y in range (2003, 2016))
+# default date is january 1
+DATES = (date(y,1,1) for y in range (2003, 2016))
 
 indexes = {
     'kid':'kid_id', 
@@ -57,12 +58,14 @@ def all_dict(dates=None, lag=None):
     for name, a in args.iteritems():
         cls = getattr(sys.modules[__name__], '%sAggregation' % name.split('_')[-1].title())
         if name in ('buildings', 'assessor'):
-            aggs[name] = cls(indexes={n:indexes[n] for n in a}, target=True, parallel=True)
+            aggs[name] = cls(indexes={n:indexes[n] for n in a}, parallel=True)
+            for i in aggs[name].inputs: i.target=True
         else:
             spacedeltas = {n: (indexes[n], d) 
                     for n, d in a.iteritems()}
             dates_lagged = [d - delta for d in dates] if delta is not None and name.startswith('wic') else dates
-            aggs[name] = cls(spacedeltas=spacedeltas, dates=dates_lagged, target=True, parallel=True)
+            aggs[name] = cls(spacedeltas=spacedeltas, dates=dates_lagged, parallel=True)
+            for i in aggs[name].inputs: i.target=True
 
     return aggs
 

@@ -23,18 +23,16 @@ from input.building_violations
 join output.addresses a using (address)
 """ % (KEYWORD_COLUMNS, STATUS_COLUMNS), 
     parse_dates=['violation_date', 'violation_status_date'], 
-    tables=['input.building_violations', 'output.addresses'],
-    target=True)
+    tables=['input.building_violations', 'output.addresses'])
+violations.target=True
 
 class ViolationsAggregation(SpacetimeAggregation):
-    def __init__(self, spacedeltas, dates, **kwargs):
-        SpacetimeAggregation.__init__(self, 
+    def __init__(self, spacedeltas, dates, parallel=False):
+        SpacetimeAggregation.__init__(self, inputs = [violations],
                 spacedeltas=spacedeltas, dates=dates, 
                 prefix = 'violations', date_column = 'violation_date',
-                censor_columns = {'violation_status_date': ['violation_status']}, **kwargs)
-
-        if not self.parallel:
-            self.inputs = [violations]
+                censor_columns = {'violation_status_date': ['violation_status']},
+                parallel=parallel)
 
     def get_aggregates(self, date, data):
         aggregates = [

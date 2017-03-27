@@ -21,6 +21,7 @@ event_codes = [
 
 # most common combinations of event and res codes
 # TODO: consider including less common but useful ones
+# TODO: switch to Binarize step with min_freq!
 event_res_codes = [
     'REINS_C', 'INSSA_C', 'INSAR_N', 'CMPLY_C', 'ENVPH_C', 'INSAR_P',
     'CONFL_C', 'INSAR_W', 'SATTY_C', 'INSAR_Z', 'INSAC_P', 'INSAC_N',
@@ -29,21 +30,19 @@ event_res_codes = [
     'INSAC_O', 'INSSA_R', 'INSSA_W', 'INSAC_T', 'CONFL_Q', 'INSAR_T',
     'INSAR_U', 'INSAC_C', 'CONTC_C', 'INSSA_D', 'INSAR_B', 'INSAC_U'
 ]
-
-
-class Events(Step):
-    def __init__(self, **kwargs):
-        Step.__init__(self, **kwargs)
-        self.inputs = [Merge(inputs=[
-            FromSQL("""
-                select comp_date, event_code, res_code, address_id
+events_table = FromSQL("""
+                select comp_date, event_code, res_code, addresses.*
                 from stellar.event
                 join aux.stellar_addresses on addr_id = id_number
+                join output.addresses using (address_id)
                 where class = 'I'
-            """, tables=['stellar.event', 'aux.stellar_addresses'],
-            parse_dates=['comp_date'], target=True), 
-            FromSQL(table='output.addresses', target=True)
-        ], on='address_id')]
+            """, tables=['stellar.event', 'aux.stellar_addresses', 'output.addresses'],
+            parse_dates=['comp_date'])
+events_table.target = True
+
+class Events(Step):
+    def __init__(self):
+        Step.__init__(self, inputs = [events_table])
 
     def run(self, event):
         # concatenate event and res code, e.g. 'REINS_C'
@@ -54,17 +53,18 @@ class Events(Step):
 
         return event
 
+events = Events()
+events.target = True
+
 class EventsAggregation(SpacetimeAggregation):
-    def __init__(self, spacedeltas, dates, **kwargs):
+    def __init__(self, spacedeltas, dates, parallel=False):
         SpacetimeAggregation.__init__(self,
+                inputs = [events],
                 spacedeltas = spacedeltas,
                 dates = dates,
                 prefix = 'events',
                 date_column = 'comp_date', 
-                **kwargs)
-
-        if not self.parallel:
-            self.inputs = [Events(target=True)]
+                parallel=parallel)
 
     def get_aggregates(self, date, delta):
         return [
