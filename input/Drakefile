@@ -54,8 +54,8 @@ $[DATA_DIR]/shapefiles/census_blocks.zip, $[DATA_DIR]/shapefiles/census_blocks/ 
 $[SQL_DIR]/input/census_blocks <- $[DATA_DIR]/shapefiles/census_blocks/, $[SQL_DIR]/input/schema [method:import_shapefile]
 
 ; assessor 
-$[SQL_DIR]/input/assessor <- input/assessor.sh, $[SQL_DIR]/input/schema
-    $INPUT $ASSESSOR_FILE && touch $OUTPUT
+$[SQL_DIR]/input/assessor <- input/assessor.sh, $[ASSESSOR_FILE], $[SQL_DIR]/input/schema
+    $INPUT $INPUT1 && touch $OUTPUT
 
 ; old blood tests, $[M7_FILE]
 $[SQL_DIR]/input/m7 <- input/m7.sh, $[M7_FILE], $[SQL_DIR]/input/schema
