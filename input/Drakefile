@@ -99,7 +99,6 @@ $[DATA_DIR]/building_violations.csv <- [-timecheck]
 	wget -O- "https://data.cityofchicago.org/api/views/22u3-xenr/rows.csv?accessType=DOWNLOAD" | sed 's/, ,/,,/g' > $OUTPUT
 $[SQL_DIR]/input/building_violations <- input/building_violations.sql, $[DATA_DIR]/building_violations.csv, $[SQL_DIR]/input/schema [method:psql]
 
-%include $[ACS_PROFILE]
 ; selected acs variables copied to lead db via csv
 $[DATA_DIR]/acs.csv <- input/acs/download.py
     python $INPUT $OUTPUT
