@@ -9,7 +9,7 @@ Closely based on previous [work](https://github.com/dssg/cdph) of Joe Brew, Alex
 
 The code for each phase is located in the corresponding subdirectory and is executed using a drake. The output of each phase is contained in a database schema of the same name.
 
-###input
+### input
 
 Preprocess and import our data into the database. CDPH provided us with three private databases:
  - Blood Lead Level Tests
@@ -24,19 +24,19 @@ We supplemented that data with the following public datasets:
  - [Building Violations](https://data.cityofchicago.org/Buildings/Building-Violations/22u3-xenr)
  - [American Community Survey](http://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml)
 
-###dedupe
+### dedupe
 Deduplicate the names of children from the blood tests and the WIC Cornerstone database.
 
-###buildings
+### buildings
 Analyze the Chicago buildings shapefile to extract all addresses and group them into buildings and complexes.
 
-###aux
+### aux
 Process the data to prepare for model building. That includes summarizing and spatially joining datasets.
 
-###output
+### output
 Generate model features by aggregating the datasets at a variety of spatial and temporal resolutions.
 
-###model
+### model
 Use our [drain pipeline](https://github.com/dssg/drain/) to run run models in parallel and serialize the results.
 
 ## Running the model
