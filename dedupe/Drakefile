@@ -1,7 +1,7 @@
 $[SQL_DIR]/dedupe/schema <- [method:psql_schema -timecheck]
 
-; merge kid info from tests and cornerstone
-$[SQL_DIR]/dedupe/infants <- dedupe/infants.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/cornerstone/partenrl, $[SQL_DIR]/cornerstone/partaddr, $[SQL_DIR]/cornerstone/partpgm, $[SQL_DIR]/input/icare, $[SQL_DIR]/dedupe/schema, $[SQL_DIR]/input/hcv, $[SQL_DIR]/stellar/child [method:psql]
+; merge kid info from tests, cornerstone, and stellar
+$[SQL_DIR]/dedupe/infants <- dedupe/infants.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/cornerstone/partenrl, $[SQL_DIR]/cornerstone/partaddr, $[SQL_DIR]/cornerstone/partpgm, $[SQL_DIR]/dedupe/schema, $[SQL_DIR]/stellar/child [method:psql]
 
 ; use dedupe library to generate preliminary entity map
 ; takes about 30 minutes using 12 cores
@@ -15,9 +15,7 @@ $[SQL_DIR]/dedupe/exact_matches <- dedupe/exact_matches.py, $[SQL_DIR]/dedupe/en
 ; resolve entity_map with exact_matches for a final entity map
 $[SQL_DIR]/dedupe/entity_map <- dedupe/entity_map.sql, $[SQL_DIR]/dedupe/exact_matches, $[SQL_DIR]/dedupe/entity_map0, $[SQL_DIR]/dedupe/infants [method:psql]
 
-; create test, wic, icare, hcv, and stellar join tables
+; create test, wic, and stellar join tables
 $[SQL_DIR]/aux/kid_tests <- dedupe/kid_tests.sql, $[SQL_DIR]/dedupe/entity_map [method:psql]
 $[SQL_DIR]/aux/kid_wics <- dedupe/kid_wics.sql, $[SQL_DIR]/dedupe/entity_map [method:psql]
-$[SQL_DIR]/aux/kid_icares <- dedupe/kid_icares.sql, $[SQL_DIR]/dedupe/entity_map [method:psql]
-$[SQL_DIR]/aux/kid_hcvs <- dedupe/kid_hcvs.sql, $[SQL_DIR]/dedupe/entity_map [method:psql]
 $[SQL_DIR]/aux/kid_stellars <- dedupe/kid_stellars.sql, $[SQL_DIR]/dedupe/entity_map [method:psql]
