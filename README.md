@@ -75,7 +75,6 @@ M7_FILE= # Old blood lead levels CSV file
 CORNERSTONE_DIR= # Directory containing Cornerstone DBF files
 CORNERSTONE_ADDRESSES_FILE= # Geocoded Cornerstone addresses CSV file
 STELLAR_DIR= # Directory containing Stellar DBF files
-ICARE_FILE= # Immunization records CSV file
 DEDUPE_TRAINING_FILE= # dedupe JSON training file
 ```
 #### 5. Run the workflow by typing `drake`.
