@@ -18,9 +18,5 @@ $[SQL_DIR]/output/addresses <- output/addresses.sql, $[SQL_DIR]/aux/addresses, $
 ; rename columns and convert closure reason text into codes
 $[SQL_DIR]/output/investigations <- output/investigations.sql, $[SQL_DIR]/stellar/invest, $[SQL_DIR]/aux/stellar_addresses, $[SQL_DIR]/output/schema [method:psql]
 
-$[SQL_DIR]/output/kids_extra <- output/kids_extra.sql, $[SQL_DIR]/output/tests [method:psql]
-
 ; calculate kid ethnicity based on last name and address
 $[SQL_DIR]/output/kid_ethnicity <- output/kid_ethnicity.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/input/surnames, $[SQL_DIR]/output/kid_addresses, $[SQL_DIR]/aux/addresses, $[SQL_DIR]/output/acs [method:psql]
-
-$[SQL_DIR]/output/kid_investigations <- output/kid_investigations.sql, $[SQL_DIR]/output/kids, $[SQL_DIR]/output/investigations, $[SQL_DIR]/stellar/ca_link, $[SQL_DIR]/stellar/event, $[SQL_DIR]/stellar/event_class_id_number_idx [method:psql]
