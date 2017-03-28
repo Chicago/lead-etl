@@ -47,7 +47,7 @@ select regexp_replace(upper(unaccent(first_name)), '[^A-Z]', '', 'g') first_name
     min(date_of_birth) - '1970-01-01' as day, count(*) as count,
     array_remove(array_agg(test_id), null) test_ids, 
     array_remove(array_agg(cornerstone_id), null) cornerstone_ids,
-    array_remove(array_agg(stellar_id), null) stellar_ids,
+    array_remove(array_agg(stellar_id), null) stellar_ids
 from infants
 where first_name is not null and last_name is not null and date_of_birth is not null
 group by 1,2,3,4,5
