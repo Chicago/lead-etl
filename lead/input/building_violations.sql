@@ -25,4 +25,4 @@ create table input.building_violations (
 	location text
 );
 
-\copy input.building_violations from 'data/building_violations.csv' with csv header;
+\copy input.building_violations from '${INPUT1}' with csv header;

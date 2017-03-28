@@ -14,7 +14,7 @@ CREATE TABLE input.surnames (
 	pct_hispanic decimal
 );
 
-\COPY input.surnames FROM 'data/surnames/surnames.csv' WITH CSV HEADER;
+\COPY input.surnames FROM '${INPUT1}' WITH CSV HEADER;
 
 ALTER TABLE input.surnames ADD COLUMN ethnicity text;
 UPDATE input.surnames SET ethnicity =
