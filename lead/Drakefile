@@ -1,5 +1,5 @@
-%include $[DRAKE_LIB_DIR]/drake-psql/Drakefile 
 %include default_profile
+%include $[DRAKE_LIB_DIR]/drake-psql/Drakefile 
 
 %include input/Drakefile
 %include input/stellar/Drakefile
