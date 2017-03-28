@@ -100,9 +100,11 @@ $[DATA_DIR]/building_violations.csv <- [-timecheck]
 $[SQL_DIR]/input/building_violations <- input/building_violations.sql, $[DATA_DIR]/building_violations.csv, $[SQL_DIR]/input/schema [method:psql]
 
 ; selected acs variables copied to lead db via csv
+; switch to acs profile
+%include $[ACS_PROFILE]
 $[DATA_DIR]/acs.csv <- input/acs/download.py
     python $INPUT $OUTPUT
-
 %include $[PROFILE]
+
 $[SQL_DIR]/input/acs <- input/acs/import.py, $[DATA_DIR]/acs.csv
     python $INPUT $INPUT1 && touch $OUTPUT
