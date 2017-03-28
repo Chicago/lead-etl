@@ -6,11 +6,11 @@ import_shapefile()
     # get table name from output, e.g. change $[SQL_DIR]/input/wards gives input.wards
     TABLENAME=$(echo $OUTPUT | sed 's/^.*\/\(.*\)\/\(.*\)$/\1.\2/')
     # ogr2ogr doesn't like an existing file
-    rm -rf "$INPUT"/4326/
-    mkdir -p $INPUT/4326/
+    rm -rf "$INPUT"/4326/ && mkdir -p $INPUT/4326/
+    psql -v ON_ERROR_STOP=1 "DROP TABLE IF EXISTS $TABLENAME"
     # -q suppresses query output which for large shapefiles seems to slow down the import
     ogr2ogr -t_srs EPSG:4326 $INPUT/4326/$BASENAME $INPUT/$BASENAME &&\
-        shp2pgsql -I -D -d -s 4326 $INPUT/4326/$BASENAME $TABLENAME | psql -v ON_ERROR_STOP=1 -q && touch $OUTPUT
+        shp2pgsql -I -D -s 4326 $INPUT/4326/$BASENAME $TABLENAME | psql -v ON_ERROR_STOP=1 -q && touch $OUTPUT
 
 ; $URL is a source url
 ; $OUTPUT0 is a target for the zip file
