@@ -47,9 +47,13 @@ $[SQL_DIR]/aux/kid_wic_min_date <- aux/kid_wic_min_date.sql, $[SQL_DIR]/aux/kid_
 ; link between currbllshort and stellar tests
 $[SQL_DIR]/aux/labs_tests <- aux/labs_tests.sql, $[SQL_DIR]/stellar/lab, $[SQL_DIR]/aux/tests, $[SQL_DIR]/aux/kid_tests, $[SQL_DIR]/aux/kid_stellars [method:psql]
 
-$[SQL_DIR]/aux/lab_months <- aux/lab_months.sql, $[SQL_DIR]/aux/tests [method:psql]
+; estimate monthly limit of detection for each lab
+$[SQL_DIR]/aux/lab_months <- aux/lab_months.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/aux/test_lab [method:psql]
 
 $[SQL_DIR]/aux/bll_months <- aux/bll_months.sql, $[SQL_DIR]/aux/lab_months, $[SQL_DIR]/aux/tests [method:psql]
 
 ; imputed blls for each test in aux.tests
 $[SQL_DIR]/aux/blls <- aux/blls.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/aux/lab_months, $[SQL_DIR]/aux/bll_months [method:psql]
+
+; cleanup test lab_ids
+$[SQL_DIR]/aux/test_lab <- aux/test_lab.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/input/labs [method:psql]

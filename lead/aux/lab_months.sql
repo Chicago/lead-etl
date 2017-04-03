@@ -2,7 +2,7 @@ drop table if exists aux.lab_months;
 
 create table aux.lab_months as (
 with lab_months as (
-    select lab_id, 
+    select test_lab.lab_id, 
         sample_type,
         date_trunc('month', sample_date) as month,
         count(*) as count,
@@ -10,7 +10,8 @@ with lab_months as (
         percentile_disc(ARRAY[.05,.10,.15,.20]) WITHIN GROUP (ORDER BY bll ASC) as bll_percentiles,
         percentile_disc(.05) WITHIN GROUP (ORDER BY bll ASC) as limit
     from aux.tests
-    where lab_id != 'ERR'
+    join aux.test_lab using (test_id)
+    where test_lab.lab_id != 'ERR'
     group by 1,2,3
 ),
 
