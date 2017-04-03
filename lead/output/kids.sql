@@ -117,7 +117,6 @@ LEFT JOIN first_bll10 USING (kid_id)
 LEFT JOIN first USING (kid_id)
 LEFT JOIN max_bll USING (kid_id)
 LEFT JOIN max_bll0 USING (kid_id)
-LEFT JOIN icare USING (kid_id)
 LEFT JOIN blls USING (kid_id)
 where date_of_birth is not null
 );
