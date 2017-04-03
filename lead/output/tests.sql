@@ -5,7 +5,7 @@ create table output.tests as (
         CASE WHEN a.address in 
             ('5001 S MICHIGAN AVE', '1634 W POLK ST', '810 W MONTROSE AVE') 
         THEN null ELSE a.address_id END AS address_id,
-        apt, t.lab_id, t.provider_id,
+        apt, test_lab.lab_id, t.provider_id,
         sample_date as date, analysis_date, reported_date,
         t.sample_type, 
         sample_date - k.date_of_birth AS age,
@@ -13,6 +13,7 @@ create table output.tests as (
         b.bll0, b.bll, b.lod, b.detected
     
     from aux.tests t
+    join aux.test_lab using (test_id)
     join aux.blls b using (test_id)
     join aux.kid_tests_info kt using (test_id)
     left join aux.test_addresses ta using (test_id)

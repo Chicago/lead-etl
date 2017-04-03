@@ -15,7 +15,7 @@ tests as (
     select month, bll
     from aux.tests t join aux.test_lab using (test_id)
     join aux.lab_months l on
-        t.lab_id = test_lab.lab_id and
+        l.lab_id = test_lab.lab_id and
         t.sample_type = l.sample_type and
         date_trunc('month', t.sample_date) = l.month
     where "limit" = 1 and count >= 50
