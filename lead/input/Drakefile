@@ -108,3 +108,5 @@ $[DATA_DIR]/acs.csv <- input/acs/download.py
 
 $[SQL_DIR]/input/acs <- input/acs/import.py, $[DATA_DIR]/acs.csv
     python $INPUT $INPUT1 && touch $OUTPUT
+
+$[SQL_DIR]/input/labs <- input/labs.sql, $[LABS_FILE] [method:psql]
