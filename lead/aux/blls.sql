@@ -8,9 +8,9 @@ create table aux.blls as (
         CASE WHEN l.count >= 50 THEN l.limit END as lod,
         CASE WHEN l.count >= 50 THEN
             not (l.limit = bll and l.limit > 1) END as detected
-    FROM aux.tests t
+    FROM aux.tests t join aux.test_lab using (test_id)
     LEFT JOIN aux.lab_months l on
-        l.lab_id = t.lab_id and
+        l.lab_id = test_lab.lab_id and
         l.sample_type = t.sample_type and
         l.month = date_trunc('month', sample_date)
     LEFT JOIN aux.bll_months using (month, bll)
