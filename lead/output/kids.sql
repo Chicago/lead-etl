@@ -84,18 +84,13 @@ kid_address_dates as (
 ),
 -- do this query so that the table is compatible with revise
 -- to be in kids must either have an address entry 
--- coming from blood tests, wic, hcv, or stellar
+-- coming from blood tests, wic, stellar
 -- or a blood test
 summary as (
     select * from kid_address_dates
     full outer join wic using (kid_id)
     full outer join test_summary using (kid_id)
     left join aux.kids using (kid_id)
-),
-icare as (
-    select kid_id
-    from aux.kid_icares
-    group by 1
 )
 
 SELECT s.*,
@@ -114,9 +109,7 @@ SELECT s.*,
     first.address_id as first_sample_address_id,
     first_bll6.address_id as first_bll6_address_id,
     first_bll10.address_id as first_bll10_address_id,
-    max_bll.address_id as max_bll_address_id,
-
-    icare.kid_id is not null as icare
+    max_bll.address_id as max_bll_address_id
 
 FROM summary s
 LEFT JOIN first_bll6 USING (kid_id)
@@ -124,7 +117,6 @@ LEFT JOIN first_bll10 USING (kid_id)
 LEFT JOIN first USING (kid_id)
 LEFT JOIN max_bll USING (kid_id)
 LEFT JOIN max_bll0 USING (kid_id)
-LEFT JOIN icare USING (kid_id)
 LEFT JOIN blls USING (kid_id)
 where date_of_birth is not null
 );

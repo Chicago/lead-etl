@@ -6,12 +6,11 @@ import_shapefile()
     # get table name from output, e.g. change $[SQL_DIR]/input/wards gives input.wards
     TABLENAME=$(echo $OUTPUT | sed 's/^.*\/\(.*\)\/\(.*\)$/\1.\2/')
     # ogr2ogr doesn't like an existing file
-    rm -rf "$INPUT"/4326/
-    mkdir -p $INPUT/4326/
-    ogr2ogr -t_srs EPSG:4326 $INPUT/4326/$BASENAME $INPUT/$BASENAME
-    echo $TABLENAME
+    rm -rf "$INPUT"/4326/ && mkdir -p $INPUT/4326/
+    psql -v ON_ERROR_STOP=1 -c "DROP TABLE IF EXISTS $TABLENAME"
     # -q suppresses query output which for large shapefiles seems to slow down the import
-    shp2pgsql -I -D -d -s 4326 $INPUT/4326/$BASENAME $TABLENAME | psql -v ON_ERROR_STOP=1 -q && touch $OUTPUT
+    ogr2ogr -t_srs EPSG:4326 $INPUT/4326/$BASENAME $INPUT/$BASENAME &&\
+        shp2pgsql -I -D -s 4326 $INPUT/4326/$BASENAME $TABLENAME | psql -v ON_ERROR_STOP=1 -q && touch $OUTPUT
 
 ; $URL is a source url
 ; $OUTPUT0 is a target for the zip file
@@ -21,6 +20,7 @@ wget_unzip()
     wget --output-document="$OUTPUT0" "$URL"
     unzip -o "$OUTPUT0" -d $OUTPUT1
 
+; create input schema
 $[SQL_DIR]/input/schema <- [method:psql_schema -timecheck]
 
 ; wards
@@ -54,8 +54,8 @@ $[DATA_DIR]/shapefiles/census_blocks.zip, $[DATA_DIR]/shapefiles/census_blocks/ 
 $[SQL_DIR]/input/census_blocks <- $[DATA_DIR]/shapefiles/census_blocks/, $[SQL_DIR]/input/schema [method:import_shapefile]
 
 ; assessor 
-$[SQL_DIR]/input/assessor <- input/assessor.sh, $[SQL_DIR]/input/schema
-    $INPUT $ASSESSOR_FILE && touch $OUTPUT
+$[SQL_DIR]/input/assessor <- input/assessor.sh, $[ASSESSOR_FILE], $[SQL_DIR]/input/schema
+    $INPUT $INPUT1 && touch $OUTPUT
 
 ; old blood tests, $[M7_FILE]
 $[SQL_DIR]/input/m7 <- input/m7.sh, $[M7_FILE], $[SQL_DIR]/input/schema
@@ -99,17 +99,14 @@ $[DATA_DIR]/building_violations.csv <- [-timecheck]
 	wget -O- "https://data.cityofchicago.org/api/views/22u3-xenr/rows.csv?accessType=DOWNLOAD" | sed 's/, ,/,,/g' > $OUTPUT
 $[SQL_DIR]/input/building_violations <- input/building_violations.sql, $[DATA_DIR]/building_violations.csv, $[SQL_DIR]/input/schema [method:psql]
 
-%include $[ACS_PROFILE]
 ; selected acs variables copied to lead db via csv
+; switch to acs profile
+%include $[ACS_PROFILE]
 $[DATA_DIR]/acs.csv <- input/acs/download.py
     python $INPUT $OUTPUT
-
 %include $[PROFILE]
+
 $[SQL_DIR]/input/acs <- input/acs/import.py, $[DATA_DIR]/acs.csv
     python $INPUT $INPUT1 && touch $OUTPUT
 
-$[SQL_DIR]/input/icare <- input/icare.sh, $[ICARE_FILE]
-    $INPUT0 $INPUT1 && touch $OUTPUT
-
-$[SQL_DIR]/input/hcv <- input/hcv.sh, $[HCV_FILE]
-    $INPUT0 && touch $OUTPUT
+$[SQL_DIR]/input/labs <- input/labs.sql, $[LABS_FILE] [method:psql]

@@ -1,0 +1,13 @@
+%include default_profile
+%include $[DRAKE_LIB_DIR]/drake-psql/Drakefile 
+
+%include input/Drakefile
+%include input/stellar/Drakefile
+%include input/cornerstone/Drakefile
+%include buildings/Drakefile
+
+%include aux/Drakefile
+
+%include dedupe/Drakefile
+
+%include output/Drakefile

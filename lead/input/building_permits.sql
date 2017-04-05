@@ -134,4 +134,4 @@ create table input.building_permits (
 	location varchar(40)
 );
 
-\copy input.building_permits from 'data/building_permits.csv' with csv header;
+\copy input.building_permits from '${INPUT1}' with csv header;

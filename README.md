@@ -17,7 +17,7 @@ published in the [21st ACM SIGKDD Proceedings](https://github.com/dssg/lead-publ
 [work](https://dssg.uchicago.edu/project/predictive-analytics-to-prevent-lead-poisoning-in-children/) of Joe Brew, Alex Loewi, Subho Majumdar, and Andrew Reece
 as part of the 2014 [Data Science for Social Good Summer Fellowship](http://dssg.uchicago.edu).
 
-## Directory Structure
+## Implementation
 
 ```
 .
@@ -91,8 +91,8 @@ M7_FILE= # Old blood lead levels CSV file
 CORNERSTONE_DIR= # Directory containing Cornerstone DBF files
 CORNERSTONE_ADDRESSES_FILE= # Geocoded Cornerstone addresses CSV file
 STELLAR_DIR= # Directory containing Stellar DBF files
-ICARE_FILE= # Immunization records CSV file
 DEDUPE_TRAINING_FILE= # dedupe JSON training file
+LABS_FILE= # lab information CSV file
 ```
 #### 5. Run the workflow by typing `drake`.
 To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.

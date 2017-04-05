@@ -12,39 +12,28 @@ WITH wic_infants as (
 
 infants as (
     -- tests
-    SELECT test_id, null::text as cornerstone_id, 
-                null::int as icare_id, null::int as stellar_id,
-                null::int as hcv_id,
+    SELECT test_id, 
+            null::text as cornerstone_id, 
+            null::int as stellar_id,
         first_name, last_name, sex, date_of_birth, 
         coalesce(geocode_address, clean_address) as address
     FROM aux.tests 
     UNION ALL
     -- cornerstone
-    SELECT null, part_id_i, null, null, null,
+    SELECT null, part_id_i, null,
         brth_fst_t, brth_lst_t, sex_c, birth_d, addr_ln1_t
     from 
     wic_infants join
     cornerstone.partenrl using (part_id_i)
     left join cornerstone.partaddr a on part_id_i = addr_id_i
     UNION ALL
-    -- icare
-    SELECT null, null, icare_id, null, null,
-        first_name, last_name, sex, date_of_birth, address
-    FROM input.icare
-    UNION ALL
     -- stellar
-    SELECT null, null, null, child_id, null,
+    SELECT null, null, child_id,
         name_first, name_last, sex, dob_child, upper(assemaddr)
     FROM stellar.child
     JOIN (select addr_id, child_id FROM stellar.ca_link group by 1,2) ca 
         using (child_id)
     JOIN stellar.addr using (addr_id)
-    UNION ALL
-    -- hcv
-    SELECT null, null, null, null, hcv_id,
-        split_part(child_name, ', ', 2), split_part(child_name, ', ', 1), 
-        null, date_of_birth, address
-    FROM input.hcv
 )
 
 -- unaccent text fields for dedupe
@@ -58,9 +47,7 @@ select regexp_replace(upper(unaccent(first_name)), '[^A-Z]', '', 'g') first_name
     min(date_of_birth) - '1970-01-01' as day, count(*) as count,
     array_remove(array_agg(test_id), null) test_ids, 
     array_remove(array_agg(cornerstone_id), null) cornerstone_ids,
-    array_remove(array_agg(icare_id), null) icare_ids,
-    array_remove(array_agg(stellar_id), null) stellar_ids,
-    array_remove(array_agg(hcv_id), null) hcv_ids
+    array_remove(array_agg(stellar_id), null) stellar_ids
 from infants
 where first_name is not null and last_name is not null and date_of_birth is not null
 group by 1,2,3,4,5
