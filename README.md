@@ -5,7 +5,7 @@ This code models childhood lead poisoning in the city of Chicago.  This project 
 
 Closely based on previous [work](https://github.com/dssg/cdph) of Joe Brew, Alex Loewi, Subho Majumdar, and Andrew Reece as part of the 2014 [Data Science for Social Good Summer Fellowship](http://dssg.uchicago.edu).
 
-## The Solution
+## Implementation
 
 The code for each phase is located in the corresponding subdirectory and is executed using a drake. The output of each phase is contained in a database schema of the same name.
 
@@ -75,8 +75,8 @@ M7_FILE= # Old blood lead levels CSV file
 CORNERSTONE_DIR= # Directory containing Cornerstone DBF files
 CORNERSTONE_ADDRESSES_FILE= # Geocoded Cornerstone addresses CSV file
 STELLAR_DIR= # Directory containing Stellar DBF files
-ICARE_FILE= # Immunization records CSV file
 DEDUPE_TRAINING_FILE= # dedupe JSON training file
+LABS_FILE= # lab information CSV file
 ```
 #### 5. Run the workflow by typing `drake`.
 To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
