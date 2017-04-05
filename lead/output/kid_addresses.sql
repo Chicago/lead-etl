@@ -53,7 +53,6 @@ select kid_id, address_id,
 
 from wic_addresses w 
 FULL OUTER JOIN test_addresses t using (kid_id, address_id)
-FULL OUTER JOIN hcv_addresses h using (kid_id, address_id)
 FULL OUTER JOIN stellar_addresses s using (kid_id, address_id)
 );
 
