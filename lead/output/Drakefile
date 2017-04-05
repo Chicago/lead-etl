@@ -9,7 +9,7 @@ $[SQL_DIR]/output/kids <- output/kids.sql, $[SQL_DIR]/aux/kids, $[SQL_DIR]/outpu
 ; join tests with kid_tests and test_addresses to get all the ids in one place
 $[SQL_DIR]/output/tests <- output/tests.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/aux/kid_tests_info, $[SQL_DIR]/aux/test_addresses, $[SQL_DIR]/aux/blls, $[SQL_DIR]/output/schema [method:psql]
 
-$[SQL_DIR]/output/kid_addresses <- output/kid_addresses.sql, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/output/tests, $[SQL_DIR]/aux/kid_hcvs, $[SQL_DIR]/aux/kid_stellars, $[SQL_DIR]/aux/addresses, $[SQL_DIR]/aux/kid_hcv_addresses, $[SQL_DIR]/aux/kid_stellar_addresses [method:psql]
+$[SQL_DIR]/output/kid_addresses <- output/kid_addresses.sql, $[SQL_DIR]/aux/kid_wic_addresses, $[SQL_DIR]/output/tests, $[SQL_DIR]/aux/kid_stellars, $[SQL_DIR]/aux/addresses, $[SQL_DIR]/aux/kid_stellar_addresses [method:psql]
 
 ; residential flag calculated by combination of data
 ; including tests, wic, assessor, investigations
