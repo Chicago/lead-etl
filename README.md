@@ -1,56 +1,71 @@
-CDPH Childhood Lead Poisoning Model
+Preventing Childhood Lead Poisoning
 ====
 
-This code models childhood lead poisoning in the city of Chicago.  This project is under development by Eric Potash and Joe Walsh at the University of Chicago's [Center for Data Science and Public Policy](http://dspplab.com) in partnership with the Chicago Department of Public Health. For an overview of the project, see our preliminary results which were written up and published in the [21st ACM SIGKDD Proceedings](https://github.com/dssg/lead-public/raw/master/kdd.pdf).
+## Introduction
 
-Closely based on previous [work](https://github.com/dssg/cdph) of Joe Brew, Alex Loewi, Subho Majumdar, and Andrew Reece as part of the 2014 [Data Science for Social Good Summer Fellowship](http://dssg.uchicago.edu).
+Lead poisoning is a major public health problem that affects hundreds of thousands of children in the United States every
+year. A common approach to identifying lead hazards is to test all children for elevated blood lead levels and then investigate
+and remediate the homes of children with elevated tests. This can prevent exposure to lead of future residents,
+but only after a child has been irreversibly poisoned. In parternship with the Chicago Department of Public
+Health (CDPH),  we have built a model that predicts the risk of a child being poisoned. Our model's risk scores facillitates
+an intervention before lead posioning occurs. Using two decades of blood lead level tests, home lead inspections, property value assessments,
+and census data, our model allows inspectors to prioritize houses on an intractably long list of potential hazards
+and identify children who are at the highest risk. This work has been described by CDPH as pioneering in the use
+of machine learning and predictive analytics in public health and has the potential to have a significant impact on both
+health and economic outcomes for communities across the US. For a longer overview of the project, see our preliminary results which were written up and
+published in the [21st ACM SIGKDD Proceedings](https://github.com/dssg/lead-public/raw/master/kdd.pdf). This project is closely based on previous
+[work](https://dssg.uchicago.edu/project/predictive-analytics-to-prevent-lead-poisoning-in-children/) of Joe Brew, Alex Loewi, Subho Majumdar, and Andrew Reece
+as part of the 2014 [Data Science for Social Good Summer Fellowship](http://dssg.uchicago.edu).
 
-## The Solution
+## Directory Structure
 
-The code for each phase is located in the corresponding subdirectory and is executed using a drake. The output of each phase is contained in a database schema of the same name.
+```
+.
+├── aux
+├── buildings
+├── dedupe
+├── discontinuity
+├── Drakefile
+├── explore
+├── __init__.py
+├── input
+├── kdd.pdf
+├── model
+├── output
+├── pilot
+├── README.md
+└── requirements.txt
+```
+The code for each phase is located in the corresponding subdirectory and is executed using a drakefile.
+The output of each phase is contained in a database schema of the same name. Each folder also has a
+corresponding README documenting the steps.
 
-### input
+**input**: ETL process, see input folder for more details.
 
-Preprocess and import our data into the database. CDPH provided us with three private databases:
- - Blood Lead Level Tests
- - Home Inspections
- - WIC enrollment and program data
+**dedupe**:Deduplicate the names of children from the blood tests and the WIC Cornerstone database.
 
-We supplemented that data with the following public datasets:
- - [Chicago addresses](https://datacatalog.cookcountyil.gov/GIS-Maps/ccgisdata-Address-Point-Chicago/jev2-4wjs)
- - [Cook County Assessor Data](http://www.cookcountyassessor.com/)
- - [Building Footprints](https://github.com/Chicago/osd-building-footprints)
- - [Build Permits](https://data.cityofchicago.org/Buildings/Building-Permits/ydr8-5enu)
- - [Building Violations](https://data.cityofchicago.org/Buildings/Building-Violations/22u3-xenr)
- - [American Community Survey](http://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml)
+**buildings**: Analyze the Chicago buildings shapefile to extract all addresses and group them into buildings and complexes.
 
-### dedupe
-Deduplicate the names of children from the blood tests and the WIC Cornerstone database.
+**aux**: Process the data to prepare for model building. This includes summarizing and spatially joining datasets.
 
-### buildings
-Analyze the Chicago buildings shapefile to extract all addresses and group them into buildings and complexes.
+**output**: Generate model features by aggregating the datasets at a variety of spatial and temporal resolutions.
 
-### aux
-Process the data to prepare for model building. That includes summarizing and spatially joining datasets.
+**model**: Use our [drain pipeline](https://github.com/dssg/drain/) to run models in parallel and serialize the results.
 
-### output
-Generate model features by aggregating the datasets at a variety of spatial and temporal resolutions.
 
-### model
-Use our [drain pipeline](https://github.com/dssg/drain/) to run run models in parallel and serialize the results.
+## Dependencies
 
-## Running the model
+### 1.External Dependencies
 
-#### 1. Install software dependencies:
 - drake
 - mdbtools
 - ogr2ogr with PostgreSQL driver (requires libmq)
 
-#### 2. Install python dependencies:
+### 2. Python Dependencies:
 ```
 pip install -r requirements.txt
 ```
-#### 3. Create and configure PostgreSQL database:
+### 3. Create and configure PostgreSQL database:
 Install these PostgreSQL extensions (requires admin privileges):
 ```
 CREATE EXTENSION postgis;
@@ -58,11 +73,12 @@ CREATE EXTENSION unaccent;
 ```
 
 #### 4. Load American Community Survey data:
-Use the [acs2postgres](https://github.com/dssg/acs2postgres) tool to load ACS 5-year data for Illinois into the database. Note that a subset of this data will be imported into the lead pipeline below, so the ACS data may be stored in a separate database from the lead data.
+Use the [acs2postgres](https://github.com/dssg/acs2postgres) tool to load ACS 5-year data for Illinois into the database.
+Note that a subset of this data will be imported into the lead pipeline below, so the ACS data may be stored in a separate database from the lead data.
 
-#### 4. Specify the following environment variables in the `lead/default_profile` file:
+#### 5. Specify the following environment variables in the `lead/default_profile` file:
 ```
-# Postgresql databse connection information
+# Postgresql database connection information
 PGHOST=
 PGDATABASE=
 PGUSER=
@@ -88,3 +104,15 @@ To run steps in parallel add the argument `--jobs=N` where `N` is the number of 
   - [pytables](http://www.pytables.org/): HDF files
   - [mdbtools](https://github.com/brianb/mdbtools): Microsoft Access files (tax assessor data)
   - [dedupe](https://github.com/datamade/dedupe): entity deduplication
+
+
+# License
+
+See [LICENSE](https://raw.githubusercontent.com/dssg/public-lead/master/LICENSE)
+
+# Contributors
+    - Eric Potash (epotash@uchicago.edu)
+    - Joseph Walsh (jtwalsh@uchicago.edu)
+
+# References
+ 1. Potash, Eric, Joe Brew, Alexander Loewi, Subhabrata Majumdar, Andrew Reece, Joe Walsh, Eric Rozier, Emile Jorgenson, Raed Mansour, and Rayid Ghani. "Predictive modeling for public health: Preventing childhood lead poisoning." In Proceedings of the 21th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, pp. 2039-2047. ACM, 2015.

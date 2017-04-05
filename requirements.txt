@@ -1,2 +1,8 @@
 dedupe
 psycopg2
+pytables
+numpy
+pandas
+sklearn
+sqlalchemy
+urllib2
