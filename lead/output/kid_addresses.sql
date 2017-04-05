@@ -48,8 +48,8 @@ select kid_id, address_id,
     s.min_date as address_stellar_min_date,
     s.max_date as address_stellar_max_date,
     
-    least(w.min_date, t.min_date, h.min_date, s.min_date) as address_min_date,
-    greatest(w.min_date, t.min_date, h.max_date, s.max_date) as address_max_date
+    least(w.min_date, t.min_date, s.min_date) as address_min_date,
+    greatest(w.min_date, t.min_date, s.max_date) as address_max_date
 
 from wic_addresses w 
 FULL OUTER JOIN test_addresses t using (kid_id, address_id)
