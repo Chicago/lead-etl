@@ -23,14 +23,6 @@ test_addresses as (
     (1=1)
     group by 1,2
 ),
-hcv_addresses as (
-    select kid_id, address_id, 
-        min(date) as min_date,
-        max(date) as max_date
-    from aux.kid_hcv_addresses
-    where (1=1)
-    group by 1,2
-),
 stellar_addresses as (
     select kid_id, address_id,
         min(date) as min_date,
@@ -53,8 +45,6 @@ select kid_id, address_id,
     t.max_bll as address_max_bll,
     t.mean_bll as address_mean_bll,
     
-    h.min_date as address_hcv_min_date,
-    h.max_date as address_hcv_max_date,
     s.min_date as address_stellar_min_date,
     s.max_date as address_stellar_max_date,
     
