@@ -21,18 +21,20 @@ as part of the 2014 [Data Science for Social Good Summer Fellowship](http://dssg
 
 ```
 .
-├── aux
-├── buildings
-├── dedupe
-├── discontinuity
-├── Drakefile
-├── explore
-├── __init__.py
-├── input
 ├── kdd.pdf
-├── model
-├── output
-├── pilot
+├── lead
+│   ├── aux
+│   ├── buildings
+│   ├── dedupe
+│   ├── Drakefile
+│   ├── example_profile
+│   ├── explore
+│   ├── __init__.py
+│   ├── input
+│   ├── model
+│   ├── output
+│   └── pilot
+├── LICENSE
 ├── README.md
 └── requirements.txt
 ```
@@ -40,7 +42,7 @@ The code for each phase is located in the corresponding subdirectory and is exec
 The output of each phase is contained in a database schema of the same name. Each folder also has a
 corresponding README documenting the steps.
 
-**input**: ETL process, see input folder for more details.
+**input**: Load raw data, see input folder for more details.
 
 **dedupe**:Deduplicate the names of children from the blood tests and the WIC Cornerstone database.
 
@@ -53,49 +55,45 @@ corresponding README documenting the steps.
 **model**: Use our [drain pipeline](https://github.com/dssg/drain/) to run models in parallel and serialize the results.
 
 
-## Dependencies
+## Deployment
 
 ### 1.External Dependencies
+Install these programs:
+- drake (tested with version 1.0.3)
+- mdbtools (0.7.1)
+- ogr2ogr (2.1.0) with PostgreSQL driver (requires libmq)
+- shp2pgsql (2.2.2)
+- postgresql-client (9.6.0)
 
-- drake
-- mdbtools
-- ogr2ogr with PostgreSQL driver (requires libmq)
-
-### 2. Python Dependencies:
+Python modules:
 ```
 pip install -r requirements.txt
 ```
-### 3. Create and configure PostgreSQL database:
-Install these PostgreSQL extensions (requires admin privileges):
+Clone the drake-psql repository:
+```
+git clone https://github.com/dssg/drake-psql.git
+```
+
+### 2. Create and configure PostgreSQL database:
+Create a database on a PostgreSQL server (tested with version 9.5.4). 
+Install the PostGIS (2.2.2) and unaccent extensions (requires admin privileges):
 ```
 CREATE EXTENSION postgis;
 CREATE EXTENSION unaccent;
 ```
 
-#### 4. Load American Community Survey data:
+#### 3. Load American Community Survey data:
 Use the [acs2ppgsql](https://github.com/dssg/acs2pgsql) tool to load ACS 5-year data for Illinois into the database.
 Note that a subset of this data will be imported into the lead pipeline below, so the ACS data may be stored in a separate database from the lead data.
 
-#### 5. Specify the following environment variables in the `lead/default_profile` file:
-```
-# Postgresql database connection information
-PGHOST=
-PGDATABASE=
-PGUSER=
-PGPASSWORD=
+#### 4. Configure a profile:
+Copy `./lead/example_profile` to `./lead/default_profile` and set the indicated variables.
 
-SQL_DIR= # directory to store sql success files
-ASSESSOR_FILE= # Cook County Tax Assessor MDB file
-CURRBLLSHORT_FILE= # Current blood lead levels CSV file
-M7_FILE= # Old blood lead levels CSV file
-CORNERSTONE_DIR= # Directory containing Cornerstone DBF files
-CORNERSTONE_ADDRESSES_FILE= # Geocoded Cornerstone addresses CSV file
-STELLAR_DIR= # Directory containing Stellar DBF files
-DEDUPE_TRAINING_FILE= # dedupe JSON training file
-LABS_FILE= # lab information CSV file
-```
-#### 5. Run the workflow by typing `drake`.
+
+#### 5. Run the ETL workflow by typing `drake`.
 To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
+
+#### 6. Run models using `drain`.
 
 ## Software we use
   - [drake](https://github.com/Factual/drake): workflow management

@@ -1,4 +1,7 @@
-%include default_profile
+PROFILE:=default_profile
+ACS_PROFILE:=$[PROFILE]
+
+%include $[PROFILE]
 %include $[DRAKE_LIB_DIR]/drake-psql/Drakefile 
 
 %include input/Drakefile
