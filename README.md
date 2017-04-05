@@ -112,7 +112,6 @@ See [LICENSE](https://raw.githubusercontent.com/dssg/public-lead/master/LICENSE)
 
 # Contributors
     - Eric Potash (epotash@uchicago.edu)
-    - Joseph Walsh (jtwalsh@uchicago.edu)
 
 # References
  1. Potash, Eric, Joe Brew, Alexander Loewi, Subhabrata Majumdar, Andrew Reece, Joe Walsh, Eric Rozier, Emile Jorgenson, Raed Mansour, and Rayid Ghani. "Predictive modeling for public health: Preventing childhood lead poisoning." In Proceedings of the 21th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, pp. 2039-2047. ACM, 2015.
