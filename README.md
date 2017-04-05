@@ -73,7 +73,7 @@ CREATE EXTENSION unaccent;
 ```
 
 #### 4. Load American Community Survey data:
-Use the [acs2postgres](https://github.com/dssg/acs2postgres) tool to load ACS 5-year data for Illinois into the database.
+Use the [acs2ppgsql](https://github.com/dssg/acs2pgsql) tool to load ACS 5-year data for Illinois into the database.
 Note that a subset of this data will be imported into the lead pipeline below, so the ACS data may be stored in a separate database from the lead data.
 
 #### 5. Specify the following environment variables in the `lead/default_profile` file:
