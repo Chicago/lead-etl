@@ -12,6 +12,11 @@ import_shapefile()
     ogr2ogr -t_srs EPSG:4326 $INPUT/4326/$BASENAME $INPUT/$BASENAME &&\
         shp2pgsql -I -D -s 4326 $INPUT/4326/$BASENAME $TABLENAME | psql -v ON_ERROR_STOP=1 -q && touch $OUTPUT
 
+import_dbf()
+    SCHEMA=$(basename $(dirname $OUTPUT))
+    TABLE=$(basename $OUTPUT)
+    ogr2ogr -f PostgreSQL PG:"dbname='$PGDATABASE' host='$PGHOST' user='$PGUSER'" $INPUT -lco "schema=$SCHEMA" -lco 'overwrite=yes' -nln $TABLE && touch $OUTPUT
+
 ; $URL is a source url
 ; $OUTPUT0 is a target for the zip file
 ; $OUTPUT1 is a directory to unzip into

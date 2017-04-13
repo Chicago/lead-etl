@@ -2,8 +2,7 @@ $[SQL_DIR]/stellar/schema <- [method:psql_schema -timecheck]
 
 $(for table in ADDR CA_LINK CASE_RCD CHILD Event Invest LAB; do
 
-echo "$[SQL_DIR]/stellar/"${table,,}" <- \$[STELLAR_DIR]/"$table".DBF, $[SQL_DIR]/stellar/schema"
-echo "    ogr2ogr -f PostgreSQL PG:'host=\$[PGHOST] user=\$[PGUSER] password=\$[PGPASSWORD] dbname=\$[PGDATABASE]' \$INPUT -lco 'schema=stellar' -lco 'overwrite=yes' && touch \$OUTPUT"
+echo "$[SQL_DIR]/stellar/"${table,,}" <- \$[STELLAR_DIR]/"$table".DBF, $[SQL_DIR]/stellar/schema [method:import_dbf]"
 
 done)
 

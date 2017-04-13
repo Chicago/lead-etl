@@ -2,8 +2,7 @@ $[SQL_DIR]/cornerstone/schema <- [method:psql_schema -timecheck]
 
 $(for table in Partaddr PartPgm PartEnrl Prenatl Birth; do
 
-echo "$[SQL_DIR]/cornerstone/"${table,,}" <- \$[CORNERSTONE_DIR]/"$table".dbf, $[SQL_DIR]/cornerstone/schema"
-echo "    ogr2ogr -f PostgreSQL PG:'host=\$[PGHOST] user=\$[PGUSER] password=\$[PGPASSWORD] dbname=\$[PGDATABASE]' \$INPUT -lco 'schema=cornerstone' -lco 'overwrite=yes' && touch \$OUTPUT"
+echo "$[SQL_DIR]/cornerstone/"${table,,}" <- \$[CORNERSTONE_DIR]/"$table".dbf, $[SQL_DIR]/cornerstone/schema [method:import_dbf]"
 
 done)
 
