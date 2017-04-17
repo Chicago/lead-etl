@@ -55,3 +55,4 @@ select *,
 FROM investigations
 );
 
+alter table output.investigations add investigation_id serial primary key;
