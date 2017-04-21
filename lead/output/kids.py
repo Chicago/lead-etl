@@ -10,17 +10,6 @@ import pandas as pd
 import numpy as np
 import logging
 
-KIDS_PARSE_DATES = ['date_of_birth', 'first_wic_date',
-        'first_bll6_sample_date', 'first_bll10_sample_date', 
-        'first_sample_date', 'last_sample_date', 
-        'min_date', 'max_date']
-
-KID_ADDRESSES_PARSE_DATES = ['address_min_date', 'address_max_date', 
-        'address_wic_min_date', 'address_wic_max_date', 
-        'address_hcv_min_date', 'address_hcv_max_date', 
-        'address_stellar_min_date', 'address_stellar_max_date', 
-        'address_test_min_date', 'address_test_max_date']
-
 def revise_kid_addresses(date):
         kid_addresses_filename = os.path.join(
                 os.path.dirname(__file__), 'kid_addresses.sql')
@@ -29,8 +18,7 @@ def revise_kid_addresses(date):
                 max_date_column='address_max_date', 
                 min_date_column='address_min_date', 
                 date_column='date',
-                date=date,
-                from_sql_args={'parse_dates':KID_ADDRESSES_PARSE_DATES})
+                date=date)
 
         kids_filename = os.path.join(
                 os.path.dirname(__file__), 'kids.sql')
@@ -40,8 +28,7 @@ def revise_kid_addresses(date):
                 min_date_column='min_date', 
                 date_column='date',
                 date=date, 
-                from_sql_args={'parse_dates':KIDS_PARSE_DATES, 
-                               'to_str':['first_name','last_name']})
+                from_sql_args={'to_str':['first_name','last_name']})
         
         for i in kid_addresses.inputs: i.target = True
         for i in kids.inputs: i.target = True

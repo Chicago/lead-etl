@@ -9,13 +9,13 @@ import pandas as pd
 
 tests = Merge(inputs=[
     Merge(inputs=[
-        FromSQL(table='output.tests', parse_dates=['date']), 
+        FromSQL(table='output.tests'), 
         FromSQL(table='output.addresses')], on='address_id'),
     # get kid first bll6 and bll10 counts to calculate incidences
     FromSQL("""
         select kid_id, first_bll6_sample_date, first_bll10_sample_date 
         from output.kids
-    """, parse_dates=['first_bll6_sample_date', 'first_bll10_sample_date'])],
+    """)],
 on='kid_id')
 tests.target = True
 
