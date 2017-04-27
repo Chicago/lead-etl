@@ -113,7 +113,7 @@ if True:
     ]
 
     # Create a new deduper object and pass our data model to it.
-    deduper = dedupe.Dedupe(fields, num_cores=multiprocessing.cpu_count())
+    deduper = dedupe.Dedupe(fields, num_cores=2)
 
     # Named cursor runs server side with psycopg2
     cur = con.cursor('donor_select')
@@ -162,7 +162,7 @@ if True:
     # However, requiring that we cover every single true dupe pair may
     # mean that we have to use blocks that put together many, many
     # distinct pairs that we'll have to expensively, compare as well.
-    deduper.train(maximum_comparisons=5000000000, recall=0.95)
+    deduper.train( recall=0.95)
 
     # When finished, save our labeled, training pairs to disk
     #with open(training_file, 'w') as tf:

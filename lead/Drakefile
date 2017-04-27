@@ -1,16 +1,20 @@
+; Master Drakefile for the ETL process
+
+
 PROFILE:=default_profile
 ACS_PROFILE:=$[PROFILE]
-
 %include $[PROFILE]
-%include $[DRAKE_LIB_DIR]/drake-psql/Drakefile 
 
+
+; This is a library for commonly used drake functions psql_schema(), psql_copy() and options for
+; ingesting CSV files.
+; %include $[DRAKE_LIB_DIR]/drake-psql/Drakefile
+
+%include drake-psql/Drakefile
 %include input/Drakefile
 %include input/stellar/Drakefile
 %include input/cornerstone/Drakefile
 %include buildings/Drakefile
-
 %include aux/Drakefile
-
 %include dedupe/Drakefile
-
 %include output/Drakefile

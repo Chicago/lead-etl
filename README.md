@@ -69,13 +69,10 @@ Python modules:
 ```
 pip install -r requirements.txt
 ```
-Clone the drake-psql repository:
-```
-git clone https://github.com/dssg/drake-psql.git
-```
+
 
 ### 2. Create and configure PostgreSQL database:
-Create a database on a PostgreSQL server (tested with version 9.5.4). 
+Create a database on a PostgreSQL server (tested with version 9.5.4).
 Install the PostGIS (2.2.2) and unaccent extensions (requires admin privileges):
 ```
 CREATE EXTENSION postgis;
@@ -90,10 +87,17 @@ Note that a subset of this data will be imported into the lead pipeline below, s
 Copy `./lead/example_profile` to `./lead/default_profile` and set the indicated variables.
 
 
-#### 5. Run the ETL workflow by typing `drake`.
+#### 5. Set Shell Variables
+Instantiate shall variables that can be read by Drake
+```
+set -a && source default_profile
+```
+
+
+#### 6. Run the ETL workflow by typing `drake`.
 To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
 
-#### 6. Run models using `drain`.
+#### 7. Run models using `drain`.
 
 ## Software we use
   - [drake](https://github.com/Factual/drake): workflow management
