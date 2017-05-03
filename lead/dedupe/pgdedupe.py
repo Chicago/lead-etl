@@ -29,9 +29,9 @@ import psycopg2.extras
 import dedupe
 import multiprocessing
 
-source_table='dedupe.infants'
+source_table = 'dedupe.infants'
 id_column = 'id'
-target_table='dedupe.entity_map0'
+target_table = 'dedupe.entity_map0'
 
 import random
 import numpy.random
@@ -67,7 +67,7 @@ start_time = time.time()
 # For example:
 #   export DATABASE_URL=postgres://user:password@host/mydatabase
 
-#if not db_conf:
+# if not db_conf:
 #    raise Exception(
 #        'set DATABASE_URL environment variable with your connection, e.g. '
 #        'export DATABASE_URL=postgres://user:password@host/mydatabase'
@@ -88,15 +88,15 @@ c = con.cursor()
 # `pgsql_big_dedupe_example_init_db.py`
 
 DONOR_SELECT = "SELECT id, first_name, last_name, sex, day, date_of_birth, address, count " \
-               "from %s" %  source_table
+               "from %s" % source_table
 
 # ## Training
 
-#if os.path.exists(settings_file):
+# if os.path.exists(settings_file):
 #    print 'reading from ', settings_file
 #    with open(settings_file) as sf:
 #        deduper = dedupe.StaticDedupe(sf, num_cores=12)
-#else:
+# else:
 if True:
     # Define the fields dedupe will pay attention to
     #
@@ -104,16 +104,16 @@ if True:
     # tell dedupe that, and we'll learn a model that take that into
     # account
     fields = [
-            {"field" : "first_name", "type" : "String"},
-            {"field" : "last_name", "type" : "String"},
-            {"field" : "date_of_birth", "type" : "String"},
-            {"field" : "address", "type" : "String"},
-            {"field" : "sex", "type" : "Exact"},
-            {"field" : "count", "type" : "Price"}
+        {"field": "first_name", "type": "String"},
+        {"field": "last_name", "type": "String"},
+        {"field": "date_of_birth", "type": "String"},
+        {"field": "address", "type": "String"},
+        {"field": "sex", "type": "Exact"},
+        {"field": "count", "type": "Price"}
     ]
 
     # Create a new deduper object and pass our data model to it.
-    deduper = dedupe.Dedupe(fields, num_cores=2)
+    deduper = dedupe.Dedupe(fields, num_cores=multiprocessing.cpu_count())
 
     # Named cursor runs server side with psycopg2
     cur = con.cursor('donor_select')
@@ -144,7 +144,7 @@ if True:
 
     # use 'y', 'n' and 'u' keys to flag duplicates
     # press 'f' when you are finished
-    #dedupe.convenience.consoleLabel(deduper)
+    # dedupe.convenience.consoleLabel(deduper)
 
     # Notice our two arguments here
     #
@@ -162,19 +162,19 @@ if True:
     # However, requiring that we cover every single true dupe pair may
     # mean that we have to use blocks that put together many, many
     # distinct pairs that we'll have to expensively, compare as well.
-    deduper.train( recall=0.95)
+    deduper.train(recall=0.95)
 
     # When finished, save our labeled, training pairs to disk
-    #with open(training_file, 'w') as tf:
+    # with open(training_file, 'w') as tf:
     #    deduper.writeTraining(tf)
-    #with open(settings_file, 'w') as sf:
+    # with open(settings_file, 'w') as sf:
     #    deduper.writeSettings(sf)
 
     # We can now remove some of the memory hobbing objects we used
     # for training
     deduper.cleanupTraining()
 
-## Blocking
+# Blocking
 print 'blocking...'
 
 # To run blocking on such a large set of data, we create a separate table
@@ -259,7 +259,8 @@ c.execute("CREATE TABLE plural_block "
           " USING (block_key))" % id_column)
 
 logging.info("adding %s index and sorting index" % id_column)
-c.execute("CREATE INDEX plural_block_%s_idx ON plural_block (%s)" % (id_column, id_column))
+c.execute("CREATE INDEX plural_block_%s_idx ON plural_block (%s)" %
+          (id_column, id_column))
 c.execute("CREATE UNIQUE INDEX plural_block_block_id_%s_uniq "
           " ON plural_block (block_id, %s)" % (id_column, id_column))
 
@@ -300,7 +301,7 @@ c.execute("CREATE TABLE smaller_coverage "
 con.commit()
 
 
-## Clustering
+# Clustering
 
 def candidates_gen(result_set):
     lset = set
@@ -345,7 +346,7 @@ print 'clustering...'
 clustered_dupes = deduper.matchBlocks(candidates_gen(c4),
                                       threshold=0.5)
 
-## Writing out results
+# Writing out results
 
 # We now have a sequence of tuples of donor ids that dedupe believes
 # all refer to the same entity. We write this out onto an entity map
@@ -363,7 +364,7 @@ csv_writer = csv.writer(csv_file)
 
 for cluster, scores in clustered_dupes:
     cluster_id = cluster[0]
-    for donor_id, score in zip(cluster, scores) :
+    for donor_id, score in zip(cluster, scores):
         csv_writer.writerow([donor_id, cluster_id, score])
 
 c4.close()

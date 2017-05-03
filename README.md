@@ -59,11 +59,16 @@ corresponding README documenting the steps.
 
 ### 1.External Dependencies
 Install these programs:
-- drake (tested with version 1.0.3)
-- mdbtools (0.7.1)
+- [drake](https://github.com/Factual/drake) (tested with version 1.0.3)
+- [mdbtools](https://github.com/brianb/mdbtools) (0.7.1)
 - ogr2ogr (2.1.0) with PostgreSQL driver (requires libmq)
 - shp2pgsql (2.2.2)
 - postgresql-client (9.6.0)
+
+### 2. Libraries
+```
+sudo apt install libblas-dev liblapack-dev libatlas-base-dev gfortran libhdf5-serial-dev
+```
 
 Python modules:
 ```
@@ -87,17 +92,10 @@ Note that a subset of this data will be imported into the lead pipeline below, s
 Copy `./lead/example_profile` to `./lead/default_profile` and set the indicated variables.
 
 
-#### 5. Set Shell Variables
-Instantiate shall variables that can be read by Drake
-```
-set -a && source default_profile
-```
-
-
-#### 6. Run the ETL workflow by typing `drake`.
+#### 5. Run the ETL workflow by typing `drake`.
 To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
 
-#### 7. Run models using `drain`.
+#### 6. Run models using `drain`.
 
 ## Software we use
   - [drake](https://github.com/Factual/drake): workflow management
