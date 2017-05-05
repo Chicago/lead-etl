@@ -1,3 +1,5 @@
+; Input drake file for loading data into the database.
+
 ; $INPUT is path to folder containing single shp file
 ; $OUTPUT is path sql success file, which determines import table and schema
 ; shapefile is converted to 4326 using ogr2ogr before import
@@ -6,11 +8,12 @@ import_shapefile()
     # get table name from output, e.g. change $[SQL_DIR]/input/wards gives input.wards
     TABLENAME=$(echo $OUTPUT | sed 's/^.*\/\(.*\)\/\(.*\)$/\1.\2/')
     # ogr2ogr doesn't like an existing file
-    rm -rf "$INPUT"/4326/ && mkdir -p $INPUT/4326/
+    rm -rfv "$INPUT"/4326/ && mkdir -p $INPUT/4326/
     psql -v ON_ERROR_STOP=1 -c "DROP TABLE IF EXISTS $TABLENAME"
     # -q suppresses query output which for large shapefiles seems to slow down the import
     ogr2ogr -t_srs EPSG:4326 $INPUT/4326/$BASENAME $INPUT/$BASENAME &&\
-        shp2pgsql -I -D -s 4326 $INPUT/4326/$BASENAME $TABLENAME | psql -v ON_ERROR_STOP=1 -q && touch $OUTPUT
+    shp2pgsql -I -D -s 4326 $INPUT/4326/$BASENAME $TABLENAME | psql -v ON_ERROR_STOP=1 -q && touch $OUTPUT
+
 
 import_dbf()
     SCHEMA=$(basename $(dirname $OUTPUT))
@@ -21,9 +24,12 @@ import_dbf()
 ; $OUTPUT0 is a target for the zip file
 ; $OUTPUT1 is a directory to unzip into
 wget_unzip()
-    mkdir -p $(dirname $OUTPUT0)
+    rm -rv $OUTPUT1
+    mkdir -pv $(dirname $OUTPUT0)
     wget --output-document="$OUTPUT0" "$URL"
     unzip -o "$OUTPUT0" -d $OUTPUT1
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ; create input schema
 $[SQL_DIR]/input/schema <- [method:psql_schema -timecheck]
@@ -37,7 +43,7 @@ $[SQL_DIR]/input/wards <- $[DATA_DIR]/shapefiles/wards/, $[SQL_DIR]/input/schema
 URL="https://data.cityofchicago.org/api/geospatial/5jrd-6zik?method=export&format=Shapefile"
 $[DATA_DIR]/shapefiles/census_tracts.zip, $[DATA_DIR]/shapefiles/census_tracts/ <- [-timecheck method:wget_unzip]
 $[SQL_DIR]/input/census_tracts <- $[DATA_DIR]/shapefiles/census_tracts/, $[SQL_DIR]/input/schema [method:import_shapefile]
-	
+
 ; addresses
 ;URL="https://datacatalog.cookcountyil.gov/api/geospatial/jev2-4wjs?method=export&format=Shapefile"
 ;$[DATA_DIR]/shapefiles/addresses.zip, $[DATA_DIR]/shapefiles/addresses/ <- [-timecheck method:wget_unzip]
@@ -58,7 +64,7 @@ URL="https://data.cityofchicago.org/api/geospatial/mfzt-js4n?method=export&forma
 $[DATA_DIR]/shapefiles/census_blocks.zip, $[DATA_DIR]/shapefiles/census_blocks/ <- [-timecheck method:wget_unzip]
 $[SQL_DIR]/input/census_blocks <- $[DATA_DIR]/shapefiles/census_blocks/, $[SQL_DIR]/input/schema [method:import_shapefile]
 
-; assessor 
+; assessor
 $[SQL_DIR]/input/assessor <- input/assessor.sh, $[ASSESSOR_FILE], $[SQL_DIR]/input/schema
     $INPUT $INPUT1 && touch $OUTPUT
 

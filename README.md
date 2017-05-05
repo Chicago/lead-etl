@@ -59,23 +59,25 @@ corresponding README documenting the steps.
 
 ### 1.External Dependencies
 Install these programs:
-- drake (tested with version 1.0.3)
-- mdbtools (0.7.1)
+- [drake](https://github.com/Factual/drake) (tested with version 1.0.3)
+- [mdbtools](https://github.com/brianb/mdbtools) (0.7.1)
 - ogr2ogr (2.1.0) with PostgreSQL driver (requires libmq)
 - shp2pgsql (2.2.2)
 - postgresql-client (9.6.0)
+
+### 2. Libraries
+```
+sudo apt install libblas-dev liblapack-dev libatlas-base-dev gfortran libhdf5-serial-dev
+```
 
 Python modules:
 ```
 pip install -r requirements.txt
 ```
-Clone the drake-psql repository:
-```
-git clone https://github.com/dssg/drake-psql.git
-```
+
 
 ### 2. Create and configure PostgreSQL database:
-Create a database on a PostgreSQL server (tested with version 9.5.4). 
+Create a database on a PostgreSQL server (tested with version 9.5.4).
 Install the PostGIS (2.2.2) and unaccent extensions (requires admin privileges):
 ```
 CREATE EXTENSION postgis;

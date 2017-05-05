@@ -9,7 +9,17 @@ CREATE TABLE cornerstone.addresses (
     city text, 
     ogc_fids int[],
 
-    geocode_full_addr text, geocode_house_low text, geocode_house_high text, geocode_pre text, geocode_street_name text, geocode_street_type text, geocode_sufdir text, geocode_xcoord text, geocode_ycoord text, geocode_status1 text, geocode_status2 text
+    geocode_full_addr text, 
+    geocode_house_low text,
+    geocode_house_high text, 
+    geocode_pre text,
+    geocode_street_name text,
+    geocode_street_type text,
+    geocode_sufdir text,
+    geocode_xcoord text,
+    geocode_ycoord text,
+    geocode_status1 text,
+    geocode_status2 text
 
 );"
 

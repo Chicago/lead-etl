@@ -1,0 +1,27 @@
+PSQL="psql -v ON_ERROR_STOP=1"
+
+psql()
+    cat $INPUT | envsubst | $PSQL 2>&1 && echo > $OUTPUT
+
+; create a schema (does not drop)
+psql_schema()
+    schema=$(basename $(dirname $OUTPUT))
+    $PSQL -c "CREATE SCHEMA IF NOT EXISTS $schema" && mkdir -p $(dirname $OUTPUT) && touch $OUTPUT
+
+; use head instead of sniff with csvsql because its much faster
+psql_copy()
+    schema=$(basename $(dirname $OUTPUT))
+    table=$(basename $OUTPUT)
+    cat <(echo "SET SCHEMA '$schema'; DROP TABLE IF EXISTS $table;")\
+        <(head -n $CSVSQL_LINES $INPUT0 |\
+          csvsql $CSVSQL_OPTIONS --tables $table -i postgresql)\
+        <(echo "\COPY $table FROM $INPUT0 $PSQL_COPY_OPTIONS")\
+    | $PSQL
+    touch $OUTPUT
+
+; default use 10000 lines for schema type inference
+CSVSQL_LINES:=100000
+; default do not put constraints on columns
+CSVSQL_OPTIONS:='--no-constraints'
+; default is WITH CSV HEADER
+PSQL_COPY_OPTIONS:='WITH CSV HEADER'
