@@ -5,8 +5,8 @@ model/params
 !.gitignore
 *.pyc
 drake.log
-default_profile
-acs_profile
+*_profile
+!example_profile
 *.bak
 data
 psql
