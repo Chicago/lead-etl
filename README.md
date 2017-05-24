@@ -44,11 +44,11 @@ corresponding README documenting the steps.
 
 **input**: Load raw data, see input folder for more details.
 
-**dedupe**:Deduplicate the names of children from the blood tests and the WIC Cornerstone database.
-
 **buildings**: Analyze the Chicago buildings shapefile to extract all addresses and group them into buildings and complexes.
 
 **aux**: Process the data to prepare for model building. This includes summarizing and spatially joining datasets.
+
+**dedupe**:Deduplicate the names of children from the blood tests and the WIC Cornerstone database.
 
 **output**: Generate model features by aggregating the datasets at a variety of spatial and temporal resolutions.
 
@@ -94,6 +94,11 @@ Copy `./lead/example_profile` to `./lead/default_profile` and set the indicated 
 
 #### 5. Run the ETL workflow by typing `drake`.
 To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
+
+To load data into the pipeline first add the path to the data profile into the `example_profile`. The top-level Drakefile
+consists of `%include` statements that bring necessary paths from `example_profile` and the Drakefiles of the sub-directories
+`input, buildings, aux, and dedupe`.
+
 
 #### 6. Run models using `drain`.
 
