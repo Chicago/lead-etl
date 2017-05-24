@@ -29,6 +29,7 @@ as part of the 2014 [Data Science for Social Good Summer Fellowship](http://dssg
 │   ├── Drakefile
 │   ├── example_profile
 │   ├── explore
+│   ├── features
 │   ├── __init__.py
 │   ├── input
 │   ├── model
@@ -50,7 +51,9 @@ corresponding README documenting the steps.
 
 **dedupe**:Deduplicate the names of children from the blood tests and the WIC Cornerstone database.
 
-**output**: Generate model features by aggregating the datasets at a variety of spatial and temporal resolutions.
+**output**: Use the above to create final tables used for exploration, analysis and model feature generation.
+
+**features**: Generate model features by aggregating the datasets at various spatial and temporal resolutions.
 
 **model**: Use our [drain pipeline](https://github.com/dssg/drain/) to run models in parallel and serialize the results.
 
