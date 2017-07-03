@@ -1,5 +1,5 @@
 model/output
-input/acs/generated
+lead/input/acs/generated
 model/params
 .*
 !.gitignore
