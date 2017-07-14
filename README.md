@@ -104,6 +104,11 @@ consists of `%include` statements that bring necessary paths from `example_profi
 
 
 #### 6. Run models using `drain`.
+To fit a current model and make predictions run:
+```
+drain lead.model.workflows::bll6_forest_today
+```
+For temporal cross validation use the `bll6_forest` workflow.
 
 ## Software we use
   - [drake](https://github.com/Factual/drake): workflow management
