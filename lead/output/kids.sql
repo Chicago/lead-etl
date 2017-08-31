@@ -95,7 +95,7 @@ summary as (
 
 SELECT s.*,
     max_bll.bll as max_bll,
-    max_bll0.bll as max_bll0,
+    max_bll0.bll0 as max_bll0,
     blls.avg_bll,
     -- cumulative bll is measured in ug/dL * years
     blls.cumulative_bll / 365 as cumulative_bll,
