@@ -113,7 +113,8 @@ if True:
     ]
 
     # Create a new deduper object and pass our data model to it.
-    deduper = dedupe.Dedupe(fields, num_cores=multiprocessing.cpu_count())
+    num_cores = int(os.environ.get('DEDUPE_CORES', multiprocessing.cpu_count()))
+    deduper = dedupe.Dedupe(fields, num_cores=num_cores)
 
     # Named cursor runs server side with psycopg2
     cur = con.cursor('donor_select')

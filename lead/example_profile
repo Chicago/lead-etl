@@ -4,8 +4,8 @@ PGDATABASE=
 PGUSER=
 PGPASSWORD=
 
+DATA_DIR= ; directory to store downloaded and temporary data files
 SQL_DIR= ; directory to store sql success files
-DRAKE_LIB_DIR= ; directory containing drake-psql library
 ACS_PROFILE= ; optionally specify different credentials for ACS database
 
 ASSESSOR_FILE= ; Cook County Tax Assessor MDB file
@@ -17,4 +17,4 @@ STELLAR_DIR= ; Directory containing Stellar DBF files
 DEDUPE_TRAINING_FILE= ; dedupe JSON training file
 LABS_FILE= ; lab information CSV file
 
-TODAY= ; the date of the above files, e.g. '2017-01-01'
+DEDUPE_CORES= ; Optional number of cores to use for dedupe, defaults to all cores
