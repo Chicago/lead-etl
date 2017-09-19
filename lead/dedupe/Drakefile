@@ -3,6 +3,8 @@ $[SQL_DIR]/dedupe/schema <- [method:psql_schema -timecheck]
 ; merge kid info from tests, cornerstone, and stellar
 $[SQL_DIR]/dedupe/infants <- dedupe/infants.sql, $[SQL_DIR]/aux/tests, $[SQL_DIR]/cornerstone/partenrl, $[SQL_DIR]/cornerstone/partaddr, $[SQL_DIR]/cornerstone/partpgm, $[SQL_DIR]/dedupe/schema, $[SQL_DIR]/stellar/child [method:psql]
 
+; set PYTHONHASHSEED to make dedupe deterministic
+PYTHONHASHSEED=0
 ; use dedupe library to generate preliminary entity map
 ; takes about 30 minutes using 12 cores
 $[SQL_DIR]/dedupe/entity_map0 <- dedupe/pgdedupe.py, $[DEDUPE_TRAINING_FILE], $[SQL_DIR]/dedupe/infants
