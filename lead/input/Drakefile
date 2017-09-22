@@ -64,6 +64,11 @@ URL="https://data.cityofchicago.org/api/geospatial/mfzt-js4n?method=export&forma
 $[DATA_DIR]/shapefiles/census_blocks.zip, $[DATA_DIR]/shapefiles/census_blocks/ <- [-timecheck method:wget_unzip]
 $[SQL_DIR]/input/census_blocks <- $[DATA_DIR]/shapefiles/census_blocks/, $[SQL_DIR]/input/schema [method:import_shapefile]
 
+; Cook County Assessor parcels (2012)
+URL="https://datacatalog.cookcountyil.gov/api/geospatial/e62c-6rz8?method=export&format=Shapefile"
+$[DATA_DIR]/shapefiles/parcels.zip, $[DATA_DIR]/shapefiles/parcels/ <- [-timecheck method:wget_unzip]
+$[SQL_DIR]/input/parcels <- $[DATA_DIR]/shapefiles/parcels/, $[SQL_DIR]/input/schema [method:import_shapefile]
+
 ; assessor
 $[SQL_DIR]/input/assessor <- input/assessor.sh, $[ASSESSOR_FILE], $[SQL_DIR]/input/schema
     $INPUT $INPUT1 && touch $OUTPUT
