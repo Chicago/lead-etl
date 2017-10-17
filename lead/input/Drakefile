@@ -98,7 +98,9 @@ $[SQL_DIR]/input/surnames <- input/surnames.sql, $[DATA_DIR]/surnames/surnames.c
 
 ; download, unzip, and import buildings data
 $[DATA_DIR]/shapefiles/buildings/data/Buildings.zip <- [-timecheck]
-    git clone https://github.com/Chicago/osd-building-footprints.git $(dirname $(dirname $OUTPUT))
+    REPO=$(dirname $(dirname $OUTPUT))
+    rm -rf $REPO
+    git clone https://github.com/Chicago/osd-building-footprints.git $REPO
 
 $[DATA_DIR]/shapefiles/buildings/data/shp/ <- $[DATA_DIR]/shapefiles/buildings/data/Buildings.zip [-timecheck]
     unzip $INPUT -d $OUTPUT
