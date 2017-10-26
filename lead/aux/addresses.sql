@@ -1,6 +1,11 @@
 DROP TABLE IF EXISTS aux.addresses;
 
-CREATE TABLE aux.addresses(address_id serial primary key, address text unique not null, geom geometry, census_tract_id text, census_block_id text, ward_id int, community_area_id int, zip_code int, source text);
+CREATE TABLE aux.addresses(address_id serial primary key, 
+    address text unique not null, geom geometry not null, 
+    census_tract_id text, census_block_id text, 
+    ward_id int, community_area_id int, zip_code int, 
+    source text not null
+);
 
 -- load addresses from geocoded tests
 INSERT INTO aux.addresses (address, geom, source) (
@@ -79,6 +84,7 @@ INSERT INTO aux.addresses (address, geom, source) (
     from input.building_violations
     left join aux.addresses a2 using (address)
     where a2.address is null
+        and longitude is not null and latitude is not null
     order by 1
 );
 
@@ -94,7 +100,7 @@ INSERT INTO aux.addresses (address, geom, source) (
     from permit_addresses a
     left join aux.addresses a2 using (address)
     where a2.address is null
-    and a.address is not null
+    and a.address is not null and a.geom is not null
     order by 1
 );
 
