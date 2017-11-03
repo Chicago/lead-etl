@@ -3,11 +3,11 @@
 # check command line dependencies
 names=( drake mdb-tools ogr2ogr shp2pgsql "PostgreSQL client")
 commands=( "drake" "mdb-ver" "ogr2ogr" "shp2pgsql" "psql")
-versions=( "--version 2>/dev/null" "-M" "--version" "-? | head -n 1" "--version")
+versions=( "--version 2>/dev/null" "-M" "--version" "" "--version")
 for ((i=0; i < ${#names[@]}; i++))
 do
     if command -v ${commands[i]} >/dev/null 2>&1 ; then
-        echo "FOUND: ${names[i]}, version: $(${commands[i]} ${versions[i]} 2>/dev/null)"
+        echo "FOUND: ${names[i]}, version: $(${commands[i]} ${versions[i]} 2>/dev/null | head -n 1)"
     else
         echo "ERROR: ${names[i]} not found"
     fi
