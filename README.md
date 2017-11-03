@@ -31,14 +31,7 @@ Install these programs:
 - postgresql-client (9.6.0)
 
 #### B) Library dependencies
-HDF5 can be installed on Debian-based systems using:
-```
-sudo apt-get install libhdf5-serial-dev
-```
-or using conda:
-```
-conda install hdf5
-```
+[HDF5](https://support.hdfgroup.org/HDF5/) can be installed on Debian-based systems using: `sudo apt-get install libhdf5-serial-dev`, or using conda: `conda install hdf5`.
 
 Python modules can be installed using:
 ```
@@ -78,7 +71,7 @@ Use the [acs2pgsql](https://github.com/dssg/acs2pgsql) tool to load ACS 5-year d
 Note that a subset of this data will be imported into the lead pipeline below, so the ACS data may be stored in a separate database from the lead data.
 
 ### 5. Run the ETL
-Simply change to `lead/` and type `drake`. To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
+Simply change to `lead/` and run `drake`. To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
 
 # License
 [MIT LICENSE](LICENSE)
