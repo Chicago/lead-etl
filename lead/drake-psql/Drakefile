@@ -1,12 +1,12 @@
 PSQL="psql -v ON_ERROR_STOP=1"
 
 psql()
-    cat $INPUT | envsubst | $PSQL 2>&1 && echo > $OUTPUT
+    rm -f $OUTPUT && cat $INPUT | envsubst | $PSQL 2>&1 && echo > $OUTPUT
 
 ; create a schema (does not drop)
 psql_schema()
     schema=$(basename $(dirname $OUTPUT))
-    $PSQL -c "CREATE SCHEMA IF NOT EXISTS $schema" && mkdir -p $(dirname $OUTPUT) && touch $OUTPUT
+    rm -f $OUTPUT && $PSQL -c "CREATE SCHEMA IF NOT EXISTS $schema" && mkdir -p $(dirname $OUTPUT) && touch $OUTPUT
 
 ; use head instead of sniff with csvsql because its much faster
 psql_copy()
