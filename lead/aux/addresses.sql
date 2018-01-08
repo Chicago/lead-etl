@@ -1,6 +1,11 @@
 DROP TABLE IF EXISTS aux.addresses;
 
-CREATE TABLE aux.addresses(address_id serial primary key, address text unique not null, geom geometry, census_tract_id text, census_block_id text, ward_id int, community_area_id int, zip_code int, source text);
+CREATE TABLE aux.addresses(address_id serial primary key, 
+    address text unique not null, geom geometry not null, 
+    census_tract_id text, census_block_id text, 
+    ward_id int, community_area_id int, zip_code int, 
+    source text not null
+);
 
 -- load addresses from geocoded tests
 INSERT INTO aux.addresses (address, geom, source) (
@@ -41,21 +46,62 @@ order by 1
 
 );
 
--- load addresses from chicago address table
-/*INSERT INTO aux.addresses (address, geom, source) (
-        SELECT DISTINCT ON (cmpaddabrv) a.cmpaddabrv, a.geom,
-        'addresses'
-        FROM input.addresses a
-	left join aux.addresses a2 on a.cmpaddabrv = a2.address where a2.address is null
-	and a.cmpaddabrv is not null
-        ORDER BY cmpaddabrv, edittime desc
-);*/
-
 -- load addresses from chicago buildings footprint
 INSERT INTO aux.addresses (address, geom, source) (
-        SELECT a.address, a.geom, 'buildings'
+        SELECT a.address, st_centroid(a.geom), 'buildings'
         FROM buildings.addresses a
         left join aux.addresses a2 using(address) where a2.address is null
+);
+
+-- load addresses from assessor join parcels
+CREATE TEMP TABLE pin_address AS (
+    select substring(house_num from 6)::int || ' ' || st_dir || ' ' || st_name || ' ' || st_suffix as address,
+    substring("PIN" for 10) as pin10
+    from input.assessor
+    where city = 'CHICAGO'
+);
+
+CREATE TEMP TABLE address_geom AS (
+    select address, st_centroid(st_collect(geom)) as geom
+    from pin_address
+    join input.parcels using (pin10)
+    where address is not null
+    group by 1
+);
+
+INSERT INTO aux.addresses (address, geom, source) (
+        SELECT a.address, a.geom, 'parcels'
+        FROM address_geom a
+	left join aux.addresses a2 using (address)
+        where a2.address is null
+);
+
+-- load addresses from building violations
+INSERT INTO aux.addresses (address, geom, source) (
+    select distinct on(address)
+    address, st_setsrid(st_point(longitude, latitude), 4326), 
+        'violations'
+    from input.building_violations
+    left join aux.addresses a2 using (address)
+    where a2.address is null
+        and longitude is not null and latitude is not null
+    order by 1
+);
+
+-- load addresses from building permits
+INSERT INTO aux.addresses (address, geom, source) (
+    with permit_addresses as (
+        select street_number || ' ' || street_direction || ' ' || street_name || ' ' || suffix address,
+            st_setsrid(st_point(longitude, latitude),4326) as geom
+        from input.building_permits
+    )
+    select distinct on (address)
+    a.address, a.geom, 'permits'
+    from permit_addresses a
+    left join aux.addresses a2 using (address)
+    where a2.address is null
+    and a.address is not null and a.geom is not null
+    order by 1
 );
 
 -- set census tract and block ids

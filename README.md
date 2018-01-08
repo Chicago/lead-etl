@@ -21,7 +21,8 @@ The output of each phase is contained in a database schema of the same name.
 
 ## Deployment
 
-### 1.External Dependencies
+### 1. Dependencies
+#### A) Program dependencies
 Install these programs:
 - [drake](https://github.com/Factual/drake) (tested with version 1.0.3)
 - [mdbtools](https://github.com/brianb/mdbtools) (0.7.1)
@@ -29,18 +30,16 @@ Install these programs:
 - shp2pgsql (2.2.2)
 - postgresql-client (9.6.0)
 
-### 2. Libraries
-```
-sudo apt install libblas-dev liblapack-dev libatlas-base-dev gfortran libhdf5-serial-dev
-```
+#### B) Library dependencies
+[HDF5](https://support.hdfgroup.org/HDF5/) can be installed on Debian-based systems using: `sudo apt-get install libhdf5-serial-dev`, or using conda: `conda install hdf5`.
 
-Python modules:
+Python modules can be installed using:
 ```
 pip install -r requirements.txt
 ```
 
-
-### 3. Create and configure PostgreSQL database:
+### 2. Database Setup:
+#### A) Create and configure a PostgreSQL database:
 Create a database on a PostgreSQL server (tested with version 9.5.4).
 Install the PostGIS (2.2.2) and unaccent extensions (requires admin privileges):
 ```
@@ -48,24 +47,34 @@ CREATE EXTENSION postgis;
 CREATE EXTENSION unaccent;
 ```
 
-### 4. Load American Community Survey data:
-Use the [acs2ppgsql](https://github.com/dssg/acs2pgsql) tool to load ACS 5-year data for Illinois into the database.
-Note that a subset of this data will be imported into the lead pipeline below, so the ACS data may be stored in a separate database from the lead data.
-
-### 5. Configure a profile:
+#### B) Configure a profile file:
 Copy `./lead/example_profile` to `./lead/default_profile` and set the indicated variables.
 
 
-### 6. Run the ETL workflow by typing `drake`.
-To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
+### 3. Test dependencies
+Test that the above dependencies were successfull installed by changing by running `lead/check_dependencies.sh`:
+```
+$ lead/check_dependencies.sh
+FOUND: drake, version: Drake now is on version: 1.0.3
+FOUND: mdb-tools, version: mdbtools v0.7.1
+FOUND: ogr2ogr, version: GDAL 2.1.0, released 2016/04/25
+FOUND: shp2pgsql, version: RELEASE: 2.3.3 (r15473)
+FOUND: PostgreSQL client, version: psql (PostgreSQL) 9.6.0
+FOUND: PostgreSQL server, version: 9.6.0
+FOUND: PostgreSQL extension postgis, version: 2.3.3
+FOUND: PostgreSQL extension unaccent, version: 1.1
+FOUND: Python pandas HDF support
+```
 
-To load data into the pipeline first add the path to the data profile into the `example_profile`. The top-level Drakefile
-consists of `%include` statements that bring necessary paths from `example_profile` and the Drakefiles of the sub-directories
-`input, buildings, aux, and dedupe`.
+### 4. Load American Community Survey data:
+Use the [acs2pgsql](https://github.com/dssg/acs2pgsql) tool to load ACS 5-year data for Illinois into the database.
+Note that a subset of this data will be imported into the lead pipeline below, so the ACS data may be stored in a separate database from the lead data.
+
+### 5. Run the ETL
+Simply change to `lead/` and run `drake`. To run steps in parallel add the argument `--jobs=N` where `N` is the number of cores to use.
 
 # License
-
-See [LICENSE](https://raw.githubusercontent.com/dssg/public-lead/master/LICENSE)
+[MIT LICENSE](LICENSE)
 
 # Contributors
     - Eric Potash (epotash@uchicago.edu)

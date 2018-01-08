@@ -1,11 +1,7 @@
 ; Master Drakefile for the ETL process
-
-
 PROFILE:=default_profile
 ACS_PROFILE:=$[PROFILE]
 %include $[PROFILE]
-
-
 
 %include drake-psql/Drakefile
 %include input/Drakefile
