@@ -16,7 +16,7 @@ infants as (
             null::text as cornerstone_id, 
             null::int as stellar_id,
         first_name, last_name, sex, date_of_birth, 
-        coalesce(geocode_address, clean_address) as address
+        coalesce(clean_address, address) as address
     FROM aux.tests 
     UNION ALL
     -- cornerstone

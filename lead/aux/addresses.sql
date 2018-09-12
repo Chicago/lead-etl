@@ -15,33 +15,25 @@ INSERT INTO aux.addresses (address, geom, source) (
 -- only take addresses where city starts with 'CH'-- Chicago geocoder doesn't work outside of Chicago
 with all_addresses as (
     select 
-        geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || clean_street_type as address,
-        geocode_xcoord, geocode_ycoord, 
-        'currbllshort' as source
-    from input.currbllshort
-    WHERE city ilike 'CH%'
+        address,
+        xcoord::decimal as xcoord, ycoord::decimal as ycoord, 
+        'tests' as source
+    from blls.addresses
+    where cleansing_status in ('ACTUAL', 'LOGICAL')
     UNION ALL
     select
-        geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || geocode_street_type as address,
-        geocode_xcoord::decimal, geocode_ycoord::decimal,
-        'm7'
-    from input.m7
-    WHERE city ilike 'CH%'
-    UNION ALL
-    select
-        geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || geocode_street_type as address,
+        -- trim to handle addresses like 1000 S AVENUE F
+        trim(geocode_house_low || ' ' || geocode_pre || ' ' || geocode_street_name || ' ' || geocode_street_type) as address,
         geocode_xcoord::decimal, geocode_ycoord::decimal, 
         'cornerstone'
     from cornerstone.addresses
-    WHERE city ilike 'CH%' and geocode_xcoord != 'ERROR' and geocode_ycoord != 'ERROR'
+    WHERE geocode_status1 = 'VALID'
 )
 
 select distinct on (address) address,
-    st_transform(st_setsrid(st_point(geocode_xcoord,geocode_ycoord),3435), 4326) as geom,
+    st_transform(st_setsrid(st_point(xcoord, ycoord),3435), 4326) as geom,
     source
 from all_addresses
-where address is not null and
-    geocode_xcoord != -1 and geocode_ycoord != -1
 order by 1
 
 );

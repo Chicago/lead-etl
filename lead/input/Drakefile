@@ -73,14 +73,6 @@ $[SQL_DIR]/input/parcels <- $[DATA_DIR]/shapefiles/parcels/, $[SQL_DIR]/input/sc
 $[SQL_DIR]/input/assessor <- input/assessor.sh, $[ASSESSOR_FILE], $[SQL_DIR]/input/schema
     $INPUT $INPUT1 && touch $OUTPUT
 
-; old blood tests, $[M7_FILE]
-$[SQL_DIR]/input/m7 <- input/m7.sh, $[M7_FILE], $[SQL_DIR]/input/schema
-    $INPUT $INPUT1 && touch $OUTPUT
-
-; current blood tests
-$[SQL_DIR]/input/currbllshort <- input/currbllshort.sh, $[CURRBLLSHORT_FILE], $[SQL_DIR]/input/schema
-    $INPUT $INPUT1 && touch $OUTPUT
-
 ; census surname ethnicity
 ; documentation: http://www2.census.gov/topics/genealogy/2000surnames/surnames.pdf
 $[DATA_DIR]/surnames/names.zip <- [-timecheck]
