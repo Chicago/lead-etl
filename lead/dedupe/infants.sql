@@ -42,7 +42,7 @@ infants as (
 select regexp_replace(upper(unaccent(first_name)), '[^A-Z]', '', 'g') first_name, 
     regexp_replace(upper(unaccent(last_name)), '[^A-Z]', '', 'g') last_name, 
     date_of_birth::text, 
-    unaccent(sex) sex, 
+    CASE WHEN sex in ('M', 'F') THEN sex END AS sex, 
     regexp_replace(unaccent(address), '[\x80-\xFF]', '', 'g') as address, 
     min(date_of_birth) - '1970-01-01' as day, count(*) as count,
     array_remove(array_agg(test_id), null) test_ids, 

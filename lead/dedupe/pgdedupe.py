@@ -387,4 +387,4 @@ con.commit()
 
 # Print out the number of duplicates found
 print '# duplicate sets'
-print len(clustered_dupes)
+#print len(clustered_dupes)
