@@ -9,7 +9,8 @@ acs = pd.read_sql("select * from input.acs "
         "where length(census_tract_id::text) = 11", engine, 
         index_col=['census_tract_id', 'year'])
 
-props = pd.DataFrame()
+# pass columns that aren't counts through
+output = acs[[c for c in acs.columns if c.find('_count_') == -1]]
 categories = [c[:-12] for c in acs.columns if c.endswith('_total')]
 
 # get all columns
@@ -19,9 +20,9 @@ columns = {cat: [c for c in acs.columns
 
 for category in categories:
     for c in columns[category]:
-        props[c.replace('_count_', '_prop_')] = \
+        output[c.replace('_count_', '_prop_')] = \
             acs[c] / acs[category + '_count_total']
 
 db = util.PgSQLDatabase(engine)
-db.to_sql(props, name='acs', schema='output', 
+db.to_sql(output, name='acs', schema='output', 
         if_exists='replace', index=True, pk=['census_tract_id', 'year'])

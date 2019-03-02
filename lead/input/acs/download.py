@@ -223,10 +223,13 @@ if __name__ == "__main__":
                                  offsets=mother_assistance_offsets, first_year=2010)
     mother_assistance_agg = aggregate(mother_assistance, prefix='mother_assistance', index=index)
 
+    income = read_acs('b06011',{'median_income': 1}, engine)
+    income_agg = income.set_index(index)
+
     acs = tenure_agg.join([insurance_agg, health_agg, edu_agg, poverty_agg, 
                    race_agg, hispanic_agg, 
                    mother_marital_status_agg, mother_education_agg, mother_assistance_agg, 
-                   mother_labor_agg, mother_poverty_agg], how='outer')
+                   mother_labor_agg, mother_poverty_agg, income_agg], how='outer')
     acs.reset_index(inplace=True)
     acs['census_tract_id']=acs['geoid'].apply(lambda g: float(g[7:]))
     acs.drop('geoid', axis=1, inplace=True)
