@@ -2,8 +2,8 @@ drop table if exists aux.assessor;
 
 create table aux.assessor as (
 
-select substring(house_num from 6)::int || ' ' || coalesce(st_dir || ' ', '') || st_name || coalesce(' ' || st_suffix ,'') as address,
-    sum((substring(house_num from 6)::int || ' ' || coalesce(st_dir || ' ', '') || st_name || coalesce(' ' || st_suffix ,'') = taxpayer_address)::int) owner_occupied,
+select address,
+    sum((address = taxpayer_address)::int) owner_occupied,
     count(*) count,
     max(nullif("land_AV"::int,0)) land_value,
     max(nullif("Imp_Value"::int,0)) improved_value,
@@ -30,6 +30,7 @@ select substring(house_num from 6)::int || ' ' || coalesce(st_dir || ' ', '') ||
     sum( (imp_class in ('500','535','501','516','517','522','523','526','527','528','529','530', '531','532','533','535','590','591','592','597','599') or substring(imp_class for 1) = '7')::int ) as commercial
 
 from input.assessor
+join aux.parcel_address using ("PIN")
 where city = 'CHICAGO'
 group by 1
 

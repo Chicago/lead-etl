@@ -1,7 +1,10 @@
 $[SQL_DIR]/aux/schema <- [method:psql_schema -timecheck]
 
+; construct address for each parcel
+$[SQL_DIR]/aux/parcel_address <- aux/parcel_address.sql, $[SQL_DIR]/input/assessor [method:psql]
+
 ; summarize assessor and buildings data per address (sources have multiple entries per address over time)
-$[SQL_DIR]/aux/assessor <- aux/assessor.sql, $[SQL_DIR]/input/assessor [method:psql]
+$[SQL_DIR]/aux/assessor <- aux/assessor.sql, $[SQL_DIR]/input/assessor, $[SQL_DIR]/aux/parcel_address [method:psql]
 
 ; match stellar.addr with aux.addresses
 $[SQL_DIR]/aux/stellar_addresses <- aux/stellar_addresses.sql, $[SQL_DIR]/stellar/addr, $[SQL_DIR]/aux/addresses [method:psql]
